@@ -15,7 +15,7 @@
 import * as jwt from 'jsonwebtoken'
 import { AuthorizationCode } from 'simple-oauth2'
 
-export interface SdkConfig {
+export interface AuthConfig {
   endpoint: string // your Casdoor URL, like the official one: https://door.casbin.com
   clientId: string // your Casdoor OAuth Client ID
   clientSecret: string // your Casdoor OAuth Client Secret
@@ -91,10 +91,10 @@ export interface User {
 }
 
 export class SDK {
-  private config: SdkConfig
+  private config: AuthConfig
   private client: AuthorizationCode
 
-  constructor(config: SdkConfig) {
+  constructor(config: AuthConfig) {
     this.config = config
     this.client = new AuthorizationCode({
       client: {

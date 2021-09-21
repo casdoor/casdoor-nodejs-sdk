@@ -1,6 +1,6 @@
-import { SDK, SdkConfig } from '../src'
+import { SDK, AuthConfig } from '../src'
 
-const sdkCfg: SdkConfig = {
+const sdkCfg: AuthConfig = {
   endpoint: process.env.SDK_ENDPOINT || 'http://localhost:8000', // your Casdoor URL, like the official one: https://door.casbin.com
   clientId: process.env.SDK_CLIENT_ID || 'dbd33e928e9e7cd653a4', // your Casdoor OAuth Client ID
   clientSecret:
