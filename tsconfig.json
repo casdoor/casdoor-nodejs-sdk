@@ -1,0 +1,14 @@
+{
+  "compilerOptions": {
+    "target": "es6",
+    "module": "commonjs",
+    "moduleResolution": "node",
+    "strict": true,
+    "strictPropertyInitialization": false,
+    "declaration": true,
+    "downlevelIteration": true,
+    "allowSyntheticDefaultImports": true,
+    "rootDir": "./src"
+  },
+  "include": ["src/**/*", "test/**/*"]
+}
