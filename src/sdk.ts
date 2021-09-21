@@ -16,12 +16,12 @@ import * as jwt from 'jsonwebtoken'
 import { AuthorizationCode } from 'simple-oauth2'
 
 export interface SdkConfig {
-  Endpoint: string // your Casdoor URL, like the official one: https://door.casbin.com
-  ClientId: string // your Casdoor OAuth Client ID
-  ClientSecret: string // your Casdoor OAuth Client Secret
-  JwtSecret?: string // jwt secret
-  OrganizationName?: string // your Casdoor organization name, like: "built-in"
-  ApplicationName?: string // your Casdoor application name, like: "app-built-in"
+  endpoint: string // your Casdoor URL, like the official one: https://door.casbin.com
+  clientId: string // your Casdoor OAuth Client ID
+  clientSecret: string // your Casdoor OAuth Client Secret
+  jwtSecret?: string // jwt secret
+  organizationName?: string // your Casdoor organization name, like: "built-in"
+  applicationName?: string // your Casdoor application name, like: "app-built-in"
 }
 
 // reference: https://github.com/casdoor/casdoor-go-sdk/blob/90fcd5646ec63d733472c5e7ce526f3447f99f1f/auth/jwt.go#L19-L32
@@ -98,11 +98,11 @@ export class SDK {
     this.config = config
     this.client = new AuthorizationCode({
       client: {
-        id: config.ClientId,
-        secret: config.ClientSecret,
+        id: config.clientId,
+        secret: config.clientSecret,
       },
       auth: {
-        tokenHost: config.Endpoint,
+        tokenHost: config.endpoint,
         /** String path to request an access token. Default to /oauth/token. */
         tokenPath: '/api/login/oauth/access_token',
         /** String path to request an authorization code. Default to /oauth/authorize. */
@@ -113,15 +113,17 @@ export class SDK {
 
   async getOAuthToken(code: string, state: string) {
     /**
-     * TODO: waitting 肉食大灰兔 /api/login/oauth/access_token 支持 headers.Authorization 的方式后
-     *       可以将 client_id / client_secret 参数去掉
+     * TODO:
+     *  1. waitting 肉食大灰兔 /api/login/oauth/access_token support headers.Authorization feature,
+     *     and then remove client_id / client_secret params at here.
+     *     Ref issue lint: https://github.com/casbin/casdoor/issues/301
      */
     const params = {
       code,
       scope: state,
-      redirect_uri: '', // 这个参数在这种场景无用，可又是 required , 故此设为 empty string
-      client_id: this.config.ClientId,
-      client_secret: this.config.ClientSecret,
+      redirect_uri: '', // This parameter is useless in this scenario, but is required, so set it to empty String
+      client_id: this.config.clientId,
+      client_secret: this.config.clientSecret,
     }
     const res = await this.client.getToken(params, {})
     const tokenSet = res?.token

@@ -1,13 +1,13 @@
-import { SDK, SdkConfig } from '../src/sdk'
+import { SDK, SdkConfig } from '../src'
 
 const sdkCfg: SdkConfig = {
-  Endpoint: process.env.SDK_ENDPOINT || 'http://localhost:8000', // your Casdoor URL, like the official one: https://door.casbin.com
-  ClientId: process.env.SDK_CLIENT_ID || 'dbd33e928e9e7cd653a4', // your Casdoor OAuth Client ID
-  ClientSecret:
+  endpoint: process.env.SDK_ENDPOINT || 'http://localhost:8000', // your Casdoor URL, like the official one: https://door.casbin.com
+  clientId: process.env.SDK_CLIENT_ID || 'dbd33e928e9e7cd653a4', // your Casdoor OAuth Client ID
+  clientSecret:
     process.env.SDK_CLIENT_SECRET || 'cd714093ca430c079043e4c5e3592a8663dafebb', // your Casdoor OAuth Client Secret
-  JwtSecret: process.env.SDK_JWT_SECRET || '23456789', // jwt secret
-  OrganizationName: process.env.SDK_ORGANIZATION_NAME || 'blueprint', // your Casdoor organization name, like: "built-in"
-  ApplicationName: process.env.SDK_APPLICATION_NAME || 'blueprint', // your Casdoor application name, like: "app-built-in"
+  jwtSecret: process.env.SDK_JWT_SECRET || '23456789', // jwt secret
+  organizationName: process.env.SDK_ORGANIZATION_NAME || 'blueprint', // your Casdoor organization name, like: "built-in"
+  applicationName: process.env.SDK_APPLICATION_NAME || 'blueprint', // your Casdoor application name, like: "app-built-in"
 }
 
 const TestAuthorizationCode =
@@ -22,7 +22,7 @@ describe('Casdoor-Nodejs-SDK', () => {
 
   it('getOAuthToken should be run ok', async () => {
     const code = TestAuthorizationCode
-    const state = sdkCfg.ClientId
+    const state = sdkCfg.clientId
     const result = await sdk.getOAuthToken(code, state)
 
     expect(result).toBeDefined()

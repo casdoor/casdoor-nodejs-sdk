@@ -12,23 +12,23 @@ Initialization requires 5 parameters, which are all string type:
 
 | Name (in order)  | Must | Description                                         |
 | ---------------- | ---- | --------------------------------------------------- |
-| Endpoint         | Yes  | Casdoor Server Url, such as `http://localhost:8000` |
-| ClientId         | Yes  | your Casdoor OAuth Client ID                        |
-| ClientSecret     | Yes  | your Casdoor OAuth Client Secret                    |
-| JwtSecret        | No   | Same as Casdoor JWT secret.                         |
-| OrganizationName | No   | Application.organization, like: "built-in"          |
-| ApplicationName  | No   | Application.organization, like: "app-built-in"      |
+| endpoint         | Yes  | Casdoor Server Url, such as `http://localhost:8000` |
+| clientId         | Yes  | your Casdoor OAuth Client ID                        |
+| clientSecret     | Yes  | your Casdoor OAuth Client Secret                    |
+| jwtSecret        | No   | Same as Casdoor JWT secret.                         |
+| organizationName | No   | Application.organization, like: "built-in"          |
+| applicationName  | No   | Application.organization, like: "app-built-in"      |
 
 ```typescript
-import { SDK, SdkConfig } from '../src/sdk'
+import { SDK, SdkConfig } from 'casdoor-nodejs-sdk'
 
 const sdkCfg: SdkConfig = {
-  Endpoint: 'http://localhost:8000',
-  ClientId: 'dbd33e928e9e7cd653a4',
-  ClientSecret: 'cd714093ca430c079043e4c5e3592a8663dafebb',
-  JwtSecret: '23456789',
-  OrganizationName: 'blueprint',
-  ApplicationName: 'blueprint',
+  endpoint: 'http://localhost:8000',
+  clientId: 'dbd33e928e9e7cd653a4',
+  clientSecret: 'cd714093ca430c079043e4c5e3592a8663dafebb',
+  jwtSecret: '23456789',
+  organizationName: 'blueprint',
+  applicationName: 'blueprint',
 }
 
 const sdk = new SDK(sdkCfg)
@@ -45,15 +45,15 @@ Your web application can get the `code`,`state` and call `getOAuthToken(code, st
 The general process is as follows:
 
 ```typescript
-import { SDK, SdkConfig } from '../src/sdk'
+import { SDK, SdkConfig } from 'casdoor-nodejs-sdk'
 
 const sdkCfg: SdkConfig = {
-  Endpoint: 'http://localhost:8000',
-  ClientId: 'dbd33e928e9e7cd653a4',
-  ClientSecret: 'cd714093ca430c079043e4c5e3592a8663dafebb',
-  JwtSecret: '23456789',
-  OrganizationName: 'blueprint',
-  ApplicationName: 'blueprint',
+  endpoint: 'http://localhost:8000',
+  clientId: 'dbd33e928e9e7cd653a4',
+  clientSecret: 'cd714093ca430c079043e4c5e3592a8663dafebb',
+  jwtSecret: '23456789',
+  organizationName: 'blueprint',
+  applicationName: 'blueprint',
 }
 
 const sdk = new SDK(sdkCfg)
