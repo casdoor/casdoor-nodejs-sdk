@@ -105,3 +105,6 @@ dist
 
 # build lib
 lib
+
+# IDE configures
+.idea

@@ -12,26 +12,20 @@ Initialization requires 5 parameters, which are all string type:
 
 | Name (in order)  | Must | Description                                         |
 | ---------------- | ---- | --------------------------------------------------- |
-| endpoint         | Yes  | Casdoor Server Url, such as `http://localhost:8000` |
+| issuer           | Yes  | casdoor OIDC Issuer endpoint |
 | clientId         | Yes  | your Casdoor OAuth Client ID                        |
 | clientSecret     | Yes  | your Casdoor OAuth Client Secret                    |
-| jwtSecret        | No   | Same as Casdoor JWT secret.                         |
-| organizationName | No   | Application.organization, like: "built-in"          |
-| applicationName  | No   | Application.organization, like: "app-built-in"      |
 
 ```typescript
-import { SDK, SdkConfig } from 'casdoor-nodejs-sdk'
+import { SDK, AuthConfig } from 'casdoor-nodejs-sdk'
 
-const sdkCfg: SdkConfig = {
-  endpoint: 'http://localhost:8000',
-  clientId: 'dbd33e928e9e7cd653a4',
-  clientSecret: 'cd714093ca430c079043e4c5e3592a8663dafebb',
-  jwtSecret: '23456789',
-  organizationName: 'blueprint',
-  applicationName: 'blueprint',
+const authCfg: AuthConfig = {
+  issuer: 'https://b4464f21-7cef-48f1-9591-4acbe1a4590e.mock.pstmn.io/.well-known/openid-configuration',
+  clientId: '673c704036c6bcd04aaa',
+  clientSecret: '2ba9708658b3036206b9b96ee8872242d3f9e956'
 }
 
-const sdk = new SDK(sdkCfg)
+const sdk = new SDK(authCfg)
 
 // call sdk to handle
 ```
@@ -45,23 +39,21 @@ Your web application can get the `code`,`state` and call `getOAuthToken(code, st
 The general process is as follows:
 
 ```typescript
-import { SDK, SdkConfig } from 'casdoor-nodejs-sdk'
+import { SDK, AuthConfig } from 'casdoor-nodejs-sdk'
 
-const sdkCfg: SdkConfig = {
-  endpoint: 'http://localhost:8000',
-  clientId: 'dbd33e928e9e7cd653a4',
-  clientSecret: 'cd714093ca430c079043e4c5e3592a8663dafebb',
-  jwtSecret: '23456789',
-  organizationName: 'blueprint',
-  applicationName: 'blueprint',
+const authCfg: AuthConfig = {
+  issuer: 'https://b4464f21-7cef-48f1-9591-4acbe1a4590e.mock.pstmn.io/.well-known/openid-configuration',
+  clientId: '673c704036c6bcd04aaa',
+  clientSecret: '2ba9708658b3036206b9b96ee8872242d3f9e956'
 }
 
-const sdk = new SDK(sdkCfg)
+const sdk = new SDK(authCfg)
 
-const code = 'f25c3f9bdfdb50b4af34'
-const state = sdkCfg.OrganizationName
-const tokenSet = await sdk.getOAuthToken(code, state)
-const decodeToken = sdk.parseJwtToken(tokenSet.access_token)
+const tokenSet = await sdk.callback({
+  code: 'your authorization code',
+  state: 'your casdoor application name'
+})
+const parseToken = sdk.parseJwtToken(tokenSet.access_token || '')
 ```
 
 ## Test
@@ -70,13 +62,11 @@ test env parameters
 
 | Name (in order)         | Must | Description                                         |
 | ----------------------- | ---- | --------------------------------------------------- |
-| SDK_ENDPOINT            | Yes  | Casdoor Server Url, such as `http://localhost:8000` |
-| SDK_CLIENT_ID           | Yes  | your Casdoor OAuth Client ID                        |
-| SDK_CLIENT_SECRET       | Yes  | your Casdoor OAuth Client Secret                    |
-| SDK_JWT_SECRET          | No   | Same as Casdoor JWT secret.                         |
-| SDK_ORGANIZATION_NAME   | No   | Application.organization, like: "built-in"          |
-| SDK_APPLICATION_NAME    | No   | Application.organization, like: "app-built-in"      |
-| TEST_AUTHORIZATION_CODE | Yes  | Your AUTHORIZATION CODE                             |
+| TEST_CASDOOR_ISSUER     | Yes  | Casdoor OIDC Issuer endpoint                        |
+| TEST_CASDOOR_CLIENT_ID           | Yes  | your Casdoor OAuth Client ID               |
+| TEST_CASDOOR_CLIENT_SECRET       | Yes  | your Casdoor OAuth Client Secret           |
+| TEST_AUTHORIZATION_CODE          | No   | Test Authorization code                         |
+| TEST_APP                         | No   | Application.organization, like: "built-in"          |
 
 ```bash
 	npm run test
@@ -85,5 +75,5 @@ test env parameters
 ### TODO
 
 - Configure github action ci/cd
-- Waitting "肉食大灰兔" add OIDC ProviderMetadata, and then refactor to openid-client lib
+- Waitting "肉食大灰兔" compatible OIDC ProviderMetadata
 - Add more API from [casdoor swagger docs](https://door.casbin.com/swagger/)
