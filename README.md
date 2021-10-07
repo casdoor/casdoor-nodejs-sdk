@@ -15,6 +15,8 @@ Initialization requires 5 parameters, which are all string type:
 | issuer           | Yes  | casdoor OIDC Issuer endpoint |
 | clientId         | Yes  | your Casdoor OAuth Client ID                        |
 | clientSecret     | Yes  | your Casdoor OAuth Client Secret                    |
+| casdoorEndpoint  | No  | your Casdoor API endpoint                   |
+
 
 ```typescript
 import { SDK, AuthConfig } from 'casdoor-nodejs-sdk'
@@ -22,7 +24,8 @@ import { SDK, AuthConfig } from 'casdoor-nodejs-sdk'
 const authCfg: AuthConfig = {
   issuer: 'https://b4464f21-7cef-48f1-9591-4acbe1a4590e.mock.pstmn.io/.well-known/openid-configuration',
   clientId: '673c704036c6bcd04aaa',
-  clientSecret: '2ba9708658b3036206b9b96ee8872242d3f9e956'
+  clientSecret: '2ba9708658b3036206b9b96ee8872242d3f9e956',
+  casdoorEndpoint: 'http://casdoor.anxing.io'
 }
 
 const sdk = new SDK(authCfg)
@@ -44,7 +47,8 @@ import { SDK, AuthConfig } from 'casdoor-nodejs-sdk'
 const authCfg: AuthConfig = {
   issuer: 'https://b4464f21-7cef-48f1-9591-4acbe1a4590e.mock.pstmn.io/.well-known/openid-configuration',
   clientId: '673c704036c6bcd04aaa',
-  clientSecret: '2ba9708658b3036206b9b96ee8872242d3f9e956'
+  clientSecret: '2ba9708658b3036206b9b96ee8872242d3f9e956',
+  casdoorEndpoint: 'http://casdoor.anxing.io'
 }
 
 const sdk = new SDK(authCfg)
@@ -66,7 +70,8 @@ test env parameters
 | TEST_CASDOOR_CLIENT_ID           | Yes  | your Casdoor OAuth Client ID               |
 | TEST_CASDOOR_CLIENT_SECRET       | Yes  | your Casdoor OAuth Client Secret           |
 | TEST_AUTHORIZATION_CODE          | No   | Test Authorization code                         |
-| TEST_APP                         | No   | Application.organization, like: "built-in"          |
+| TEST_APP                         | No   | Application.app, like: "built-in"          |
+| TEST_TEST_ORGANIZATION           | No   | Application.organization, like: "built-in"          |
 
 ```bash
 	npm run test

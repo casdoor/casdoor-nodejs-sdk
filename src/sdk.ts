@@ -20,6 +20,7 @@ import {
   TokenSet,
 } from 'openid-client'
 import * as jwt from 'jsonwebtoken'
+import Request from './request'
 
 export interface User {
   owner: string
@@ -74,14 +75,23 @@ export interface AuthConfig {
   issuer: string // your Casdoor URL, like the official one: https://door.casbin.com
   clientId: string // your Casdoor OAuth Client ID
   clientSecret: string // your Casdoor OAuth Client Secret
+  casdoorEndpoint?: string // casdoor api endpoint
 }
 
 export class SDK {
   private config: AuthConfig
   private client: Client
+  private casdoorRequest: Request
 
   constructor(config: AuthConfig) {
     this.config = config
+    if (config.casdoorEndpoint) {
+      this.casdoorRequest = new Request({
+        url: config.casdoorEndpoint,
+        clientId: config.clientId,
+        clientSecret: config.clientSecret,
+      })
+    }
   }
 
   /**
@@ -127,5 +137,15 @@ export class SDK {
       },
       extras,
     )
+  }
+
+  async getUsers(conds: any) {
+    if (!this.casdoorRequest) {
+      throw new Error('missing casdoorEndpoint')
+    }
+
+    const url = '/api/get-users'
+    const result = await this.casdoorRequest.get(url, { params: { ...conds } })
+    return result
   }
 }

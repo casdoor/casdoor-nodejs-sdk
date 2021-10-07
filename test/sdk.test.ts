@@ -3,9 +3,8 @@ import { strict as assert } from 'assert'
 import testConfig from './config'
 
 describe('Casdoor-Nodejs-SDK', () => {
-  let sdk: SDK
   it('discover should be run ok', async () => {
-    sdk = new SDK(testConfig.casdoorClient)
+    const sdk = new SDK(testConfig.casdoorClient)
     await sdk.init()
     const tokenSet = await sdk.callback({
       code: testConfig.testCode,
@@ -22,5 +21,13 @@ describe('Casdoor-Nodejs-SDK', () => {
     assert.deepStrictEqual(parseToken?.signupApplication, testConfig.testApp)
     assert.deepStrictEqual(true, !!parseToken.id)
     assert.deepStrictEqual('', parseToken?.password)
+  })
+
+  it('getUsers should be run ok', async () => {
+    const sdk = new SDK(testConfig.casdoorClient)
+    const response = await sdk.getUsers({ owner: testConfig.testOrganization })
+
+    assert.deepStrictEqual(true, response.data.length > 0)
+    assert.deepStrictEqual(testConfig.testOrganization, response.data[0].owner)
   })
 })
