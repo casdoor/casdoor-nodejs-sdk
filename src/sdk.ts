@@ -12,34 +12,15 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import {
+  Issuer,
+  Client,
+  CallbackParamsType,
+  CallbackExtras,
+  TokenSet,
+} from 'openid-client'
 import * as jwt from 'jsonwebtoken'
-import { AuthorizationCode } from 'simple-oauth2'
-
-export interface AuthConfig {
-  endpoint: string // your Casdoor URL, like the official one: https://door.casbin.com
-  clientId: string // your Casdoor OAuth Client ID
-  clientSecret: string // your Casdoor OAuth Client Secret
-  jwtSecret?: string // jwt secret
-  organizationName?: string // your Casdoor organization name, like: "built-in"
-  applicationName?: string // your Casdoor application name, like: "app-built-in"
-}
-
-// reference: https://github.com/casdoor/casdoor-go-sdk/blob/90fcd5646ec63d733472c5e7ce526f3447f99f1f/auth/jwt.go#L19-L32
-export interface account {
-  organization: string
-  username: string
-  type: string
-  name: string
-  avatar: string
-  email: string
-  phone: string
-  affiliation: string
-  tag: string
-  language: string
-  score: number
-  isAdmin: boolean
-  accessToken: string
-}
+import Request from './request'
 
 export interface User {
   owner: string
@@ -90,52 +71,81 @@ export interface User {
   }
 }
 
+export interface AuthConfig {
+  issuer: string // your Casdoor URL, like the official one: https://door.casbin.com
+  clientId: string // your Casdoor OAuth Client ID
+  clientSecret: string // your Casdoor OAuth Client Secret
+  casdoorEndpoint?: string // casdoor api endpoint
+}
+
 export class SDK {
   private config: AuthConfig
-  private client: AuthorizationCode
+  private client: Client
+  private casdoorRequest: Request
 
   constructor(config: AuthConfig) {
     this.config = config
-    this.client = new AuthorizationCode({
-      client: {
-        id: config.clientId,
-        secret: config.clientSecret,
-      },
-      auth: {
-        tokenHost: config.endpoint,
-        /** String path to request an access token. Default to /oauth/token. */
-        tokenPath: '/api/login/oauth/access_token',
-        /** String path to request an authorization code. Default to /oauth/authorize. */
-        authorizePath: '/api/login/oauth/authorize',
-      },
-    })
-  }
-
-  async getOAuthToken(code: string, state: string) {
-    /**
-     * TODO:
-     *  1. waitting 肉食大灰兔 /api/login/oauth/access_token support headers.Authorization feature,
-     *     and then remove client_id / client_secret params at here.
-     *     Ref issue lint: https://github.com/casbin/casdoor/issues/301
-     */
-    const params = {
-      code,
-      scope: state,
-      redirect_uri: '', // This parameter is useless in this scenario, but is required, so set it to empty String
-      client_id: this.config.clientId,
-      client_secret: this.config.clientSecret,
+    if (config.casdoorEndpoint) {
+      this.casdoorRequest = new Request({
+        url: config.casdoorEndpoint,
+        clientId: config.clientId,
+        clientSecret: config.clientSecret,
+      })
     }
-    const res = await this.client.getToken(params, {})
-    const tokenSet = res?.token
-    return tokenSet
   }
 
   /**
-   * parse jwt token
-   * @param token encode token content
-   * @returns
+   * init Issuer.Client
    */
+  async init(): Promise<Client> {
+    const issuerProvider = await Issuer.discover(this.config.issuer)
+    this.client = new issuerProvider.Client({
+      client_id: this.config.clientId,
+      client_secret: this.config.clientSecret,
+      id_token_signed_response_alg: 'HS256',
+    })
+
+    return this.client
+  }
+
   parseJwtToken(token: string): (jwt.JwtPayload & User) | null {
     return jwt.decode(token) as jwt.JwtPayload & User
+  }
+
+  async callback(
+    params: CallbackParamsType,
+    extras: CallbackExtras = {},
+  ): Promise<TokenSet> {
+    if (!extras.exchangeBody) {
+      extras.exchangeBody = {
+        client_id: this.config.clientId,
+        client_secret: this.config.clientSecret,
+      }
+    } else {
+      extras.exchangeBody = {
+        ...extras.exchangeBody,
+        client_id: this.config.clientId,
+        client_secret: this.config.clientSecret,
+      }
+    }
+
+    return await this.client.callback(
+      '',
+      params,
+      {
+        state: params.state,
+      },
+      extras,
+    )
+  }
+
+  async getUsers(conds: any) {
+    if (!this.casdoorRequest) {
+      throw new Error('missing casdoorEndpoint')
+    }
+
+    const url = '/api/get-users'
+    const result = await this.casdoorRequest.get(url, { params: { ...conds } })
+    return result
   }
 }
