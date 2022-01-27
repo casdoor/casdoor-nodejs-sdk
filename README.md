@@ -6,6 +6,16 @@ Casdoor SDK is very simple to use. We will show you the steps below.
 
 > Noted that this sdk has been applied to casnode, if you still don’t know how to use it after reading README.md, you can refer to it
 
+## Installation
+
+```shell script
+# NPM
+npm i casdoor-nodejs-sdk
+
+# Yarn
+yarn add casdoor-nodejs-sdk
+```
+
 ## Step1. Init SDK
 
 Initialization requires 5 parameters, which are all string type:
@@ -76,9 +86,3 @@ test env parameters
 ```bash
 	npm run test
 ```
-
-### TODO
-
-- Configure github action ci/cd
-- Waitting "肉食大灰兔" compatible OIDC ProviderMetadata
-- Add more API from [casdoor swagger docs](https://door.casbin.com/swagger/)
