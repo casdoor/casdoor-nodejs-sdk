@@ -1,4 +1,4 @@
-import { SDK } from '../src/sdk'
+import { SDK } from '../src'
 import { strict as assert } from 'assert'
 import testConfig from './config'
 
