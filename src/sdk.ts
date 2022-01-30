@@ -75,7 +75,7 @@ export interface AuthConfig {
   issuer: string // your Casdoor URL, like the official one: https://door.casbin.com
   clientId: string // your Casdoor OAuth Client ID
   clientSecret: string // your Casdoor OAuth Client Secret
-  JwtPublicKey: string // your RSA public key
+  jwtPublicKey: string // your RSA public key
   casdoorEndpoint?: string // casdoor api endpoint
 }
 
@@ -103,14 +103,14 @@ export class SDK {
     this.client = new issuerProvider.Client({
       client_id: this.config.clientId,
       client_secret: this.config.clientSecret,
-      id_token_signed_response_alg: 'HS256',
+      id_token_signed_response_alg: 'RS256',
     })
 
     return this.client
   }
 
   parseJwtToken(token: string): (jwt.JwtPayload & User) | null {
-    return jwt.verify(token, this.config.JwtPublicKey) as jwt.JwtPayload & User
+    return jwt.verify(token, this.config.jwtPublicKey) as jwt.JwtPayload & User
   }
 
   async callback(
