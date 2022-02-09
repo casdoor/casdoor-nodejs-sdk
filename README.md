@@ -84,5 +84,5 @@ test env parameters
 | TEST_TEST_ORGANIZATION           | No   | Application.organization, like: "built-in"          |
 
 ```bash
-	npm run test
+	yarn run test
 ```
