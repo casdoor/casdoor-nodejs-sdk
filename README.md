@@ -1,5 +1,18 @@
 # casdoor-nodejs-sdk
 
+[![NPM version][npm-image]][npm-url]
+[![NPM download][download-image]][download-url]
+[![codebeat badge](https://codebeat.co/badges/4f1d141f-047a-43fe-a5d0-889fa4aaf726)](https://codebeat.co/projects/github-com-casdoor-casdoor-nodejs-sdk-master)
+[![GitHub Actions](https://github.com/casdoor/casdoor-nodejs-sdk/workflows/main/badge.svg)](https://github.com/casdoor/casdoor-nodejs-sdk/actions)
+[![Coverage Status](https://coveralls.io/repos/github/casdoor/casdoor-nodejs-sdk/badge.svg?branch=master)](https://coveralls.io/github/casdoor/casdoor-nodejs-sdk?branch=master)
+[![Release](https://img.shields.io/github/release/casdoor/casdoor-nodejs-sdk.svg)](https://github.com/casdoor/casdoor-nodejs-sdk/releases/latest)
+[![Gitter](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/casbin/casdoor)
+
+[npm-image]: https://img.shields.io/npm/v/casdoor-nodejs-sdk.svg?style=flat-square
+[npm-url]: https://npmjs.com/package/casdoor-nodejs-sdk
+[download-image]: https://img.shields.io/npm/dm/casdoor-nodejs-sdk.svg?style=flat-square
+[download-url]: https://npmjs.com/package/casdoor-nodejs-sdk
+
 This is Casdoor's SDK for NodeJS will allow you to easily connect your application to the Casdoor authentication system without having to implement it from scratch.
 
 Casdoor SDK is very simple to use. We will show you the steps below.
