@@ -8,6 +8,8 @@
   "license": "Apache-2.0",
   "scripts": {
     "prepare": "husky install",
+    "prepack": "run-s build",
+    "postpack": "run-s clean",
     "test": "jest",
     "build": "run-s clean && run-p build:*",
     "build:cjs": "tsc -p tsconfig.cjs.json",
