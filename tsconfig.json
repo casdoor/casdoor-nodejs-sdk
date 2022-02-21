@@ -7,8 +7,7 @@
     "strictPropertyInitialization": false,
     "declaration": true,
     "downlevelIteration": true,
-    "allowSyntheticDefaultImports": true,
-    "rootDirs": ["./src", "./test"]
+    "allowSyntheticDefaultImports": true
   },
-  "include": ["src/**/*", "test/**/*"]
+  "include": ["src/**/*"]
 }
