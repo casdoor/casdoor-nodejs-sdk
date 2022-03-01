@@ -82,7 +82,7 @@ export interface AuthConfig {
 export class SDK {
   private config: AuthConfig
   private client: Client
-  private casdoorRequest: Request
+  protected casdoorRequest: Request
 
   constructor(config: AuthConfig) {
     this.config = config
