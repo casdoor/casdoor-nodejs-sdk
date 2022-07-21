@@ -12,15 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {
-  Issuer,
-  Client,
-  CallbackParamsType,
-  CallbackExtras,
-  TokenSet,
-} from 'openid-client'
 import * as jwt from 'jsonwebtoken'
 import Request from './request'
+import { AxiosResponse } from 'axios'
 
 export interface User {
   owner: string
@@ -36,7 +30,7 @@ export interface User {
   email: string
   phone: string
   location: string
-  address: []
+  address: string[]
   affiliation: string
   title: string
   homepage: string
@@ -66,87 +60,65 @@ export interface User {
   lark: string
   gitlab: string
   ldap: string
-  properties: {
-    [key in string]: any
-  }
+  properties: Record<string, string>
 }
 
-export interface AuthConfig {
-  issuer: string // your Casdoor URL, like the official one: https://door.casbin.com
-  clientId: string // your Casdoor OAuth Client ID
-  clientSecret: string // your Casdoor OAuth Client Secret
-  jwtPublicKey: string // your RSA public key
-  casdoorEndpoint?: string // casdoor api endpoint
+// the configuration of the SDK
+export interface Config {
+  endpoint: string
+  clientId: string
+  clientSecret: string
+  certificate: string
+  orgName: string
+  appName?: string
 }
 
 export class SDK {
-  private config: AuthConfig
-  private client: Client
-  protected casdoorRequest: Request
+  private config: Config
+  private request: Request
 
-  constructor(config: AuthConfig) {
+  constructor(config: Config) {
     this.config = config
-    if (config.casdoorEndpoint) {
-      this.casdoorRequest = new Request({
-        url: config.casdoorEndpoint,
-        clientId: config.clientId,
-        clientSecret: config.clientSecret,
-      })
-    }
+    this.request = new Request({
+      url: config.endpoint + '/api',
+      timeout: 60000,
+    })
   }
 
-  /**
-   * init Issuer.Client
-   */
-  async init(): Promise<Client> {
-    const issuerProvider = await Issuer.discover(this.config.issuer)
-    this.client = new issuerProvider.Client({
+  public async getAuthToken(code: string) {
+    if (!this.request) {
+      throw new Error('request init failed')
+    }
+
+    const {
+      data: { access_token },
+    } = (await this.request.post('login/oauth/access_token', {
       client_id: this.config.clientId,
       client_secret: this.config.clientSecret,
-      id_token_signed_response_alg: 'RS256',
-    })
+      grant_type: 'authorization_code',
+      code,
+    })) as unknown as AxiosResponse<{ access_token: string }>
 
-    return this.client
+    return access_token
   }
 
-  parseJwtToken(token: string): (jwt.JwtPayload & User) | null {
-    return jwt.verify(token, this.config.jwtPublicKey) as jwt.JwtPayload & User
+  public parseJwtToken(token: string) {
+    return jwt.verify(token, this.config.certificate, {
+      algorithms: ['RS256'],
+    }) as User
   }
 
-  async callback(
-    params: CallbackParamsType,
-    extras: CallbackExtras = {},
-  ): Promise<TokenSet> {
-    if (!extras.exchangeBody) {
-      extras.exchangeBody = {
-        client_id: this.config.clientId,
-        client_secret: this.config.clientSecret,
-      }
-    } else {
-      extras.exchangeBody = {
-        ...extras.exchangeBody,
-        client_id: this.config.clientId,
-        client_secret: this.config.clientSecret,
-      }
+  public async getUsers() {
+    if (!this.request) {
+      throw new Error('request init failed')
     }
 
-    return await this.client.callback(
-      '',
-      params,
-      {
-        state: params.state,
+    return (await this.request.get('/get-users', {
+      params: {
+        owner: this.config.orgName,
+        clientId: this.config.clientId,
+        clientSecret: this.config.clientSecret,
       },
-      extras,
-    )
-  }
-
-  async getUsers(conds: any) {
-    if (!this.casdoorRequest) {
-      throw new Error('missing casdoorEndpoint')
-    }
-
-    const url = '/api/get-users'
-    const result = await this.casdoorRequest.get(url, { params: { ...conds } })
-    return result
+    })) as unknown as Promise<AxiosResponse<User[]>>
   }
 }
