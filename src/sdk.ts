@@ -47,18 +47,18 @@ export interface User {
   signupApplication: string
   hash: string
   preHash: string
-  github: string
-  google: string
-  qq: string
-  wechat: string
-  facebook: string
-  dingtalk: string
-  weibo: string
-  gitee: string
-  linkedin: string
-  wecom: string
-  lark: string
-  gitlab: string
+  github?: string
+  google?: string
+  qq?: string
+  wechat?: string
+  facebook?: string
+  dingtalk?: string
+  weibo?: string
+  gitee?: string
+  linkedin?: string
+  wecom?: string
+  lark?: string
+  gitlab?: string
   ldap: string
   properties: Record<string, string>
 }
