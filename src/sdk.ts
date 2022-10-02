@@ -21,32 +21,50 @@ export interface User {
   name: string
   createdTime: string
   updatedTime: string
+
   id: string
   type: string
-  password: string
-  displayName: string
-  avatar: string
-  permanentAvatar: string
+  password?: string
+  passwordSalt?: string
+  displayName?: string
+  firstName?: string
+  lastName?: string
+  avatar?: string
+  permanentAvatar?: string
   email: string
-  phone: string
-  location: string
+  emailVerified: boolean
+  phone?: string
+  location?: string
   address: string[]
-  affiliation: string
-  title: string
-  homepage: string
-  bio: string
-  tag: string
-  region: string
+  affiliation?: string
+  title?: string
+  idCardType?: string
+  idCard?: string
+  homepage?: string
+  bio?: string
+  tag?: string
+  region?: string
   language: string
+  gender?: string
+  birthday?: string
+  education?: string
   score: number
+  karma: number
   ranking: number
+  isDefaultAvatar: boolean
   isOnline: boolean
   isAdmin: boolean
   isGlobalAdmin: boolean
   isForbidden: boolean
+  isDeleted: boolean
   signupApplication: string
-  hash: string
-  preHash: string
+  hash?: string
+  preHash?: string
+
+  createdIp?: string
+  lastSigninTime?: string
+  lastSigninIp?: string
+
   github?: string
   google?: string
   qq?: string
@@ -59,7 +77,21 @@ export interface User {
   wecom?: string
   lark?: string
   gitlab?: string
-  ldap: string
+  adfs?: string
+  baidu?: string
+  alipay?: string
+  casdoor?: string
+  infoflow?: string
+  apple?: string
+  azuread?: string
+  slack?: string
+  steam?: string
+  bilibili?: string
+  okta?: string
+  douyin?: string
+  custom?: string
+
+  ldap?: string
   properties: Record<string, string>
 }
 
