@@ -17,8 +17,6 @@ This is Casdoor's SDK for NodeJS will allow you to easily connect your applicati
 
 Casdoor SDK is very simple to use. We will show you the steps below.
 
-> Noted that this sdk has been applied to casnode, if you still don’t know how to use it after reading README.md, you can refer to it
-
 ## Installation
 
 ```shell script
