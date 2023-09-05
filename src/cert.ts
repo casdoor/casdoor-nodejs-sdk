@@ -12,20 +12,86 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-export interface Cert {
-  owner: string
-  name: string
-  createdTime: string
+import {AxiosResponse} from "axios";
+import {SDK} from "./sdk";
 
-  displayName: string
-  scope: string
-  type: string
-  cryptoAlgorithm: string
-  bitSize: number
-  expireInYears: number
+interface Cert {
+    owner: string
+    name: string
+    createdTime: string
 
-  certificate: string
-  privateKey: string
-  authorityPublicKey: string
-  authorityRootPublicKey: string
+    displayName: string
+    scope: string
+    type: string
+    cryptoAlgorithm: string
+    bitSize: number
+    expireInYears: number
+
+    certificate: string
+    privateKey: string
+    authorityPublicKey: string
+    authorityRootPublicKey: string
+}
+
+export class CertSDK extends SDK {
+    public async getCerts() {
+        if (!this.request) {
+            throw new Error('request init failed')
+        }
+
+        return (await this.request.get('/get-certs', {
+            params: {
+                owner: this.config.orgName,
+                clientId: this.config.clientId,
+                clientSecret: this.config.clientSecret,
+            },
+        })) as unknown as Promise<AxiosResponse<Cert[]>>
+    }
+
+    public async getCert(id: string) {
+        if (!this.request) {
+            throw new Error('request init failed')
+        }
+
+        return (await this.request.get('/get-cert', {
+            params: {
+                id: `${this.config.orgName}/${id}`,
+                clientId: this.config.clientId,
+                clientSecret: this.config.clientSecret,
+            },
+        })) as unknown as Promise<AxiosResponse<Cert>>
+    }
+
+    public async modifyCert(method: string, cert: Cert) {
+        if (!this.request) {
+            throw new Error('request init failed')
+        }
+
+        const url = this.config.endpoint + `/${method}`
+        cert.owner = this.config.orgName
+        const certInfo = JSON.stringify(cert)
+        return (await this.request.post(
+            url,
+            {certInfo},
+            {
+                params: {
+                    id: `${cert.owner}/${cert.name}`,
+                    clientId: this.config.clientId,
+                    clientSecret: this.config.clientSecret,
+                },
+            },
+        )) as unknown as Promise<AxiosResponse<Record<string, unknown>>>
+    }
+
+    public async addCert(cert: Cert) {
+        return this.modifyCert('add-cert', cert)
+    }
+
+    public async updateCert(cert: Cert) {
+        return this.modifyCert('update-cert', cert)
+    }
+
+    public async deleteCert(cert: Cert) {
+        return this.modifyCert('delete-cert', cert)
+    }
 }

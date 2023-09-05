@@ -12,11 +12,77 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-export interface Session {
-  owner: string
-  name: string
-  application: string
-  createdTime: string
+import {SDK} from "./sdk";
+import {AxiosResponse} from "axios";
 
-  sessionId?: string[]
+interface Session {
+    owner: string
+    name: string
+    application: string
+    createdTime: string
+
+    sessionId?: string[]
+}
+
+export class SessionSDK extends SDK {
+    public async getSessions() {
+        if (!this.request) {
+            throw new Error('request init failed')
+        }
+
+        return (await this.request.get('/get-sessions', {
+            params: {
+                owner: this.config.orgName,
+                clientId: this.config.clientId,
+                clientSecret: this.config.clientSecret,
+            },
+        })) as unknown as Promise<AxiosResponse<Session[]>>
+    }
+
+    public async getSession(id: string) {
+        if (!this.request) {
+            throw new Error('request init failed')
+        }
+
+        return (await this.request.get('/get-session', {
+            params: {
+                id: `${this.config.orgName}/${id}`,
+                clientId: this.config.clientId,
+                clientSecret: this.config.clientSecret,
+            },
+        })) as unknown as Promise<AxiosResponse<Session>>
+    }
+
+    public async modifySession(method: string, session: Session) {
+        if (!this.request) {
+            throw new Error('request init failed')
+        }
+
+        const url = `/${method}`
+        session.owner = this.config.orgName
+        const sessionInfo = JSON.stringify(session)
+        return (await this.request.post(
+            url,
+            {sessionInfo},
+            {
+                params: {
+                    id: `${session.owner}/${session.name}`,
+                    clientId: this.config.clientId,
+                    clientSecret: this.config.clientSecret,
+                },
+            },
+        )) as unknown as Promise<AxiosResponse<Record<string, unknown>>>
+    }
+
+    public async addSession(session: Session) {
+        return this.modifySession('add-session', session)
+    }
+
+    public async updateSession(session: Session) {
+        return this.modifySession('update-session', session)
+    }
+
+    public async deleteSession(session: Session) {
+        return this.modifySession('delete-session', session)
+    }
 }

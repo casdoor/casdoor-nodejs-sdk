@@ -12,27 +12,94 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-export interface Permission {
-  owner: string
-  name: string
-  createdTime: string
-  displayName: string
-  description: string
+import {SDK} from "./sdk";
+import {AxiosResponse} from "axios";
 
-  users?: string[]
-  roles?: string[]
-  domains?: string[]
+interface Permission {
+    owner: string
+    name: string
+    createdTime: string
+    displayName: string
+    description: string
 
-  model: string
-  adapter: string
-  resourceType: string
-  resources?: string[]
-  actions?: string[]
-  effect: string
-  isEnabled: boolean
+    users?: string[]
+    roles?: string[]
+    domains?: string[]
 
-  submitter?: string
-  approver?: string
-  approveTime?: string
-  state?: string
+    model: string
+    adapter: string
+    resourceType: string
+    resources?: string[]
+    actions?: string[]
+    effect: string
+    isEnabled: boolean
+
+    submitter?: string
+    approver?: string
+    approveTime?: string
+    state?: string
+}
+
+export class PermissionSDK extends SDK {
+    public async getPermissions() {
+        if (!this.request) {
+            throw new Error('request init failed')
+        }
+
+        return (await this.request.get('/get-permissions', {
+            params: {
+                owner: this.config.orgName,
+                clientId: this.config.clientId,
+                clientSecret: this.config.clientSecret,
+            },
+        })) as unknown as Promise<AxiosResponse<Permission[]>>
+    }
+
+    public async getPermission(id: string) {
+        if (!this.request) {
+            throw new Error('request init failed')
+        }
+
+        return (await this.request.get('/get-permission', {
+            params: {
+                id: `${this.config.orgName}/${id}`,
+                clientId: this.config.clientId,
+                clientSecret: this.config.clientSecret,
+            },
+        })) as unknown as Promise<AxiosResponse<Permission>>
+    }
+
+    public async modifyPermission(method: string, permission: Permission) {
+        if (!this.request) {
+            throw new Error('request init failed')
+        }
+
+        const url = `/${method}`
+        permission.owner = this.config.orgName
+        const permissionInfo = JSON.stringify(permission)
+        return (await this.request.post(
+            url,
+            {permissionInfo},
+            {
+                params: {
+                    id: `${permission.owner}/${permission.name}`,
+                    clientId: this.config.clientId,
+                    clientSecret: this.config.clientSecret,
+                },
+            },
+        )) as unknown as Promise<AxiosResponse<Record<string, unknown>>>
+    }
+
+    public async addPermission(permission: Permission) {
+        return this.modifyPermission('add-permission', permission)
+    }
+
+    public async updatePermission(permission: Permission) {
+        return this.modifyPermission('update-permission', permission)
+    }
+
+    public async deletePermission(permission: Permission) {
+        return this.modifyPermission('delete-permission', permission)
+    }
+
 }

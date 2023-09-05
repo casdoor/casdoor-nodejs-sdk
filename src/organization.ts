@@ -12,48 +12,114 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-export interface AccountItem {
-  name: string
-  visible: boolean
-  viewRule: string
-  modifyRule: string
+import {AxiosResponse} from "axios";
+import {SDK} from "./sdk";
+
+interface AccountItem {
+    name: string
+    visible: boolean
+    viewRule: string
+    modifyRule: string
 }
 
 export interface ThemeData {
-  themeType: string
-  colorPrimary: string
-  borderRadius: number
-  isCompact: boolean
-  isEnabled: boolean
+    themeType: string
+    colorPrimary: string
+    borderRadius: number
+    isCompact: boolean
+    isEnabled: boolean
 }
 
-export interface MfaItem {
-  name: string
-  rule: string
+interface MfaItem {
+    name: string
+    rule: string
 }
 
 export interface Organization {
-  owner: string
-  name: string
-  createdTime: string
+    owner: string
+    name: string
+    createdTime: string
 
-  displayName: string
-  websiteUrl: string
-  favicon: string
-  passwordType: string
-  passwordSalt: string
-  passwordOptions?: string[]
-  countryCodes?: string[]
-  defaultAvatar: string
-  defaultApplication: string
-  tags?: string[]
-  languages?: string[]
-  themeData?: ThemeData
-  masterPassword: string
-  initScore: number
-  enableSoftDeletion: boolean
-  isProfilePublic: boolean
+    displayName: string
+    websiteUrl: string
+    favicon: string
+    passwordType: string
+    passwordSalt: string
+    passwordOptions?: string[]
+    countryCodes?: string[]
+    defaultAvatar: string
+    defaultApplication: string
+    tags?: string[]
+    languages?: string[]
+    themeData?: ThemeData
+    masterPassword: string
+    initScore: number
+    enableSoftDeletion: boolean
+    isProfilePublic: boolean
 
-  mfaItems?: MfaItem[]
-  accountItems?: AccountItem[]
+    mfaItems?: MfaItem[]
+    accountItems?: AccountItem[]
+}
+
+export class OrganizationSDK extends SDK {
+    public async getOrganizations() {
+        if (!this.request) {
+            throw new Error('request init failed')
+        }
+
+        return (await this.request.get('/get-organizations', {
+            params: {
+                owner: this.config.orgName,
+                clientId: this.config.clientId,
+                clientSecret: this.config.clientSecret,
+            },
+        })) as unknown as Promise<AxiosResponse<Organization[]>>
+    }
+
+    public async getOrganization(id: string) {
+        if (!this.request) {
+            throw new Error('request init failed')
+        }
+
+        return (await this.request.get('/get-organization', {
+            params: {
+                id: `${this.config.orgName}/${id}`,
+                clientId: this.config.clientId,
+                clientSecret: this.config.clientSecret,
+            },
+        })) as unknown as Promise<AxiosResponse<Organization>>
+    }
+
+    public async modifyOrganization(method: string, organization: Organization) {
+        if (!this.request) {
+            throw new Error('request init failed')
+        }
+
+        const url = this.config.endpoint + `/${method}`
+        organization.owner = this.config.orgName
+        const organizationInfo = JSON.stringify(organization)
+        return (await this.request.post(
+            url,
+            {organizationInfo},
+            {
+                params: {
+                    id: `${organization.owner}/${organization.name}`,
+                    clientId: this.config.clientId,
+                    clientSecret: this.config.clientSecret,
+                },
+            },
+        )) as unknown as Promise<AxiosResponse<Record<string, unknown>>>
+    }
+
+    public async addOrganization(organization: Organization) {
+        return this.modifyOrganization('add-organization', organization)
+    }
+
+    public async updateOrganization(organization: Organization) {
+        return this.modifyOrganization('update-organization', organization)
+    }
+
+    public async deleteOrganization(organization: Organization) {
+        return this.modifyOrganization('delete-organization', organization)
+    }
 }

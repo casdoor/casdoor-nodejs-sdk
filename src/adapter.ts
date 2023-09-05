@@ -12,20 +12,86 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-export interface Adapter {
-  owner: string
-  name: string
-  createdTime: string
+import {SDK} from "./sdk";
+import {AxiosResponse} from "axios";
 
-  type: string
-  databaseType: string
-  host: string
-  port: number
-  user: string
-  password: string
-  database: string
-  table: string
-  tableNamePrefix: string
+interface Adapter {
+    owner: string
+    name: string
+    createdTime: string
 
-  isEnabled: boolean
+    type: string
+    databaseType: string
+    host: string
+    port: number
+    user: string
+    password: string
+    database: string
+    table: string
+    tableNamePrefix: string
+
+    isEnabled: boolean
+}
+
+export class AdapterSDK extends SDK {
+    public async getAdapters() {
+        if (!this.request) {
+            throw new Error('request init failed')
+        }
+
+        return (await this.request.get('/get-adapters', {
+            params: {
+                owner: this.config.orgName,
+                clientId: this.config.clientId,
+                clientSecret: this.config.clientSecret,
+            },
+        })) as unknown as Promise<AxiosResponse<Adapter[]>>
+    }
+
+    public async getAdapter(id: string) {
+        if (!this.request) {
+            throw new Error('request init failed')
+        }
+
+        return (await this.request.get('/get-adapter', {
+            params: {
+                id: `${this.config.orgName}/${id}`,
+                clientId: this.config.clientId,
+                clientSecret: this.config.clientSecret,
+            },
+        })) as unknown as Promise<AxiosResponse<Adapter>>
+    }
+
+    public async modifyAdapter(method: string, adapter: Adapter) {
+        if (!this.request) {
+            throw new Error('request init failed')
+        }
+
+        const url = this.config.endpoint + `/${method}`
+        adapter.owner = this.config.orgName
+        const adapterInfo = JSON.stringify(adapter)
+        return (await this.request.post(
+            url,
+            {adapterInfo},
+            {
+                params: {
+                    id: `${adapter.owner}/${adapter.name}`,
+                    clientId: this.config.clientId,
+                    clientSecret: this.config.clientSecret,
+                },
+            },
+        )) as unknown as Promise<AxiosResponse<Record<string, unknown>>>
+    }
+
+    public async addAdapter(adapter: Adapter) {
+        return this.modifyAdapter('add-adapter', adapter)
+    }
+
+    public async updateAdapter(adapter: Adapter) {
+        return this.modifyAdapter('update-adapter', adapter)
+    }
+
+    public async deleteAdapter(adapter: Adapter) {
+        return this.modifyAdapter('delete-adapter', adapter)
+    }
 }

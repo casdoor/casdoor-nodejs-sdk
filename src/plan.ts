@@ -12,18 +12,84 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-export interface Plan {
-  owner: string
-  name: string
-  createdTime: string
-  displayName: string
-  description: string
+import {SDK} from "./sdk";
+import {AxiosResponse} from "axios";
 
-  pricePerMonth: number
-  pricePerYear: number
-  currency: string
-  isEnabled: boolean
+interface Plan {
+    owner: string
+    name: string
+    createdTime: string
+    displayName: string
+    description: string
 
-  role: string
-  options?: string[]
+    pricePerMonth: number
+    pricePerYear: number
+    currency: string
+    isEnabled: boolean
+
+    role: string
+    options?: string[]
+}
+
+export class PlanSDK extends SDK {
+    public async getPlans() {
+        if (!this.request) {
+            throw new Error('request init failed')
+        }
+
+        return (await this.request.get('/get-plans', {
+            params: {
+                owner: this.config.orgName,
+                clientId: this.config.clientId,
+                clientSecret: this.config.clientSecret,
+            },
+        })) as unknown as Promise<AxiosResponse<Plan[]>>
+    }
+
+    public async getPlan(id: string) {
+        if (!this.request) {
+            throw new Error('request init failed')
+        }
+
+        return (await this.request.get('/get-plan', {
+            params: {
+                id: `${this.config.orgName}/${id}`,
+                clientId: this.config.clientId,
+                clientSecret: this.config.clientSecret,
+            },
+        })) as unknown as Promise<AxiosResponse<Plan>>
+    }
+
+    public async modifyPlan(method: string, plan: Plan) {
+        if (!this.request) {
+            throw new Error('request init failed')
+        }
+
+        const url = `/${method}`
+        plan.owner = this.config.orgName
+        const planInfo = JSON.stringify(plan)
+        return (await this.request.post(
+            url,
+            {planInfo},
+            {
+                params: {
+                    id: `${plan.owner}/${plan.name}`,
+                    clientId: this.config.clientId,
+                    clientSecret: this.config.clientSecret,
+                },
+            },
+        )) as unknown as Promise<AxiosResponse<Record<string, unknown>>>
+    }
+
+    public async addPlan(plan: Plan) {
+        return this.modifyPlan('add-plan', plan)
+    }
+
+    public async updatePlan(plan: Plan) {
+        return this.modifyPlan('update-plan', plan)
+    }
+
+    public async deletePlan(plan: Plan) {
+        return this.modifyPlan('delete-plan', plan)
+    }
 }
