@@ -203,7 +203,7 @@ export class SDK {
     })) as unknown as Promise<AxiosResponse<number>>
   }
 
-  public async modifyUser(method: string, user: User){
+  public async modifyUser(method: string, user: User) {
     if (!this.request) {
       throw new Error('request init failed')
     }
@@ -224,15 +224,15 @@ export class SDK {
     )) as unknown as Promise<AxiosResponse<Record<string, unknown>>>
   }
 
-  public async addUser(user: User){
+  public async addUser(user: User) {
     return this.modifyUser('add-user', user)
   }
 
-  public async updateUser(user: User){
+  public async updateUser(user: User) {
     return this.modifyUser('update-user', user)
   }
 
-  public async deleteUser(user: User){
+  public async deleteUser(user: User) {
     return this.modifyUser('delete-user', user)
   }
 
@@ -264,7 +264,7 @@ export class SDK {
     })) as unknown as Promise<AxiosResponse<Cert>>
   }
 
-  public async modifyCert(method: string, cert: Cert){
+  public async modifyCert(method: string, cert: Cert) {
     if (!this.request) {
       throw new Error('request init failed')
     }
@@ -285,15 +285,15 @@ export class SDK {
     )) as unknown as Promise<AxiosResponse<Record<string, unknown>>>
   }
 
-  public async addCert(cert: Cert){
+  public async addCert(cert: Cert) {
     return this.modifyCert('add-cert', cert)
   }
 
-  public async updateCert(cert: Cert){
+  public async updateCert(cert: Cert) {
     return this.modifyCert('update-cert', cert)
   }
 
-  public async deleteCert(cert: Cert){
+  public async deleteCert(cert: Cert) {
     return this.modifyCert('delete-cert', cert)
   }
 
@@ -325,7 +325,7 @@ export class SDK {
     })) as unknown as Promise<AxiosResponse<Organization>>
   }
 
-  public async modifyOrganization(method: string, organization: Organization){
+  public async modifyOrganization(method: string, organization: Organization) {
     if (!this.request) {
       throw new Error('request init failed')
     }
@@ -346,15 +346,15 @@ export class SDK {
     )) as unknown as Promise<AxiosResponse<Record<string, unknown>>>
   }
 
-  public async addOrganization(organization: Organization){
+  public async addOrganization(organization: Organization) {
     return this.modifyOrganization('add-organization', organization)
   }
 
-  public async updateOrganization(organization: Organization){
+  public async updateOrganization(organization: Organization) {
     return this.modifyOrganization('update-organization', organization)
   }
 
-  public async deleteOrganization(organization: Organization){
+  public async deleteOrganization(organization: Organization) {
     return this.modifyOrganization('delete-organization', organization)
   }
 
@@ -386,7 +386,7 @@ export class SDK {
     })) as unknown as Promise<AxiosResponse<Adapter>>
   }
 
-  public async modifyAdapter(method: string, adapter: Adapter){
+  public async modifyAdapter(method: string, adapter: Adapter) {
     if (!this.request) {
       throw new Error('request init failed')
     }
@@ -407,15 +407,15 @@ export class SDK {
     )) as unknown as Promise<AxiosResponse<Record<string, unknown>>>
   }
 
-  public async addAdapter(adapter: Adapter){
+  public async addAdapter(adapter: Adapter) {
     return this.modifyAdapter('add-adapter', adapter)
   }
 
-  public async updateAdapter(adapter: Adapter){
+  public async updateAdapter(adapter: Adapter) {
     return this.modifyAdapter('update-adapter', adapter)
   }
 
-  public async deleteAdapter(adapter: Adapter){
+  public async deleteAdapter(adapter: Adapter) {
     return this.modifyAdapter('delete-adapter', adapter)
   }
 
@@ -447,7 +447,7 @@ export class SDK {
     })) as unknown as Promise<AxiosResponse<Group>>
   }
 
-  public async modifyGroup(method: string, group: Group){
+  public async modifyGroup(method: string, group: Group) {
     if (!this.request) {
       throw new Error('request init failed')
     }
@@ -468,15 +468,15 @@ export class SDK {
     )) as unknown as Promise<AxiosResponse<Record<string, unknown>>>
   }
 
-  public async addGroup(group: Group){
+  public async addGroup(group: Group) {
     return this.modifyGroup('add-group', group)
   }
 
-  public async updateGroup(group: Group){
+  public async updateGroup(group: Group) {
     return this.modifyGroup('update-group', group)
   }
 
-  public async deleteGroup(group: Group){
+  public async deleteGroup(group: Group) {
     return this.modifyGroup('delete-group', group)
   }
 
@@ -508,7 +508,7 @@ export class SDK {
     })) as unknown as Promise<AxiosResponse<Role>>
   }
 
-  public async modifyRole(method: string, role: Role){
+  public async modifyRole(method: string, role: Role) {
     if (!this.request) {
       throw new Error('request init failed')
     }
@@ -529,15 +529,15 @@ export class SDK {
     )) as unknown as Promise<AxiosResponse<Record<string, unknown>>>
   }
 
-  public async addRole(role: Role){
+  public async addRole(role: Role) {
     return this.modifyRole('add-role', role)
   }
 
-  public async updateRole(role: Role){
+  public async updateRole(role: Role) {
     return this.modifyRole('update-role', role)
   }
 
-  public async deleteRole(role: Role){
+  public async deleteRole(role: Role) {
     return this.modifyRole('delete-role', role)
   }
 
@@ -569,7 +569,7 @@ export class SDK {
     })) as unknown as Promise<AxiosResponse<Payment>>
   }
 
-  public async modifyPayment(method: string, payment: Payment){
+  public async modifyPayment(method: string, payment: Payment) {
     if (!this.request) {
       throw new Error('request init failed')
     }
@@ -590,15 +590,15 @@ export class SDK {
     )) as unknown as Promise<AxiosResponse<Record<string, unknown>>>
   }
 
-  public async addPayment(payment: Payment){
+  public async addPayment(payment: Payment) {
     return this.modifyPayment('add-payment', payment)
   }
 
-  public async updatePayment(payment: Payment){
+  public async updatePayment(payment: Payment) {
     return this.modifyPayment('update-payment', payment)
   }
 
-  public async deletePayment(payment: Payment){
+  public async deletePayment(payment: Payment) {
     return this.modifyPayment('delete-payment', payment)
   }
 
@@ -630,7 +630,7 @@ export class SDK {
     })) as unknown as Promise<AxiosResponse<Provider>>
   }
 
-  public async modifyProvider(method: string, provider: Provider){
+  public async modifyProvider(method: string, provider: Provider) {
     if (!this.request) {
       throw new Error('request init failed')
     }
@@ -651,15 +651,15 @@ export class SDK {
     )) as unknown as Promise<AxiosResponse<Record<string, unknown>>>
   }
 
-  public async addProvider(provider: Provider){
+  public async addProvider(provider: Provider) {
     return this.modifyProvider('add-provider', provider)
   }
 
-  public async updateProvider(provider: Provider){
+  public async updateProvider(provider: Provider) {
     return this.modifyProvider('update-provider', provider)
   }
 
-  public async deleteProvider(provider: Provider){
+  public async deleteProvider(provider: Provider) {
     return this.modifyProvider('delete-provider', provider)
   }
 
@@ -691,7 +691,7 @@ export class SDK {
     })) as unknown as Promise<AxiosResponse<Application>>
   }
 
-  public async modifyApplication(method: string, application: Application){
+  public async modifyApplication(method: string, application: Application) {
     if (!this.request) {
       throw new Error('request init failed')
     }
@@ -712,15 +712,15 @@ export class SDK {
     )) as unknown as Promise<AxiosResponse<Record<string, unknown>>>
   }
 
-  public async addApplication(application: Application){
+  public async addApplication(application: Application) {
     return this.modifyApplication('add-application', application)
   }
 
-  public async updateApplication(application: Application){
+  public async updateApplication(application: Application) {
     return this.modifyApplication('update-application', application)
   }
 
-  public async deleteApplication(application: Application){
+  public async deleteApplication(application: Application) {
     return this.modifyApplication('delete-application', application)
   }
 
@@ -752,7 +752,7 @@ export class SDK {
     })) as unknown as Promise<AxiosResponse<Model>>
   }
 
-  public async modifyModel(method: string, model: Model){
+  public async modifyModel(method: string, model: Model) {
     if (!this.request) {
       throw new Error('request init failed')
     }
@@ -773,15 +773,15 @@ export class SDK {
     )) as unknown as Promise<AxiosResponse<Record<string, unknown>>>
   }
 
-  public async addModel(model: Model){
+  public async addModel(model: Model) {
     return this.modifyModel('add-model', model)
   }
 
-  public async updateModel(model: Model){
+  public async updateModel(model: Model) {
     return this.modifyModel('update-model', model)
   }
 
-  public async deleteModel(model: Model){
+  public async deleteModel(model: Model) {
     return this.modifyModel('delete-model', model)
   }
 
@@ -813,7 +813,7 @@ export class SDK {
     })) as unknown as Promise<AxiosResponse<Plan>>
   }
 
-  public async modifyPlan(method: string, plan: Plan){
+  public async modifyPlan(method: string, plan: Plan) {
     if (!this.request) {
       throw new Error('request init failed')
     }
@@ -834,15 +834,15 @@ export class SDK {
     )) as unknown as Promise<AxiosResponse<Record<string, unknown>>>
   }
 
-  public async addPlan(plan: Plan){
+  public async addPlan(plan: Plan) {
     return this.modifyPlan('add-plan', plan)
   }
 
-  public async updatePlan(plan: Plan){
+  public async updatePlan(plan: Plan) {
     return this.modifyPlan('update-plan', plan)
   }
 
-  public async deletePlan(plan: Plan){
+  public async deletePlan(plan: Plan) {
     return this.modifyPlan('delete-plan', plan)
   }
 
@@ -874,7 +874,7 @@ export class SDK {
     })) as unknown as Promise<AxiosResponse<Permission>>
   }
 
-  public async modifyPermission(method: string, permission: Permission){
+  public async modifyPermission(method: string, permission: Permission) {
     if (!this.request) {
       throw new Error('request init failed')
     }
@@ -895,15 +895,15 @@ export class SDK {
     )) as unknown as Promise<AxiosResponse<Record<string, unknown>>>
   }
 
-  public async addPermission(permission: Permission){
+  public async addPermission(permission: Permission) {
     return this.modifyPermission('add-permission', permission)
   }
 
-  public async updatePermission(permission: Permission){
+  public async updatePermission(permission: Permission) {
     return this.modifyPermission('update-permission', permission)
   }
 
-  public async deletePermission(permission: Permission){
+  public async deletePermission(permission: Permission) {
     return this.modifyPermission('delete-permission', permission)
   }
 
@@ -935,7 +935,7 @@ export class SDK {
     })) as unknown as Promise<AxiosResponse<Enforcer>>
   }
 
-  public async modifyEnforcer(method: string, enforcer: Enforcer){
+  public async modifyEnforcer(method: string, enforcer: Enforcer) {
     if (!this.request) {
       throw new Error('request init failed')
     }
@@ -956,15 +956,15 @@ export class SDK {
     )) as unknown as Promise<AxiosResponse<Record<string, unknown>>>
   }
 
-  public async addEnforcer(enforcer: Enforcer){
+  public async addEnforcer(enforcer: Enforcer) {
     return this.modifyEnforcer('add-enforcer', enforcer)
   }
 
-  public async updateEnforcer(enforcer: Enforcer){
+  public async updateEnforcer(enforcer: Enforcer) {
     return this.modifyEnforcer('update-enforcer', enforcer)
   }
 
-  public async deleteEnforcer(enforcer: Enforcer){
+  public async deleteEnforcer(enforcer: Enforcer) {
     return this.modifyEnforcer('delete-enforcer', enforcer)
   }
 
@@ -1008,7 +1008,7 @@ export class SDK {
     })) as unknown as Promise<AxiosResponse<Resource>>
   }
 
-  public async modifyResource(method: string, resource: Resource){
+  public async modifyResource(method: string, resource: Resource) {
     if (!this.request) {
       throw new Error('request init failed')
     }
@@ -1029,15 +1029,15 @@ export class SDK {
     )) as unknown as Promise<AxiosResponse<Record<string, unknown>>>
   }
 
-  public async addResource(resource: Resource){
+  public async addResource(resource: Resource) {
     return this.modifyResource('add-resource', resource)
   }
 
-  public async updateResource(resource: Resource){
+  public async updateResource(resource: Resource) {
     return this.modifyResource('update-resource', resource)
   }
 
-  public async deleteResource(resource: Resource){
+  public async deleteResource(resource: Resource) {
     return this.modifyResource('delete-resource', resource)
   }
 
@@ -1071,7 +1071,7 @@ export class SDK {
     })) as unknown as Promise<AxiosResponse<Token>>
   }
 
-  public async modifyToken(method: string, token: Token){
+  public async modifyToken(method: string, token: Token) {
     if (!this.request) {
       throw new Error('request init failed')
     }
@@ -1092,15 +1092,15 @@ export class SDK {
     )) as unknown as Promise<AxiosResponse<Record<string, unknown>>>
   }
 
-  public async addToken(token: Token){
+  public async addToken(token: Token) {
     return this.modifyToken('add-token', token)
   }
 
-  public async updateToken(token: Token){
+  public async updateToken(token: Token) {
     return this.modifyToken('update-token', token)
   }
 
-  public async deleteToken(token: Token){
+  public async deleteToken(token: Token) {
     return this.modifyToken('delete-token', token)
   }
 
@@ -1132,7 +1132,7 @@ export class SDK {
     })) as unknown as Promise<AxiosResponse<Session>>
   }
 
-  public async modifySession(method: string, session: Session){
+  public async modifySession(method: string, session: Session) {
     if (!this.request) {
       throw new Error('request init failed')
     }
@@ -1153,15 +1153,15 @@ export class SDK {
     )) as unknown as Promise<AxiosResponse<Record<string, unknown>>>
   }
 
-  public async addSession(session: Session){
+  public async addSession(session: Session) {
     return this.modifySession('add-session', session)
   }
 
-  public async updateSession(session: Session){
+  public async updateSession(session: Session) {
     return this.modifySession('update-session', session)
   }
 
-  public async deleteSession(session: Session){
+  public async deleteSession(session: Session) {
     return this.modifySession('delete-session', session)
   }
 
@@ -1193,7 +1193,7 @@ export class SDK {
     })) as unknown as Promise<AxiosResponse<Syncer>>
   }
 
-  public async modifySyncer(method: string, syncer: Syncer){
+  public async modifySyncer(method: string, syncer: Syncer) {
     if (!this.request) {
       throw new Error('request init failed')
     }
@@ -1214,15 +1214,15 @@ export class SDK {
     )) as unknown as Promise<AxiosResponse<Record<string, unknown>>>
   }
 
-  public async addSyncer(syncer: Syncer){
+  public async addSyncer(syncer: Syncer) {
     return this.modifySyncer('add-syncer', syncer)
   }
 
-  public async updateSyncer(syncer: Syncer){
+  public async updateSyncer(syncer: Syncer) {
     return this.modifySyncer('update-syncer', syncer)
   }
 
-  public async deleteSyncer(syncer: Syncer){
+  public async deleteSyncer(syncer: Syncer) {
     return this.modifySyncer('delete-syncer', syncer)
   }
 
@@ -1254,7 +1254,7 @@ export class SDK {
     })) as unknown as Promise<AxiosResponse<Webhook>>
   }
 
-  public async modifyWebhook(method: string, webhook: Webhook){
+  public async modifyWebhook(method: string, webhook: Webhook) {
     if (!this.request) {
       throw new Error('request init failed')
     }
@@ -1275,15 +1275,15 @@ export class SDK {
     )) as unknown as Promise<AxiosResponse<Record<string, unknown>>>
   }
 
-  public async addWebhook(webhook: Webhook){
+  public async addWebhook(webhook: Webhook) {
     return this.modifyWebhook('add-webhook', webhook)
   }
 
-  public async updateWebhook(webhook: Webhook){
+  public async updateWebhook(webhook: Webhook) {
     return this.modifyWebhook('update-webhook', webhook)
   }
 
-  public async deleteWebhook(webhook: Webhook){
+  public async deleteWebhook(webhook: Webhook) {
     return this.modifyWebhook('delete-webhook', webhook)
   }
 
@@ -1317,7 +1317,7 @@ export class SDK {
     })) as unknown as Promise<AxiosResponse<Subscription>>
   }
 
-  public async modifySubscription(method: string, subscription: Subscription){
+  public async modifySubscription(method: string, subscription: Subscription) {
     if (!this.request) {
       throw new Error('request init failed')
     }
@@ -1338,15 +1338,15 @@ export class SDK {
     )) as unknown as Promise<AxiosResponse<Record<string, unknown>>>
   }
 
-  public async addSubscription(subscription: Subscription){
+  public async addSubscription(subscription: Subscription) {
     return this.modifySubscription('add-subscription', subscription)
   }
 
-  public async updateSubscription(subscription: Subscription){
+  public async updateSubscription(subscription: Subscription) {
     return this.modifySubscription('update-subscription', subscription)
   }
 
-  public async deleteSubscription(subscription: Subscription){
+  public async deleteSubscription(subscription: Subscription) {
     return this.modifySubscription('delete-subscription', subscription)
   }
 
@@ -1379,7 +1379,7 @@ export class SDK {
     })) as unknown as Promise<AxiosResponse<Pricing>>
   }
 
-  public async modifyPricing(method: string, pricing: Pricing){
+  public async modifyPricing(method: string, pricing: Pricing) {
     if (!this.request) {
       throw new Error('request init failed')
     }
@@ -1400,15 +1400,15 @@ export class SDK {
     )) as unknown as Promise<AxiosResponse<Record<string, unknown>>>
   }
 
-  public async addPricing(pricing: Pricing){
+  public async addPricing(pricing: Pricing) {
     return this.modifyPricing('add-pricing', pricing)
   }
 
-  public async updatePricing(pricing: Pricing){
+  public async updatePricing(pricing: Pricing) {
     return this.modifyPricing('update-pricing', pricing)
   }
 
-  public async deletePricing(pricing: Pricing){
+  public async deletePricing(pricing: Pricing) {
     return this.modifyPricing('delete-pricing', pricing)
   }
 
@@ -1442,7 +1442,7 @@ export class SDK {
     })) as unknown as Promise<AxiosResponse<Product>>
   }
 
-  public async modifyProduct(method: string, product: Product){
+  public async modifyProduct(method: string, product: Product) {
     if (!this.request) {
       throw new Error('request init failed')
     }
@@ -1463,15 +1463,15 @@ export class SDK {
     )) as unknown as Promise<AxiosResponse<Record<string, unknown>>>
   }
 
-  public async addProduct(product: Product){
+  public async addProduct(product: Product) {
     return this.modifyProduct('add-product', product)
   }
 
-  public async updateProduct(product: Product){
+  public async updateProduct(product: Product) {
     return this.modifyProduct('update-product', product)
   }
 
-  public async deleteProduct(product: Product){
+  public async deleteProduct(product: Product) {
     return this.modifyProduct('delete-product', product)
   }
 }
