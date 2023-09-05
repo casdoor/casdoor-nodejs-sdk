@@ -12,84 +12,83 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {AxiosResponse} from "axios";
-import {SDK} from "./sdk";
+import { AxiosResponse } from 'axios'
+import { SDK } from './sdk'
 
 export interface Enforcer {
-    owner: string
-    name: string
-    createdTime: string
-    updatedTime: string
-    displayName: string
-    description: string
+  owner: string
+  name: string
+  createdTime: string
+  updatedTime: string
+  displayName: string
+  description: string
 
-    model: string
-    adapter: string
-    isEnabled: boolean
+  model: string
+  adapter: string
+  isEnabled: boolean
 
-    // *casbin.Enforcer
+  // *casbin.Enforcer
 }
 
-
 export class EnforcerSDK extends SDK {
-    public async getEnforcers() {
-        if (!this.request) {
-            throw new Error('request init failed')
-        }
-
-        return (await this.request.get('/get-enforcers', {
-            params: {
-                owner: this.config.orgName,
-                clientId: this.config.clientId,
-                clientSecret: this.config.clientSecret,
-            },
-        })) as unknown as Promise<AxiosResponse<Enforcer[]>>
+  public async getEnforcers() {
+    if (!this.request) {
+      throw new Error('request init failed')
     }
 
-    public async getEnforcer(id: string) {
-        if (!this.request) {
-            throw new Error('request init failed')
-        }
+    return (await this.request.get('/get-enforcers', {
+      params: {
+        owner: this.config.orgName,
+        clientId: this.config.clientId,
+        clientSecret: this.config.clientSecret,
+      },
+    })) as unknown as Promise<AxiosResponse<Enforcer[]>>
+  }
 
-        return (await this.request.get('/get-enforcer', {
-            params: {
-                id: `${this.config.orgName}/${id}`,
-                clientId: this.config.clientId,
-                clientSecret: this.config.clientSecret,
-            },
-        })) as unknown as Promise<AxiosResponse<Enforcer>>
+  public async getEnforcer(id: string) {
+    if (!this.request) {
+      throw new Error('request init failed')
     }
 
-    public async modifyEnforcer(method: string, enforcer: Enforcer) {
-        if (!this.request) {
-            throw new Error('request init failed')
-        }
+    return (await this.request.get('/get-enforcer', {
+      params: {
+        id: `${this.config.orgName}/${id}`,
+        clientId: this.config.clientId,
+        clientSecret: this.config.clientSecret,
+      },
+    })) as unknown as Promise<AxiosResponse<Enforcer>>
+  }
 
-        const url = `/${method}`
-        enforcer.owner = this.config.orgName
-        const enforcerInfo = JSON.stringify(enforcer)
-        return (await this.request.post(
-            url,
-            {enforcerInfo},
-            {
-                params: {
-                    id: `${enforcer.owner}/${enforcer.name}`,
-                    clientId: this.config.clientId,
-                    clientSecret: this.config.clientSecret,
-                },
-            },
-        )) as unknown as Promise<AxiosResponse<Record<string, unknown>>>
+  public async modifyEnforcer(method: string, enforcer: Enforcer) {
+    if (!this.request) {
+      throw new Error('request init failed')
     }
 
-    public async addEnforcer(enforcer: Enforcer) {
-        return this.modifyEnforcer('add-enforcer', enforcer)
-    }
+    const url = `/${method}`
+    enforcer.owner = this.config.orgName
+    const enforcerInfo = JSON.stringify(enforcer)
+    return (await this.request.post(
+      url,
+      { enforcerInfo },
+      {
+        params: {
+          id: `${enforcer.owner}/${enforcer.name}`,
+          clientId: this.config.clientId,
+          clientSecret: this.config.clientSecret,
+        },
+      },
+    )) as unknown as Promise<AxiosResponse<Record<string, unknown>>>
+  }
 
-    public async updateEnforcer(enforcer: Enforcer) {
-        return this.modifyEnforcer('update-enforcer', enforcer)
-    }
+  public async addEnforcer(enforcer: Enforcer) {
+    return this.modifyEnforcer('add-enforcer', enforcer)
+  }
 
-    public async deleteEnforcer(enforcer: Enforcer) {
-        return this.modifyEnforcer('delete-enforcer', enforcer)
-    }
+  public async updateEnforcer(enforcer: Enforcer) {
+    return this.modifyEnforcer('update-enforcer', enforcer)
+  }
+
+  public async deleteEnforcer(enforcer: Enforcer) {
+    return this.modifyEnforcer('delete-enforcer', enforcer)
+  }
 }

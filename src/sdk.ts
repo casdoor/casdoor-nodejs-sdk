@@ -16,23 +16,23 @@ import Request from './request'
 
 // the configuration of the SDK
 export interface Config {
-    endpoint: string
-    clientId: string
-    clientSecret: string
-    certificate: string
-    orgName: string
-    appName?: string
+  endpoint: string
+  clientId: string
+  clientSecret: string
+  certificate: string
+  orgName: string
+  appName?: string
 }
 
 export class SDK {
-    public config: Config
-    public request: Request
+  public config: Config
+  public request: Request
 
-    constructor(config: Config) {
-        this.config = config
-        this.request = new Request({
-            url: config.endpoint + '/api',
-            timeout: 60000,
-        })
-    }
+  constructor(config: Config) {
+    this.config = config
+    this.request = new Request({
+      url: config.endpoint + '/api',
+      timeout: 60000,
+    })
+  }
 }
