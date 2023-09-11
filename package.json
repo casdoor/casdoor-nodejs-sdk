@@ -1,6 +1,6 @@
 {
   "name": "casdoor-nodejs-sdk",
-  "version": "0.0.1",
+  "version": "1.5.1",
   "description": "Node.js client SDK for Casdoor",
   "main": "lib/cjs/index.js",
   "typings": "lib/cjs/index.d.ts",
