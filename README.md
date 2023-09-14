@@ -17,6 +17,13 @@ This is Casdoor's SDK for NodeJS will allow you to easily connect your applicati
 
 Casdoor SDK is very simple to use. We will show you the steps below.
 
+## Examples
+
+The following examples use Node.js Express as backend, but have different frontend frameworks. Choose the appropriate example based on your tech stack:
+
+1. React frontend: https://github.com/casdoor/casdoor-nodejs-react-example
+2. Angular frontend: https://github.com/casdoor/casdoor-nodejs-angular-example
+
 ## Installation
 
 ```shell script
