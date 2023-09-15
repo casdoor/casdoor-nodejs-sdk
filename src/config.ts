@@ -12,22 +12,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import axios, {AxiosInstance, AxiosRequestConfig} from 'axios'
-
-export default class Request {
-    private client: AxiosInstance
-
-    constructor(config: AxiosRequestConfig) {
-        this.client = axios.create({
-            baseURL: config.url, timeout: config.timeout || 60000,
-        })
-    }
-
-    get(url: string, config?: AxiosRequestConfig<any>) {
-        return this.client.get(url, config)
-    }
-
-    post(url: string, data?: Record<string, string>, config?: AxiosRequestConfig<any>,) {
-        return this.client.post(url, data, config)
-    }
+// the configuration of the SDK
+export interface Config {
+    endpoint: string
+    clientId: string
+    clientSecret: string
+    certificate: string
+    orgName: string
+    appName?: string
 }

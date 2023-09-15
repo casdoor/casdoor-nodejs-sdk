@@ -12,93 +12,90 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import { Provider } from './provider'
-import { SDK } from './sdk'
-import { AxiosResponse } from 'axios'
+import {Provider} from './provider'
+import {AxiosResponse} from 'axios'
+import {Config} from "./config";
+import Request from "./request";
 
-interface Product {
-  owner: string
-  name: string
-  createdTime: string
-  displayName: string
+export interface Product {
+    owner: string
+    name: string
+    createdTime: string
+    displayName: string
 
-  image: string
-  detail: string
-  description: string
-  tag: string
-  currency: string
-  price: number
-  quantity: number
-  sold: number
-  providers?: string[]
-  returnUrl?: string
+    image: string
+    detail: string
+    description: string
+    tag: string
+    currency: string
+    price: number
+    quantity: number
+    sold: number
+    providers?: string[]
+    returnUrl?: string
 
-  state?: string
+    state?: string
 
-  providerObjs?: Provider[]
+    providerObjs?: Provider[]
 }
 
-export class ProductSDK extends SDK {
-  public async getProducts() {
-    if (!this.request) {
-      throw new Error('request init failed')
+export class ProductSDK {
+    private config: Config;
+    private readonly request: Request;
+
+    constructor(config: Config, request: Request) {
+        this.config = config;
+        this.request = request;
     }
 
-    return (await this.request.get('/get-products', {
-      params: {
-        owner: this.config.orgName,
-        clientId: this.config.clientId,
-        clientSecret: this.config.clientSecret,
-        pageSize: 1000,
-      },
-    })) as unknown as Promise<AxiosResponse<Product[]>>
-  }
+    public async getProducts() {
+        if (!this.request) {
+            throw new Error('request init failed')
+        }
 
-  public async getProduct(id: string) {
-    if (!this.request) {
-      throw new Error('request init failed')
+        return (await this.request.get('/get-products', {
+            params: {
+                owner: this.config.orgName, clientId: this.config.clientId, clientSecret: this.config.clientSecret, pageSize: 1000,
+            },
+        })) as unknown as Promise<AxiosResponse<Product[]>>
     }
 
-    return (await this.request.get('/get-product', {
-      params: {
-        id: `${this.config.orgName}/${id}`,
-        clientId: this.config.clientId,
-        clientSecret: this.config.clientSecret,
-        pageSize: 1000,
-      },
-    })) as unknown as Promise<AxiosResponse<Product>>
-  }
+    public async getProduct(id: string) {
+        if (!this.request) {
+            throw new Error('request init failed')
+        }
 
-  public async modifyProduct(method: string, product: Product) {
-    if (!this.request) {
-      throw new Error('request init failed')
+        return (await this.request.get('/get-product', {
+            params: {
+                id: `${this.config.orgName}/${id}`, clientId: this.config.clientId, clientSecret: this.config.clientSecret, pageSize: 1000,
+            },
+        })) as unknown as Promise<AxiosResponse<Product>>
     }
 
-    const url = `/${method}`
-    product.owner = this.config.orgName
-    const productInfo = JSON.stringify(product)
-    return (await this.request.post(
-      url,
-      { productInfo },
-      {
-        params: {
-          id: `${product.owner}/${product.name}`,
-          clientId: this.config.clientId,
-          clientSecret: this.config.clientSecret,
-        },
-      },
-    )) as unknown as Promise<AxiosResponse<Record<string, unknown>>>
-  }
+    public async modifyProduct(method: string, product: Product) {
+        if (!this.request) {
+            throw new Error('request init failed')
+        }
 
-  public async addProduct(product: Product) {
-    return this.modifyProduct('add-product', product)
-  }
+        const url = `/${method}`
+        product.owner = this.config.orgName
+        const productInfo = JSON.stringify(product)
+        return (await this.request.post(url, {productInfo}, {
+            params: {
+                id: `${product.owner}/${product.name}`, clientId: this.config.clientId, clientSecret: this.config.clientSecret,
+            },
+        },)) as unknown as Promise<AxiosResponse<Record<string, unknown>>>
+    }
 
-  public async updateProduct(product: Product) {
-    return this.modifyProduct('update-product', product)
-  }
+    public async addProduct(product: Product) {
+        return this.modifyProduct('add-product', product)
+    }
 
-  public async deleteProduct(product: Product) {
-    return this.modifyProduct('delete-product', product)
-  }
+    public async updateProduct(product: Product) {
+        return this.modifyProduct('update-product', product)
+    }
+
+    public async deleteProduct(product: Product) {
+        return this.modifyProduct('delete-product', product)
+    }
 }

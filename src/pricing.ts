@@ -12,88 +12,86 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import { SDK } from './sdk'
-import { AxiosResponse } from 'axios'
+import {AxiosResponse} from 'axios'
+import {Config} from "./config";
+import Request from "./request";
 
-interface Pricing {
-  owner: string
-  name: string
-  createdTime: string
-  displayName: string
-  description: string
+export interface Pricing {
+    owner: string
+    name: string
+    createdTime: string
+    displayName: string
+    description: string
 
-  plans?: string[]
-  isEnabled: boolean
-  trialDuration: number
-  application: string
+    plans?: string[]
+    isEnabled: boolean
+    trialDuration: number
+    application: string
 
-  submitter?: string
-  approver?: string
-  approveTime?: string
+    submitter?: string
+    approver?: string
+    approveTime?: string
 
-  state?: string
+    state?: string
 }
 
-export class PricingSDK extends SDK {
-  public async getPricings() {
-    if (!this.request) {
-      throw new Error('request init failed')
+export class PricingSDK {
+    private config: Config;
+    private readonly request: Request;
+
+    constructor(config: Config, request: Request) {
+        this.config = config;
+        this.request = request;
     }
 
-    return (await this.request.get('/get-pricings', {
-      params: {
-        owner: this.config.orgName,
-        clientId: this.config.clientId,
-        clientSecret: this.config.clientSecret,
-      },
-    })) as unknown as Promise<AxiosResponse<Pricing[]>>
-  }
+    public async getPricings() {
+        if (!this.request) {
+            throw new Error('request init failed')
+        }
 
-  public async getPricing(id: string) {
-    if (!this.request) {
-      throw new Error('request init failed')
+        return (await this.request.get('/get-pricings', {
+            params: {
+                owner: this.config.orgName, clientId: this.config.clientId, clientSecret: this.config.clientSecret,
+            },
+        })) as unknown as Promise<AxiosResponse<Pricing[]>>
     }
 
-    return (await this.request.get('/get-pricing', {
-      params: {
-        id: `${this.config.orgName}/${id}`,
-        clientId: this.config.clientId,
-        clientSecret: this.config.clientSecret,
-        pageSize: 1000,
-      },
-    })) as unknown as Promise<AxiosResponse<Pricing>>
-  }
+    public async getPricing(id: string) {
+        if (!this.request) {
+            throw new Error('request init failed')
+        }
 
-  public async modifyPricing(method: string, pricing: Pricing) {
-    if (!this.request) {
-      throw new Error('request init failed')
+        return (await this.request.get('/get-pricing', {
+            params: {
+                id: `${this.config.orgName}/${id}`, clientId: this.config.clientId, clientSecret: this.config.clientSecret, pageSize: 1000,
+            },
+        })) as unknown as Promise<AxiosResponse<Pricing>>
     }
 
-    const url = `/${method}`
-    pricing.owner = this.config.orgName
-    const pricingInfo = JSON.stringify(pricing)
-    return (await this.request.post(
-      url,
-      { pricingInfo },
-      {
-        params: {
-          id: `${pricing.owner}/${pricing.name}`,
-          clientId: this.config.clientId,
-          clientSecret: this.config.clientSecret,
-        },
-      },
-    )) as unknown as Promise<AxiosResponse<Record<string, unknown>>>
-  }
+    public async modifyPricing(method: string, pricing: Pricing) {
+        if (!this.request) {
+            throw new Error('request init failed')
+        }
 
-  public async addPricing(pricing: Pricing) {
-    return this.modifyPricing('add-pricing', pricing)
-  }
+        const url = `/${method}`
+        pricing.owner = this.config.orgName
+        const pricingInfo = JSON.stringify(pricing)
+        return (await this.request.post(url, {pricingInfo}, {
+            params: {
+                id: `${pricing.owner}/${pricing.name}`, clientId: this.config.clientId, clientSecret: this.config.clientSecret,
+            },
+        },)) as unknown as Promise<AxiosResponse<Record<string, unknown>>>
+    }
 
-  public async updatePricing(pricing: Pricing) {
-    return this.modifyPricing('update-pricing', pricing)
-  }
+    public async addPricing(pricing: Pricing) {
+        return this.modifyPricing('add-pricing', pricing)
+    }
 
-  public async deletePricing(pricing: Pricing) {
-    return this.modifyPricing('delete-pricing', pricing)
-  }
+    public async updatePricing(pricing: Pricing) {
+        return this.modifyPricing('update-pricing', pricing)
+    }
+
+    public async deletePricing(pricing: Pricing) {
+        return this.modifyPricing('delete-pricing', pricing)
+    }
 }
