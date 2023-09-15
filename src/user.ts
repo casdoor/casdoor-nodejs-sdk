@@ -111,14 +111,18 @@ export class UserSDK {
     }
 
     const {
-      data: { access_token },
+      data: { access_token, refresh_token },
     } = (await this.request.post('login/oauth/access_token', {
       client_id: this.config.clientId,
       client_secret: this.config.clientSecret,
       grant_type: 'authorization_code',
       code,
-    })) as unknown as AxiosResponse<{ access_token: string }>
-    return access_token
+    })) as unknown as AxiosResponse<{
+      access_token: string
+      refresh_token: string
+    }>
+
+    return { access_token: access_token, refresh_token: refresh_token }
   }
 
   public parseJwtToken(token: string) {
