@@ -12,80 +12,90 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {AxiosResponse} from 'axios'
-import {Config} from "./config";
-import Request from "./request";
+import { AxiosResponse } from 'axios'
+import { Config } from './config'
+import Request from './request'
 
 export interface Role {
-    owner: string
-    name: string
-    createdTime: string
-    displayName: string
-    description: string
+  owner: string
+  name: string
+  createdTime: string
+  displayName: string
+  description: string
 
-    users?: string[]
-    roles?: string[]
-    domains?: string[]
-    isEnabled: boolean
+  users?: string[]
+  roles?: string[]
+  domains?: string[]
+  isEnabled: boolean
 }
 
 export class RoleSDK {
-    private config: Config;
-    private readonly request: Request;
+  private config: Config
+  private readonly request: Request
 
-    constructor(config: Config, request: Request) {
-        this.config = config;
-        this.request = request;
+  constructor(config: Config, request: Request) {
+    this.config = config
+    this.request = request
+  }
+
+  public async getRoles() {
+    if (!this.request) {
+      throw new Error('request init failed')
     }
 
-    public async getRoles() {
-        if (!this.request) {
-            throw new Error('request init failed')
-        }
+    return (await this.request.get('/get-roles', {
+      params: {
+        owner: this.config.orgName,
+        clientId: this.config.clientId,
+        clientSecret: this.config.clientSecret,
+      },
+    })) as unknown as Promise<AxiosResponse<Role[]>>
+  }
 
-        return (await this.request.get('/get-roles', {
-            params: {
-                owner: this.config.orgName, clientId: this.config.clientId, clientSecret: this.config.clientSecret,
-            },
-        })) as unknown as Promise<AxiosResponse<Role[]>>
+  public async getRole(id: string) {
+    if (!this.request) {
+      throw new Error('request init failed')
     }
 
-    public async getRole(id: string) {
-        if (!this.request) {
-            throw new Error('request init failed')
-        }
+    return (await this.request.get('/get-role', {
+      params: {
+        id: `${this.config.orgName}/${id}`,
+        clientId: this.config.clientId,
+        clientSecret: this.config.clientSecret,
+      },
+    })) as unknown as Promise<AxiosResponse<Role>>
+  }
 
-        return (await this.request.get('/get-role', {
-            params: {
-                id: `${this.config.orgName}/${id}`, clientId: this.config.clientId, clientSecret: this.config.clientSecret,
-            },
-        })) as unknown as Promise<AxiosResponse<Role>>
+  public async modifyRole(method: string, role: Role) {
+    if (!this.request) {
+      throw new Error('request init failed')
     }
 
-    public async modifyRole(method: string, role: Role) {
-        if (!this.request) {
-            throw new Error('request init failed')
-        }
+    const url = `/${method}`
+    role.owner = this.config.orgName
+    const roleInfo = JSON.stringify(role)
+    return (await this.request.post(
+      url,
+      { roleInfo },
+      {
+        params: {
+          id: `${role.owner}/${role.name}`,
+          clientId: this.config.clientId,
+          clientSecret: this.config.clientSecret,
+        },
+      },
+    )) as unknown as Promise<AxiosResponse<Record<string, unknown>>>
+  }
 
-        const url = `/${method}`
-        role.owner = this.config.orgName
-        const roleInfo = JSON.stringify(role)
-        return (await this.request.post(url, {roleInfo}, {
-            params: {
-                id: `${role.owner}/${role.name}`, clientId: this.config.clientId, clientSecret: this.config.clientSecret,
-            },
-        },)) as unknown as Promise<AxiosResponse<Record<string, unknown>>>
-    }
+  public async addRole(role: Role) {
+    return this.modifyRole('add-role', role)
+  }
 
-    public async addRole(role: Role) {
-        return this.modifyRole('add-role', role)
-    }
+  public async updateRole(role: Role) {
+    return this.modifyRole('update-role', role)
+  }
 
-    public async updateRole(role: Role) {
-        return this.modifyRole('update-role', role)
-    }
-
-    public async deleteRole(role: Role) {
-        return this.modifyRole('delete-role', role)
-    }
+  public async deleteRole(role: Role) {
+    return this.modifyRole('delete-role', role)
+  }
 }

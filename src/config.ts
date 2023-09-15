@@ -14,10 +14,10 @@
 
 // the configuration of the SDK
 export interface Config {
-    endpoint: string
-    clientId: string
-    clientSecret: string
-    certificate: string
-    orgName: string
-    appName?: string
+  endpoint: string
+  clientId: string
+  clientSecret: string
+  certificate: string
+  orgName: string
+  appName?: string
 }

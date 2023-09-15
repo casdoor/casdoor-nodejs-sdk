@@ -12,95 +12,105 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {TableColumn} from './syncer'
-import {AxiosResponse} from 'axios'
-import {Config} from "./config";
-import Request from "./request";
+import { TableColumn } from './syncer'
+import { AxiosResponse } from 'axios'
+import { Config } from './config'
+import Request from './request'
 
 export interface Webhook {
-    owner: string
-    name: string
-    createdTime: string
+  owner: string
+  name: string
+  createdTime: string
 
-    organization: string
-    type: string
+  organization: string
+  type: string
 
-    host: string
-    port: number
-    user: string
-    password: string
-    databaseType: string
-    database: string
-    table: string
-    tablePrimaryKey: string
-    tableColumns?: TableColumn[]
-    affiliationTable?: string
-    avatarBaseUrl?: string
-    errorText?: string
-    syncInterval?: number
-    isReadOnly?: boolean
-    isEnabled?: boolean
+  host: string
+  port: number
+  user: string
+  password: string
+  databaseType: string
+  database: string
+  table: string
+  tablePrimaryKey: string
+  tableColumns?: TableColumn[]
+  affiliationTable?: string
+  avatarBaseUrl?: string
+  errorText?: string
+  syncInterval?: number
+  isReadOnly?: boolean
+  isEnabled?: boolean
 
-    // Ormer *Ormer `xorm:"-" json:"-"`
+  // Ormer *Ormer `xorm:"-" json:"-"`
 }
 
 export class WebhookSDK {
-    private config: Config;
-    private readonly request: Request;
+  private config: Config
+  private readonly request: Request
 
-    constructor(config: Config, request: Request) {
-        this.config = config;
-        this.request = request;
+  constructor(config: Config, request: Request) {
+    this.config = config
+    this.request = request
+  }
+
+  public async getWebhooks() {
+    if (!this.request) {
+      throw new Error('request init failed')
     }
 
-    public async getWebhooks() {
-        if (!this.request) {
-            throw new Error('request init failed')
-        }
+    return (await this.request.get('/get-webhooks', {
+      params: {
+        owner: this.config.orgName,
+        clientId: this.config.clientId,
+        clientSecret: this.config.clientSecret,
+      },
+    })) as unknown as Promise<AxiosResponse<Webhook[]>>
+  }
 
-        return (await this.request.get('/get-webhooks', {
-            params: {
-                owner: this.config.orgName, clientId: this.config.clientId, clientSecret: this.config.clientSecret,
-            },
-        })) as unknown as Promise<AxiosResponse<Webhook[]>>
+  public async getWebhook(id: string) {
+    if (!this.request) {
+      throw new Error('request init failed')
     }
 
-    public async getWebhook(id: string) {
-        if (!this.request) {
-            throw new Error('request init failed')
-        }
+    return (await this.request.get('/get-webhook', {
+      params: {
+        id: `${this.config.orgName}/${id}`,
+        clientId: this.config.clientId,
+        clientSecret: this.config.clientSecret,
+      },
+    })) as unknown as Promise<AxiosResponse<Webhook>>
+  }
 
-        return (await this.request.get('/get-webhook', {
-            params: {
-                id: `${this.config.orgName}/${id}`, clientId: this.config.clientId, clientSecret: this.config.clientSecret,
-            },
-        })) as unknown as Promise<AxiosResponse<Webhook>>
+  public async modifyWebhook(method: string, webhook: Webhook) {
+    if (!this.request) {
+      throw new Error('request init failed')
     }
 
-    public async modifyWebhook(method: string, webhook: Webhook) {
-        if (!this.request) {
-            throw new Error('request init failed')
-        }
+    const url = `/${method}`
+    webhook.owner = this.config.orgName
+    const webhookInfo = JSON.stringify(webhook)
+    return (await this.request.post(
+      url,
+      { webhookInfo },
+      {
+        params: {
+          id: `${webhook.owner}/${webhook.name}`,
+          clientId: this.config.clientId,
+          clientSecret: this.config.clientSecret,
+        },
+      },
+    )) as unknown as Promise<AxiosResponse<Record<string, unknown>>>
+  }
 
-        const url = `/${method}`
-        webhook.owner = this.config.orgName
-        const webhookInfo = JSON.stringify(webhook)
-        return (await this.request.post(url, {webhookInfo}, {
-            params: {
-                id: `${webhook.owner}/${webhook.name}`, clientId: this.config.clientId, clientSecret: this.config.clientSecret,
-            },
-        },)) as unknown as Promise<AxiosResponse<Record<string, unknown>>>
-    }
+  public async addWebhook(webhook: Webhook) {
+    return this.modifyWebhook('add-webhook', webhook)
+  }
 
-    public async addWebhook(webhook: Webhook) {
-        return this.modifyWebhook('add-webhook', webhook)
-    }
+  public async updateWebhook(webhook: Webhook) {
+    return this.modifyWebhook('update-webhook', webhook)
+  }
 
-    public async updateWebhook(webhook: Webhook) {
-        return this.modifyWebhook('update-webhook', webhook)
-    }
-
-    public async deleteWebhook(webhook: Webhook) {
-        return this.modifyWebhook('delete-webhook', webhook)
-    }
+  public async deleteWebhook(webhook: Webhook) {
+    return this.modifyWebhook('delete-webhook', webhook)
+  }
 }
