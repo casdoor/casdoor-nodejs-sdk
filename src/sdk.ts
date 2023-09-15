@@ -94,7 +94,7 @@ export class SDK {
     return await this.userSDK.getAuthToken(code)
   }
 
-  public async parseJwtToken(token: string) {
+  public parseJwtToken(token: string) {
     return this.userSDK.parseJwtToken(token)
   }
 
