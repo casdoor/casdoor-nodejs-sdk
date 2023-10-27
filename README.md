@@ -39,7 +39,7 @@ yarn add casdoor-nodejs-sdk
 Initialization requires 5 parameters, which are all string type:
 
 | Name (in order) | Must | Description                                         |
-| --------------- | ---- | --------------------------------------------------- |
+|-----------------|------|-----------------------------------------------------|
 | endpoint        | Yes  | Casdoor Server Url, such as `http://localhost:8000` |
 | clientId        | Yes  | Client ID for the Casdoor application               |
 | clientSecret    | Yes  | Client secret for the Casdoor application           |
