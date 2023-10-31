@@ -28,11 +28,7 @@ export default class Request {
     return this.client.get(url, config)
   }
 
-  post(
-    url: string,
-    data?: Record<string, string>,
-    config?: AxiosRequestConfig<any>,
-  ) {
+  post(url: string, data: any, config?: AxiosRequestConfig<any>) {
     return this.client.post(url, data, config)
   }
 }
