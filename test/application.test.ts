@@ -42,20 +42,24 @@ test('TestApplication', async () => {
     organization: 'casbin',
   }
 
-  const addResponse = await sdk.addApplication(application)
-  if (!addResponse) {
+  const { data: addResponse } = await sdk.addApplication(application)
+  if (addResponse.data !== 'Affected') {
     throw new Error('Failed to add object')
   }
 
   // Get all objects and check if our added object is in the list
-  const applications = await sdk.getApplications()
-  const found = applications.some((item) => item.Name === name)
+  const {
+    data: { data: applications },
+  } = await sdk.getApplications()
+  const found = applications.some((item) => item.name === name)
   if (!found) {
     throw new Error('Added object not found in list')
   }
 
   // Get the object
-  const retrievedApplication = await sdk.getApplication(name)
+  const {
+    data: { data: retrievedApplication },
+  } = await sdk.getApplication(name)
   if (retrievedApplication.name !== name) {
     throw new Error(
       `Retrieved object does not match added object: ${retrievedApplication.name} != ${name}`,
@@ -65,13 +69,17 @@ test('TestApplication', async () => {
   // Update the object
   const updatedDescription = 'Updated Casdoor Website'
   retrievedApplication.description = updatedDescription
-  const updateResponse = await sdk.updateApplication(retrievedApplication)
-  if (!updateResponse) {
+  const { data: updateResponse } = await sdk.updateApplication(
+    retrievedApplication,
+  )
+  if (updateResponse.data !== 'Affected') {
     throw new Error('Failed to update object')
   }
 
   // Validate the update
-  const updatedApplication = await sdk.getApplication(name)
+  const {
+    data: { data: updatedApplication },
+  } = await sdk.getApplication(name)
   if (updatedApplication.description !== updatedDescription) {
     throw new Error(
       `Failed to update object, description mismatch: ${updatedApplication.description} != ${updatedDescription}`,
@@ -79,13 +87,17 @@ test('TestApplication', async () => {
   }
 
   // Delete the object
-  const deleteResponse = await sdk.deleteApplication(retrievedApplication)
-  if (!deleteResponse) {
+  const { data: deleteResponse } = await sdk.deleteApplication(
+    retrievedApplication,
+  )
+  if (deleteResponse.data !== 'Affected') {
     throw new Error('Failed to delete object')
   }
 
   // Validate the deletion
-  const deletedApplication = await sdk.getApplication(name)
+  const {
+    data: { data: deletedApplication },
+  } = await sdk.getApplication(name)
   if (deletedApplication) {
     throw new Error("Failed to delete object, it's still retrievable")
   }

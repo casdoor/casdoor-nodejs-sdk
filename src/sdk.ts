@@ -146,8 +146,8 @@ export class SDK {
     return await this.applicationSDK.getApplications()
   }
 
-  public async getApplication(id: string) {
-    return await this.applicationSDK.getApplication(id)
+  public async getApplication(name: string) {
+    return await this.applicationSDK.getApplication(name)
   }
 
   public async addApplication(application: Application) {

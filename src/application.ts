@@ -49,15 +49,15 @@ export interface Application {
   homepageUrl: string
   description: string
   organization: string
-  cert: string
-  enablePassword: boolean
-  enableSignUp: boolean
-  enableSigninSession: boolean
-  enableAutoSignin: boolean
-  enableCodeSignin: boolean
-  enableSamlCompress: boolean
-  enableWebAuthn: boolean
-  enableLinkWithEmail: boolean
+  cert?: string
+  enablePassword?: boolean
+  enableSignUp?: boolean
+  enableSigninSession?: boolean
+  enableCodeSignin?: boolean
+  enableAutoSignin?: boolean
+  enableSamlCompress?: boolean
+  enableWebAuthn?: boolean
+  enableLinkWithEmail?: boolean
   orgChoiceMode?: string
   samlReplyUrl?: string
   providers?: ProviderItem[]
@@ -99,24 +99,30 @@ export class ApplicationSDK {
     return (await this.request.get('/get-applications', {
       params: {
         owner: 'admin',
-        clientId: this.config.clientId,
-        clientSecret: this.config.clientSecret,
       },
-    })) as unknown as Promise<AxiosResponse<Application[]>>
+      headers: {
+        Authorization:
+          'Basic ' +
+          btoa(`${this.config.clientId}:${this.config.clientSecret}`),
+      },
+    })) as unknown as Promise<AxiosResponse<{ data: Application[] }>>
   }
 
-  public async getApplication(id: string) {
+  public async getApplication(name: string) {
     if (!this.request) {
       throw new Error('request init failed')
     }
 
     return (await this.request.get('/get-application', {
       params: {
-        id: `${this.config.orgName}/${id}`,
-        clientId: this.config.clientId,
-        clientSecret: this.config.clientSecret,
+        id: `admin/${name}`,
       },
-    })) as unknown as Promise<AxiosResponse<Application>>
+      headers: {
+        Authorization:
+          'Basic ' +
+          btoa(`${this.config.clientId}:${this.config.clientSecret}`),
+      },
+    })) as unknown as Promise<AxiosResponse<{ data: Application }>>
   }
 
   public async modifyApplication(method: string, application: Application) {
@@ -125,19 +131,17 @@ export class ApplicationSDK {
     }
 
     const url = `/${method}`
-    application.owner = this.config.orgName
-    const applicationInfo = JSON.stringify(application)
-    return (await this.request.post(
-      url,
-      { applicationInfo },
-      {
-        params: {
-          id: `${application.owner}/${application.name}`,
-          clientId: this.config.clientId,
-          clientSecret: this.config.clientSecret,
-        },
+    application.owner = 'admin'
+    return (await this.request.post(url, application, {
+      params: {
+        id: `${application.owner}/${application.name}`,
       },
-    )) as unknown as Promise<AxiosResponse<Record<string, unknown>>>
+      headers: {
+        Authorization:
+          'Basic ' +
+          btoa(`${this.config.clientId}:${this.config.clientSecret}`),
+      },
+    })) as unknown as Promise<AxiosResponse<Record<string, unknown>>>
   }
 
   public async addApplication(application: Application) {
