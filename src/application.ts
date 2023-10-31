@@ -103,7 +103,9 @@ export class ApplicationSDK {
       headers: {
         Authorization:
           'Basic ' +
-          btoa(`${this.config.clientId}:${this.config.clientSecret}`),
+          Buffer.from(
+            `${this.config.clientId}:${this.config.clientSecret}`,
+          ).toString('base64'),
       },
     })) as unknown as Promise<AxiosResponse<{ data: Application[] }>>
   }
@@ -120,7 +122,9 @@ export class ApplicationSDK {
       headers: {
         Authorization:
           'Basic ' +
-          btoa(`${this.config.clientId}:${this.config.clientSecret}`),
+          Buffer.from(
+            `${this.config.clientId}:${this.config.clientSecret}`,
+          ).toString('base64'),
       },
     })) as unknown as Promise<AxiosResponse<{ data: Application }>>
   }
@@ -139,7 +143,9 @@ export class ApplicationSDK {
       headers: {
         Authorization:
           'Basic ' +
-          btoa(`${this.config.clientId}:${this.config.clientSecret}`),
+          Buffer.from(
+            `${this.config.clientId}:${this.config.clientSecret}`,
+          ).toString('base64'),
       },
     })) as unknown as Promise<AxiosResponse<Record<string, unknown>>>
   }
