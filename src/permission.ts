@@ -28,7 +28,7 @@ export interface Permission {
   domains?: string[]
 
   model: string
-  adapter: string
+  adapter?: string
   resourceType: string
   resources?: string[]
   actions?: string[]
@@ -58,10 +58,8 @@ export class PermissionSDK {
     return (await this.request.get('/get-permissions', {
       params: {
         owner: this.config.orgName,
-        clientId: this.config.clientId,
-        clientSecret: this.config.clientSecret,
       },
-    })) as unknown as Promise<AxiosResponse<Permission[]>>
+    })) as unknown as Promise<AxiosResponse<{ data: Permission[] }>>
   }
 
   public async getPermission(id: string) {
@@ -72,10 +70,8 @@ export class PermissionSDK {
     return (await this.request.get('/get-permission', {
       params: {
         id: `${this.config.orgName}/${id}`,
-        clientId: this.config.clientId,
-        clientSecret: this.config.clientSecret,
       },
-    })) as unknown as Promise<AxiosResponse<Permission>>
+    })) as unknown as Promise<AxiosResponse<{ data: Permission }>>
   }
 
   public async modifyPermission(method: string, permission: Permission) {
@@ -85,18 +81,11 @@ export class PermissionSDK {
 
     const url = `/${method}`
     permission.owner = this.config.orgName
-    const permissionInfo = JSON.stringify(permission)
-    return (await this.request.post(
-      url,
-      { permissionInfo },
-      {
-        params: {
-          id: `${permission.owner}/${permission.name}`,
-          clientId: this.config.clientId,
-          clientSecret: this.config.clientSecret,
-        },
+    return (await this.request.post(url, permission, {
+      params: {
+        id: `${permission.owner}/${permission.name}`,
       },
-    )) as unknown as Promise<AxiosResponse<Record<string, unknown>>>
+    })) as unknown as Promise<AxiosResponse<Record<string, unknown>>>
   }
 
   public async addPermission(permission: Permission) {

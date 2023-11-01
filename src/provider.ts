@@ -24,37 +24,37 @@ export interface Provider {
   displayName: string
   category: string
   type: string
-  subType: string
-  method: string
-  clientId: string
-  clientSecret: string
-  clientId2: string
-  clientSecret2: string
-  cert: string
-  customAuthUrl: string
-  customTokenUrl: string
-  customUserInfoUrl: string
-  customLogo: string
-  scopes: string
+  subType?: string
+  method?: string
+  clientId?: string
+  clientSecret?: string
+  clientId2?: string
+  clientSecret2?: string
+  cert?: string
+  customAuthUrl?: string
+  customTokenUrl?: string
+  customUserInfoUrl?: string
+  customLogo?: string
+  scopes?: string
   userMapping?: Record<string, string>
 
-  host: string
-  port: number
-  disableSsl: boolean // If the provider type is WeChat, DisableSsl means EnableQRCode
-  title: string
-  content: string // If provider type is WeChat, Content means QRCode string by Base64 encoding
-  receiver: string
+  host?: string
+  port?: number
+  disableSsl?: boolean // If the provider type is WeChat, DisableSsl means EnableQRCode
+  title?: string
+  content?: string // If provider type is WeChat, Content means QRCode string by Base64 encoding
+  receiver?: string
 
-  regionId: string
-  signName: string
-  templateCode: string
-  appId: string
+  regionId?: string
+  signName?: string
+  templateCode?: string
+  appId?: string
 
-  endpoint: string
-  intranetEndpoint: string
-  domain: string
-  bucket: string
-  pathPrefix: string
+  endpoint?: string
+  intranetEndpoint?: string
+  domain?: string
+  bucket?: string
+  pathPrefix?: string
 
   metadata?: string
   idP?: string
@@ -81,10 +81,8 @@ export class ProviderSDK {
     return (await this.request.get('/get-providers', {
       params: {
         owner: this.config.orgName,
-        clientId: this.config.clientId,
-        clientSecret: this.config.clientSecret,
       },
-    })) as unknown as Promise<AxiosResponse<Provider[]>>
+    })) as unknown as Promise<AxiosResponse<{ data: Provider[] }>>
   }
 
   public async getProvider(id: string) {
@@ -95,10 +93,8 @@ export class ProviderSDK {
     return (await this.request.get('/get-provider', {
       params: {
         id: `${this.config.orgName}/${id}`,
-        clientId: this.config.clientId,
-        clientSecret: this.config.clientSecret,
       },
-    })) as unknown as Promise<AxiosResponse<Provider>>
+    })) as unknown as Promise<AxiosResponse<{ data: Provider }>>
   }
 
   public async modifyProvider(method: string, provider: Provider) {
@@ -108,18 +104,11 @@ export class ProviderSDK {
 
     const url = `/${method}`
     provider.owner = this.config.orgName
-    const providerInfo = JSON.stringify(provider)
-    return (await this.request.post(
-      url,
-      { providerInfo },
-      {
-        params: {
-          id: `${provider.owner}/${provider.name}`,
-          clientId: this.config.clientId,
-          clientSecret: this.config.clientSecret,
-        },
+    return (await this.request.post(url, provider, {
+      params: {
+        id: `${provider.owner}/${provider.name}`,
       },
-    )) as unknown as Promise<AxiosResponse<Record<string, unknown>>>
+    })) as unknown as Promise<AxiosResponse<Record<string, unknown>>>
   }
 
   public async addProvider(provider: Provider) {

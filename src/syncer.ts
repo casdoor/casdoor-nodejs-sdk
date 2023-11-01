@@ -31,7 +31,7 @@ export interface Syncer {
   createdTime: string
 
   organization: string
-  type: string
+  type?: string
 
   host: string
   port: number
@@ -40,7 +40,7 @@ export interface Syncer {
   databaseType: string
   database: string
   table: string
-  tablePrimaryKey: string
+  tablePrimaryKey?: string
   tableColumns?: TableColumn[]
   affiliationTable?: string
   avatarBaseUrl?: string
@@ -69,10 +69,8 @@ export class SyncerSDK {
     return (await this.request.get('/get-syncers', {
       params: {
         owner: this.config.orgName,
-        clientId: this.config.clientId,
-        clientSecret: this.config.clientSecret,
       },
-    })) as unknown as Promise<AxiosResponse<Syncer[]>>
+    })) as unknown as Promise<AxiosResponse<{ data: Syncer[] }>>
   }
 
   public async getSyncer(id: string) {
@@ -83,10 +81,8 @@ export class SyncerSDK {
     return (await this.request.get('/get-syncer', {
       params: {
         id: `${this.config.orgName}/${id}`,
-        clientId: this.config.clientId,
-        clientSecret: this.config.clientSecret,
       },
-    })) as unknown as Promise<AxiosResponse<Syncer>>
+    })) as unknown as Promise<AxiosResponse<{ data: Syncer }>>
   }
 
   public async modifySyncer(method: string, syncer: Syncer) {
@@ -96,18 +92,11 @@ export class SyncerSDK {
 
     const url = `/${method}`
     syncer.owner = this.config.orgName
-    const syncerInfo = JSON.stringify(syncer)
-    return (await this.request.post(
-      url,
-      { syncerInfo },
-      {
-        params: {
-          id: `${syncer.owner}/${syncer.name}`,
-          clientId: this.config.clientId,
-          clientSecret: this.config.clientSecret,
-        },
+    return (await this.request.post(url, syncer, {
+      params: {
+        id: `${syncer.owner}/${syncer.name}`,
       },
-    )) as unknown as Promise<AxiosResponse<Record<string, unknown>>>
+    })) as unknown as Promise<AxiosResponse<Record<string, unknown>>>
   }
 
   public async addSyncer(syncer: Syncer) {

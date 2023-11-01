@@ -21,17 +21,17 @@ export interface Adapter {
   name: string
   createdTime: string
 
-  type: string
-  databaseType: string
+  type?: string
+  databaseType?: string
   host: string
-  port: number
+  port?: number
   user: string
-  password: string
-  database: string
-  table: string
-  tableNamePrefix: string
+  password?: string
+  database?: string
+  table?: string
+  tableNamePrefix?: string
 
-  isEnabled: boolean
+  isEnabled?: boolean
 }
 
 export class AdapterSDK {
@@ -51,10 +51,8 @@ export class AdapterSDK {
     return (await this.request.get('/get-adapters', {
       params: {
         owner: this.config.orgName,
-        clientId: this.config.clientId,
-        clientSecret: this.config.clientSecret,
       },
-    })) as unknown as Promise<AxiosResponse<Adapter[]>>
+    })) as unknown as Promise<AxiosResponse<{ data: Adapter[] }>>
   }
 
   public async getAdapter(id: string) {
@@ -65,10 +63,8 @@ export class AdapterSDK {
     return (await this.request.get('/get-adapter', {
       params: {
         id: `${this.config.orgName}/${id}`,
-        clientId: this.config.clientId,
-        clientSecret: this.config.clientSecret,
       },
-    })) as unknown as Promise<AxiosResponse<Adapter>>
+    })) as unknown as Promise<AxiosResponse<{ data: Adapter }>>
   }
 
   public async modifyAdapter(method: string, adapter: Adapter) {
@@ -76,20 +72,14 @@ export class AdapterSDK {
       throw new Error('request init failed')
     }
 
-    const url = this.config.endpoint + `/${method}`
+    const url = `/${method}`
     adapter.owner = this.config.orgName
-    const adapterInfo = JSON.stringify(adapter)
-    return (await this.request.post(
-      url,
-      { adapterInfo },
-      {
-        params: {
-          id: `${adapter.owner}/${adapter.name}`,
-          clientId: this.config.clientId,
-          clientSecret: this.config.clientSecret,
-        },
+
+    return (await this.request.post(url, adapter, {
+      params: {
+        id: `${adapter.owner}/${adapter.name}`,
       },
-    )) as unknown as Promise<AxiosResponse<Record<string, unknown>>>
+    })) as unknown as Promise<AxiosResponse<Record<string, unknown>>>
   }
 
   public async addAdapter(adapter: Adapter) {

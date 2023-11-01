@@ -26,7 +26,7 @@ export interface Role {
   users?: string[]
   roles?: string[]
   domains?: string[]
-  isEnabled: boolean
+  isEnabled?: boolean
 }
 
 export class RoleSDK {
@@ -46,10 +46,8 @@ export class RoleSDK {
     return (await this.request.get('/get-roles', {
       params: {
         owner: this.config.orgName,
-        clientId: this.config.clientId,
-        clientSecret: this.config.clientSecret,
       },
-    })) as unknown as Promise<AxiosResponse<Role[]>>
+    })) as unknown as Promise<AxiosResponse<{ data: Role[] }>>
   }
 
   public async getRole(id: string) {
@@ -60,10 +58,8 @@ export class RoleSDK {
     return (await this.request.get('/get-role', {
       params: {
         id: `${this.config.orgName}/${id}`,
-        clientId: this.config.clientId,
-        clientSecret: this.config.clientSecret,
       },
-    })) as unknown as Promise<AxiosResponse<Role>>
+    })) as unknown as Promise<AxiosResponse<{ data: Role }>>
   }
 
   public async modifyRole(method: string, role: Role) {
@@ -73,18 +69,12 @@ export class RoleSDK {
 
     const url = `/${method}`
     role.owner = this.config.orgName
-    const roleInfo = JSON.stringify(role)
-    return (await this.request.post(
-      url,
-      { roleInfo },
-      {
-        params: {
-          id: `${role.owner}/${role.name}`,
-          clientId: this.config.clientId,
-          clientSecret: this.config.clientSecret,
-        },
+
+    return (await this.request.post(url, role, {
+      params: {
+        id: `${role.owner}/${role.name}`,
       },
-    )) as unknown as Promise<AxiosResponse<Record<string, unknown>>>
+    })) as unknown as Promise<AxiosResponse<Record<string, unknown>>>
   }
 
   public async addRole(role: Role) {

@@ -55,10 +55,8 @@ export class TokenSDK {
         p: String(p),
         pageSize: String(pageSize),
         owner: this.config.orgName,
-        clientId: this.config.clientId,
-        clientSecret: this.config.clientSecret,
       },
-    })) as unknown as Promise<AxiosResponse<Token[]>>
+    })) as unknown as Promise<AxiosResponse<{ data: Token[] }>>
   }
 
   public async getToken(id: string) {
@@ -69,10 +67,8 @@ export class TokenSDK {
     return (await this.request.get('/get-token', {
       params: {
         id: `${this.config.orgName}/${id}`,
-        clientId: this.config.clientId,
-        clientSecret: this.config.clientSecret,
       },
-    })) as unknown as Promise<AxiosResponse<Token>>
+    })) as unknown as Promise<AxiosResponse<{ data: Token }>>
   }
 
   public async modifyToken(method: string, token: Token) {
@@ -82,18 +78,11 @@ export class TokenSDK {
 
     const url = `/${method}`
     token.owner = this.config.orgName
-    const tokenInfo = JSON.stringify(token)
-    return (await this.request.post(
-      url,
-      { tokenInfo },
-      {
-        params: {
-          id: `${token.owner}/${token.name}`,
-          clientId: this.config.clientId,
-          clientSecret: this.config.clientSecret,
-        },
+    return (await this.request.post(url, token, {
+      params: {
+        id: `${token.owner}/${token.name}`,
       },
-    )) as unknown as Promise<AxiosResponse<Record<string, unknown>>>
+    })) as unknown as Promise<AxiosResponse<Record<string, unknown>>>
   }
 
   public async addToken(token: Token) {

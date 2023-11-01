@@ -63,10 +63,8 @@ export class ResourceSDK {
         value: value,
         sortField: sortField,
         sortOrder: sortOrder,
-        clientId: this.config.clientId,
-        clientSecret: this.config.clientSecret,
       },
-    })) as unknown as Promise<AxiosResponse<Resource[]>>
+    })) as unknown as Promise<AxiosResponse<{ data: Resource[] }>>
   }
 
   public async getResource(id: string) {
@@ -77,10 +75,8 @@ export class ResourceSDK {
     return (await this.request.get('/get-resource', {
       params: {
         id: `${this.config.orgName}/${id}`,
-        clientId: this.config.clientId,
-        clientSecret: this.config.clientSecret,
       },
-    })) as unknown as Promise<AxiosResponse<Resource>>
+    })) as unknown as Promise<AxiosResponse<{ data: Resource }>>
   }
 
   public async modifyResource(method: string, resource: Resource) {
@@ -90,18 +86,11 @@ export class ResourceSDK {
 
     const url = `/${method}`
     resource.owner = this.config.orgName
-    const resourceInfo = JSON.stringify(resource)
-    return (await this.request.post(
-      url,
-      { resourceInfo },
-      {
-        params: {
-          id: `${resource.owner}/${resource.name}`,
-          clientId: this.config.clientId,
-          clientSecret: this.config.clientSecret,
-        },
+    return (await this.request.post(url, resource, {
+      params: {
+        id: `${resource.owner}/${resource.name}`,
       },
-    )) as unknown as Promise<AxiosResponse<Record<string, unknown>>>
+    })) as unknown as Promise<AxiosResponse<Record<string, unknown>>>
   }
 
   public async addResource(resource: Resource) {

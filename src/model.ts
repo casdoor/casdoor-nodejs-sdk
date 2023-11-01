@@ -21,21 +21,23 @@ export interface Model {
   owner: string
   name: string
   createdTime: string
-  updatedTime: string
+  updatedTime?: string
 
   displayName: string
-  manager: string
-  contactEmail: string
-  type: string
-  parentId: string
-  isTopModel: boolean
+  manager?: string
+  contactEmail?: string
+  type?: string
+  parentId?: string
+  isTopModel?: boolean
   users?: User[]
 
   title?: string
   key?: string
   children?: Model[]
 
-  isEnabled: boolean
+  isEnabled?: boolean
+
+  modelText: string
 }
 
 export class ModelSDK {
@@ -55,10 +57,8 @@ export class ModelSDK {
     return (await this.request.get('/get-models', {
       params: {
         owner: this.config.orgName,
-        clientId: this.config.clientId,
-        clientSecret: this.config.clientSecret,
       },
-    })) as unknown as Promise<AxiosResponse<Model[]>>
+    })) as unknown as Promise<AxiosResponse<{ data: Model[] }>>
   }
 
   public async getModel(id: string) {
@@ -69,10 +69,8 @@ export class ModelSDK {
     return (await this.request.get('/get-model', {
       params: {
         id: `${this.config.orgName}/${id}`,
-        clientId: this.config.clientId,
-        clientSecret: this.config.clientSecret,
       },
-    })) as unknown as Promise<AxiosResponse<Model>>
+    })) as unknown as Promise<AxiosResponse<{ data: Model }>>
   }
 
   public async modifyModel(method: string, model: Model) {
@@ -82,18 +80,11 @@ export class ModelSDK {
 
     const url = `/${method}`
     model.owner = this.config.orgName
-    const modelInfo = JSON.stringify(model)
-    return (await this.request.post(
-      url,
-      { modelInfo },
-      {
-        params: {
-          id: `${model.owner}/${model.name}`,
-          clientId: this.config.clientId,
-          clientSecret: this.config.clientSecret,
-        },
+    return (await this.request.post(url, model, {
+      params: {
+        id: `${model.owner}/${model.name}`,
       },
-    )) as unknown as Promise<AxiosResponse<Record<string, unknown>>>
+    })) as unknown as Promise<AxiosResponse<Record<string, unknown>>>
   }
 
   public async addModel(model: Model) {

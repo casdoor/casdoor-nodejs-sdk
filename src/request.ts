@@ -21,9 +21,9 @@ export default class Request {
     this.client = axios.create({
       baseURL: config.url,
       timeout: config.timeout || 60000,
+      headers: config.headers,
     })
   }
-
   get(url: string, config?: AxiosRequestConfig<any>) {
     return this.client.get(url, config)
   }

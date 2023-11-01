@@ -22,15 +22,15 @@ export interface Subscription {
   createdTime: string
   displayName: string
 
-  startDate: Date
-  endDate: Date
-  duration: number
+  startDate?: Date
+  endDate?: Date
+  duration?: number
   description: string
 
-  user: string
-  plan: string
+  user?: string
+  plan?: string
 
-  isEnabled: boolean
+  isEnabled?: boolean
   submitter?: string
   approver?: string
   approveTime?: string
@@ -55,11 +55,10 @@ export class SubscriptionSDK {
     return (await this.request.get('/get-subscriptions', {
       params: {
         owner: this.config.orgName,
-        clientId: this.config.clientId,
-        clientSecret: this.config.clientSecret,
+
         pageSize: 1000,
       },
-    })) as unknown as Promise<AxiosResponse<Subscription[]>>
+    })) as unknown as Promise<AxiosResponse<{ data: Subscription[] }>>
   }
 
   public async getSubscription(id: string) {
@@ -70,11 +69,10 @@ export class SubscriptionSDK {
     return (await this.request.get('/get-subscription', {
       params: {
         id: `${this.config.orgName}/${id}`,
-        clientId: this.config.clientId,
-        clientSecret: this.config.clientSecret,
+
         pageSize: 1000,
       },
-    })) as unknown as Promise<AxiosResponse<Subscription>>
+    })) as unknown as Promise<AxiosResponse<{ data: Subscription }>>
   }
 
   public async modifySubscription(method: string, subscription: Subscription) {
@@ -84,18 +82,11 @@ export class SubscriptionSDK {
 
     const url = `/${method}`
     subscription.owner = this.config.orgName
-    const subscriptionInfo = JSON.stringify(subscription)
-    return (await this.request.post(
-      url,
-      { subscriptionInfo },
-      {
-        params: {
-          id: `${subscription.owner}/${subscription.name}`,
-          clientId: this.config.clientId,
-          clientSecret: this.config.clientSecret,
-        },
+    return (await this.request.post(url, subscription, {
+      params: {
+        id: `${subscription.owner}/${subscription.name}`,
       },
-    )) as unknown as Promise<AxiosResponse<Record<string, unknown>>>
+    })) as unknown as Promise<AxiosResponse<Record<string, unknown>>>
   }
 
   public async addSubscription(subscription: Subscription) {

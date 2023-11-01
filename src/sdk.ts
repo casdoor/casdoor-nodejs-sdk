@@ -66,6 +66,13 @@ export class SDK {
     this.request = new Request({
       url: config.endpoint + '/api',
       timeout: 60000,
+      headers: {
+        Authorization:
+          'Basic ' +
+          Buffer.from(
+            `${this.config.clientId}:${this.config.clientSecret}`,
+          ).toString('base64'),
+      },
     })
     this.userSDK = new UserSDK(this.config, this.request)
     this.adapterSDK = new AdapterSDK(this.config, this.request)
@@ -286,8 +293,8 @@ export class SDK {
     return await this.sessionSDK.getSessions()
   }
 
-  public async getSession(id: string) {
-    return await this.sessionSDK.getSession(id)
+  public async getSession(name: string, application: string) {
+    return await this.sessionSDK.getSession(name, application)
   }
 
   public async addSession(session: Session) {
