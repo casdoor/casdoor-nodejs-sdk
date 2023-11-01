@@ -100,13 +100,6 @@ export class ApplicationSDK {
       params: {
         owner: 'admin',
       },
-      headers: {
-        Authorization:
-          'Basic ' +
-          Buffer.from(
-            `${this.config.clientId}:${this.config.clientSecret}`,
-          ).toString('base64'),
-      },
     })) as unknown as Promise<AxiosResponse<{ data: Application[] }>>
   }
 
@@ -118,13 +111,6 @@ export class ApplicationSDK {
     return (await this.request.get('/get-application', {
       params: {
         id: `admin/${name}`,
-      },
-      headers: {
-        Authorization:
-          'Basic ' +
-          Buffer.from(
-            `${this.config.clientId}:${this.config.clientSecret}`,
-          ).toString('base64'),
       },
     })) as unknown as Promise<AxiosResponse<{ data: Application }>>
   }
@@ -139,13 +125,6 @@ export class ApplicationSDK {
     return (await this.request.post(url, application, {
       params: {
         id: `${application.owner}/${application.name}`,
-      },
-      headers: {
-        Authorization:
-          'Basic ' +
-          Buffer.from(
-            `${this.config.clientId}:${this.config.clientSecret}`,
-          ).toString('base64'),
       },
     })) as unknown as Promise<AxiosResponse<Record<string, unknown>>>
   }

@@ -43,17 +43,17 @@ export interface Organization {
 
   displayName: string
   websiteUrl: string
-  favicon: string
+  favicon?: string
   passwordType: string
-  passwordSalt: string
+  passwordSalt?: string
   passwordOptions?: string[]
   countryCodes?: string[]
-  defaultAvatar: string
-  defaultApplication: string
+  defaultAvatar?: string
+  defaultApplication?: string
   tags?: string[]
   languages?: string[]
   themeData?: ThemeData
-  masterPassword: string
+  masterPassword?: string
   initScore: number
   enableSoftDeletion: boolean
   isProfilePublic: boolean
@@ -79,10 +79,8 @@ export class OrganizationSDK {
     return (await this.request.get('/get-organizations', {
       params: {
         owner: this.config.orgName,
-        clientId: this.config.clientId,
-        clientSecret: this.config.clientSecret,
       },
-    })) as unknown as Promise<AxiosResponse<Organization[]>>
+    })) as unknown as Promise<AxiosResponse<{ data: Organization[] }>>
   }
 
   public async getOrganization(id: string) {
@@ -93,10 +91,8 @@ export class OrganizationSDK {
     return (await this.request.get('/get-organization', {
       params: {
         id: `${this.config.orgName}/${id}`,
-        clientId: this.config.clientId,
-        clientSecret: this.config.clientSecret,
       },
-    })) as unknown as Promise<AxiosResponse<Organization>>
+    })) as unknown as Promise<AxiosResponse<{ data: Organization }>>
   }
 
   public async modifyOrganization(method: string, organization: Organization) {
@@ -104,20 +100,13 @@ export class OrganizationSDK {
       throw new Error('request init failed')
     }
 
-    const url = this.config.endpoint + `/${method}`
+    const url = `/${method}`
     organization.owner = this.config.orgName
-    const organizationInfo = JSON.stringify(organization)
-    return (await this.request.post(
-      url,
-      { organizationInfo },
-      {
-        params: {
-          id: `${organization.owner}/${organization.name}`,
-          clientId: this.config.clientId,
-          clientSecret: this.config.clientSecret,
-        },
+    return (await this.request.post(url, organization, {
+      params: {
+        id: `${organization.owner}/${organization.name}`,
       },
-    )) as unknown as Promise<AxiosResponse<Record<string, unknown>>>
+    })) as unknown as Promise<AxiosResponse<Record<string, unknown>>>
   }
 
   public async addOrganization(organization: Organization) {

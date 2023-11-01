@@ -24,11 +24,11 @@ export interface Product {
   displayName: string
 
   image: string
-  detail: string
+  detail?: string
   description: string
   tag: string
-  currency: string
-  price: number
+  currency?: string
+  price?: number
   quantity: number
   sold: number
   providers?: string[]
@@ -56,11 +56,10 @@ export class ProductSDK {
     return (await this.request.get('/get-products', {
       params: {
         owner: this.config.orgName,
-        clientId: this.config.clientId,
-        clientSecret: this.config.clientSecret,
+
         pageSize: 1000,
       },
-    })) as unknown as Promise<AxiosResponse<Product[]>>
+    })) as unknown as Promise<AxiosResponse<{ data: Product[] }>>
   }
 
   public async getProduct(id: string) {
@@ -71,11 +70,10 @@ export class ProductSDK {
     return (await this.request.get('/get-product', {
       params: {
         id: `${this.config.orgName}/${id}`,
-        clientId: this.config.clientId,
-        clientSecret: this.config.clientSecret,
+
         pageSize: 1000,
       },
-    })) as unknown as Promise<AxiosResponse<Product>>
+    })) as unknown as Promise<AxiosResponse<{ data: Product }>>
   }
 
   public async modifyProduct(method: string, product: Product) {
@@ -85,18 +83,12 @@ export class ProductSDK {
 
     const url = `/${method}`
     product.owner = this.config.orgName
-    const productInfo = JSON.stringify(product)
-    return (await this.request.post(
-      url,
-      { productInfo },
-      {
-        params: {
-          id: `${product.owner}/${product.name}`,
-          clientId: this.config.clientId,
-          clientSecret: this.config.clientSecret,
-        },
+
+    return (await this.request.post(url, product, {
+      params: {
+        id: `${product.owner}/${product.name}`,
       },
-    )) as unknown as Promise<AxiosResponse<Record<string, unknown>>>
+    })) as unknown as Promise<AxiosResponse<Record<string, unknown>>>
   }
 
   public async addProduct(product: Product) {

@@ -24,8 +24,8 @@ export interface Pricing {
   description: string
 
   plans?: string[]
-  isEnabled: boolean
-  trialDuration: number
+  isEnabled?: boolean
+  trialDuration?: number
   application: string
 
   submitter?: string
@@ -52,10 +52,8 @@ export class PricingSDK {
     return (await this.request.get('/get-pricings', {
       params: {
         owner: this.config.orgName,
-        clientId: this.config.clientId,
-        clientSecret: this.config.clientSecret,
       },
-    })) as unknown as Promise<AxiosResponse<Pricing[]>>
+    })) as unknown as Promise<AxiosResponse<{ data: Pricing[] }>>
   }
 
   public async getPricing(id: string) {
@@ -66,11 +64,10 @@ export class PricingSDK {
     return (await this.request.get('/get-pricing', {
       params: {
         id: `${this.config.orgName}/${id}`,
-        clientId: this.config.clientId,
-        clientSecret: this.config.clientSecret,
+
         pageSize: 1000,
       },
-    })) as unknown as Promise<AxiosResponse<Pricing>>
+    })) as unknown as Promise<AxiosResponse<{ data: Pricing }>>
   }
 
   public async modifyPricing(method: string, pricing: Pricing) {
@@ -80,18 +77,12 @@ export class PricingSDK {
 
     const url = `/${method}`
     pricing.owner = this.config.orgName
-    const pricingInfo = JSON.stringify(pricing)
-    return (await this.request.post(
-      url,
-      { pricingInfo },
-      {
-        params: {
-          id: `${pricing.owner}/${pricing.name}`,
-          clientId: this.config.clientId,
-          clientSecret: this.config.clientSecret,
-        },
+
+    return (await this.request.post(url, pricing, {
+      params: {
+        id: `${pricing.owner}/${pricing.name}`,
       },
-    )) as unknown as Promise<AxiosResponse<Record<string, unknown>>>
+    })) as unknown as Promise<AxiosResponse<Record<string, unknown>>>
   }
 
   public async addPricing(pricing: Pricing) {

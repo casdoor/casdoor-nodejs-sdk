@@ -21,21 +21,21 @@ export interface Group {
   owner: string
   name: string
   createdTime: string
-  updatedTime: string
+  updatedTime?: string
 
   displayName: string
-  manager: string
-  contactEmail: string
-  type: string
-  parentId: string
-  isTopGroup: boolean
+  manager?: string
+  contactEmail?: string
+  type?: string
+  parentId?: string
+  isTopGroup?: boolean
   users?: User[]
 
   title?: string
   key?: string
   children?: Group[]
 
-  isEnabled: boolean
+  isEnabled?: boolean
 }
 
 export class GroupSDK {
@@ -55,10 +55,8 @@ export class GroupSDK {
     return (await this.request.get('/get-groups', {
       params: {
         owner: this.config.orgName,
-        clientId: this.config.clientId,
-        clientSecret: this.config.clientSecret,
       },
-    })) as unknown as Promise<AxiosResponse<Group[]>>
+    })) as unknown as Promise<AxiosResponse<{ data: Group[] }>>
   }
 
   public async getGroup(id: string) {
@@ -69,10 +67,8 @@ export class GroupSDK {
     return (await this.request.get('/get-group', {
       params: {
         id: `${this.config.orgName}/${id}`,
-        clientId: this.config.clientId,
-        clientSecret: this.config.clientSecret,
       },
-    })) as unknown as Promise<AxiosResponse<Group>>
+    })) as unknown as Promise<AxiosResponse<{ data: Group }>>
   }
 
   public async modifyGroup(method: string, group: Group) {
@@ -82,18 +78,11 @@ export class GroupSDK {
 
     const url = `/${method}`
     group.owner = this.config.orgName
-    const groupInfo = JSON.stringify(group)
-    return (await this.request.post(
-      url,
-      { groupInfo },
-      {
-        params: {
-          id: `${group.owner}/${group.name}`,
-          clientId: this.config.clientId,
-          clientSecret: this.config.clientSecret,
-        },
+    return (await this.request.post(url, group, {
+      params: {
+        id: `${group.owner}/${group.name}`,
       },
-    )) as unknown as Promise<AxiosResponse<Record<string, unknown>>>
+    })) as unknown as Promise<AxiosResponse<Record<string, unknown>>>
   }
 
   public async addGroup(group: Group) {

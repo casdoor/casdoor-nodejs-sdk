@@ -28,10 +28,10 @@ export interface Cert {
   bitSize: number
   expireInYears: number
 
-  certificate: string
-  privateKey: string
-  authorityPublicKey: string
-  authorityRootPublicKey: string
+  certificate?: string
+  privateKey?: string
+  authorityPublicKey?: string
+  authorityRootPublicKey?: string
 }
 
 export class CertSDK {
@@ -51,10 +51,8 @@ export class CertSDK {
     return (await this.request.get('/get-certs', {
       params: {
         owner: this.config.orgName,
-        clientId: this.config.clientId,
-        clientSecret: this.config.clientSecret,
       },
-    })) as unknown as Promise<AxiosResponse<Cert[]>>
+    })) as unknown as Promise<AxiosResponse<{ data: Cert[] }>>
   }
 
   public async getCert(id: string) {
@@ -65,10 +63,8 @@ export class CertSDK {
     return (await this.request.get('/get-cert', {
       params: {
         id: `${this.config.orgName}/${id}`,
-        clientId: this.config.clientId,
-        clientSecret: this.config.clientSecret,
       },
-    })) as unknown as Promise<AxiosResponse<Cert>>
+    })) as unknown as Promise<AxiosResponse<{ data: Cert }>>
   }
 
   public async modifyCert(method: string, cert: Cert) {
@@ -76,20 +72,13 @@ export class CertSDK {
       throw new Error('request init failed')
     }
 
-    const url = this.config.endpoint + `/${method}`
+    const url = `/${method}`
     cert.owner = this.config.orgName
-    const certInfo = JSON.stringify(cert)
-    return (await this.request.post(
-      url,
-      { certInfo },
-      {
-        params: {
-          id: `${cert.owner}/${cert.name}`,
-          clientId: this.config.clientId,
-          clientSecret: this.config.clientSecret,
-        },
+    return (await this.request.post(url, cert, {
+      params: {
+        id: `${cert.owner}/${cert.name}`,
       },
-    )) as unknown as Promise<AxiosResponse<Record<string, unknown>>>
+    })) as unknown as Promise<AxiosResponse<Record<string, unknown>>>
   }
 
   public async addCert(cert: Cert) {

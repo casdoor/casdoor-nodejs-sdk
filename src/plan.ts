@@ -23,12 +23,12 @@ export interface Plan {
   displayName: string
   description: string
 
-  pricePerMonth: number
-  pricePerYear: number
-  currency: string
-  isEnabled: boolean
+  pricePerMonth?: number
+  pricePerYear?: number
+  currency?: string
+  isEnabled?: boolean
 
-  role: string
+  role?: string
   options?: string[]
 }
 
@@ -49,10 +49,8 @@ export class PlanSDK {
     return (await this.request.get('/get-plans', {
       params: {
         owner: this.config.orgName,
-        clientId: this.config.clientId,
-        clientSecret: this.config.clientSecret,
       },
-    })) as unknown as Promise<AxiosResponse<Plan[]>>
+    })) as unknown as Promise<AxiosResponse<{ data: Plan[] }>>
   }
 
   public async getPlan(id: string) {
@@ -63,10 +61,8 @@ export class PlanSDK {
     return (await this.request.get('/get-plan', {
       params: {
         id: `${this.config.orgName}/${id}`,
-        clientId: this.config.clientId,
-        clientSecret: this.config.clientSecret,
       },
-    })) as unknown as Promise<AxiosResponse<Plan>>
+    })) as unknown as Promise<AxiosResponse<{ data: Plan }>>
   }
 
   public async modifyPlan(method: string, plan: Plan) {
@@ -76,18 +72,12 @@ export class PlanSDK {
 
     const url = `/${method}`
     plan.owner = this.config.orgName
-    const planInfo = JSON.stringify(plan)
-    return (await this.request.post(
-      url,
-      { planInfo },
-      {
-        params: {
-          id: `${plan.owner}/${plan.name}`,
-          clientId: this.config.clientId,
-          clientSecret: this.config.clientSecret,
-        },
+
+    return (await this.request.post(url, plan, {
+      params: {
+        id: `${plan.owner}/${plan.name}`,
       },
-    )) as unknown as Promise<AxiosResponse<Record<string, unknown>>>
+    })) as unknown as Promise<AxiosResponse<Record<string, unknown>>>
   }
 
   public async addPlan(plan: Plan) {

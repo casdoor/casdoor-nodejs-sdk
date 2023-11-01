@@ -23,38 +23,38 @@ export interface Payment {
   displayName: string
 
   // Payment Provider Info
-  provider: string
-  type: string
+  provider?: string
+  type?: string
 
   // Product Info
   productName: string
-  productDisplayName: string
-  detail: string
-  tag: string
-  currency: string
-  price: number
-  returnUrl: string
+  productDisplayName?: string
+  detail?: string
+  tag?: string
+  currency?: string
+  price?: number
+  returnUrl?: string
 
   // Payer Info
-  user: string
-  personName: string
-  personIdCard: string
-  personEmail: string
-  personPhone: string
+  user?: string
+  personName?: string
+  personIdCard?: string
+  personEmail?: string
+  personPhone?: string
 
   // Invoice Info
-  invoiceType: string
-  invoiceTitle: string
-  invoiceTaxId: string
-  invoiceRemark: string
-  invoiceUrl: string
+  invoiceType?: string
+  invoiceTitle?: string
+  invoiceTaxId?: string
+  invoiceRemark?: string
+  invoiceUrl?: string
 
   // Order Info
-  outOrderId: string
-  payUrl: string
+  outOrderId?: string
+  payUrl?: string
 
-  state: string
-  message: string
+  state?: string
+  message?: string
 }
 
 export class PaymentSDK {
@@ -74,10 +74,8 @@ export class PaymentSDK {
     return (await this.request.get('/get-payments', {
       params: {
         owner: this.config.orgName,
-        clientId: this.config.clientId,
-        clientSecret: this.config.clientSecret,
       },
-    })) as unknown as Promise<AxiosResponse<Payment[]>>
+    })) as unknown as Promise<AxiosResponse<{ data: Payment[] }>>
   }
 
   public async getPayment(id: string) {
@@ -88,10 +86,8 @@ export class PaymentSDK {
     return (await this.request.get('/get-payment', {
       params: {
         id: `${this.config.orgName}/${id}`,
-        clientId: this.config.clientId,
-        clientSecret: this.config.clientSecret,
       },
-    })) as unknown as Promise<AxiosResponse<Payment>>
+    })) as unknown as Promise<AxiosResponse<{ data: Payment }>>
   }
 
   public async modifyPayment(method: string, payment: Payment) {
@@ -101,18 +97,11 @@ export class PaymentSDK {
 
     const url = `/${method}`
     payment.owner = this.config.orgName
-    const paymentInfo = JSON.stringify(payment)
-    return (await this.request.post(
-      url,
-      { paymentInfo },
-      {
-        params: {
-          id: `${payment.owner}/${payment.name}`,
-          clientId: this.config.clientId,
-          clientSecret: this.config.clientSecret,
-        },
+    return (await this.request.post(url, payment, {
+      params: {
+        id: `${payment.owner}/${payment.name}`,
       },
-    )) as unknown as Promise<AxiosResponse<Record<string, unknown>>>
+    })) as unknown as Promise<AxiosResponse<Record<string, unknown>>>
   }
 
   public async addPayment(payment: Payment) {

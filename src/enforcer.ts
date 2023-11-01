@@ -20,13 +20,13 @@ export interface Enforcer {
   owner: string
   name: string
   createdTime: string
-  updatedTime: string
+  updatedTime?: string
   displayName: string
   description: string
 
   model: string
   adapter: string
-  isEnabled: boolean
+  isEnabled?: boolean
 
   // *casbin.Enforcer
 }
@@ -48,10 +48,8 @@ export class EnforcerSDK {
     return (await this.request.get('/get-enforcers', {
       params: {
         owner: this.config.orgName,
-        clientId: this.config.clientId,
-        clientSecret: this.config.clientSecret,
       },
-    })) as unknown as Promise<AxiosResponse<Enforcer[]>>
+    })) as unknown as Promise<AxiosResponse<{ data: Enforcer[] }>>
   }
 
   public async getEnforcer(id: string) {
@@ -62,10 +60,8 @@ export class EnforcerSDK {
     return (await this.request.get('/get-enforcer', {
       params: {
         id: `${this.config.orgName}/${id}`,
-        clientId: this.config.clientId,
-        clientSecret: this.config.clientSecret,
       },
-    })) as unknown as Promise<AxiosResponse<Enforcer>>
+    })) as unknown as Promise<AxiosResponse<{ data: Enforcer }>>
   }
 
   public async modifyEnforcer(method: string, enforcer: Enforcer) {
@@ -75,18 +71,11 @@ export class EnforcerSDK {
 
     const url = `/${method}`
     enforcer.owner = this.config.orgName
-    const enforcerInfo = JSON.stringify(enforcer)
-    return (await this.request.post(
-      url,
-      { enforcerInfo },
-      {
-        params: {
-          id: `${enforcer.owner}/${enforcer.name}`,
-          clientId: this.config.clientId,
-          clientSecret: this.config.clientSecret,
-        },
+    return (await this.request.post(url, enforcer, {
+      params: {
+        id: `${enforcer.owner}/${enforcer.name}`,
       },
-    )) as unknown as Promise<AxiosResponse<Record<string, unknown>>>
+    })) as unknown as Promise<AxiosResponse<Record<string, unknown>>>
   }
 
   public async addEnforcer(enforcer: Enforcer) {

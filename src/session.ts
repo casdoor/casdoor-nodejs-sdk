@@ -42,24 +42,20 @@ export class SessionSDK {
     return (await this.request.get('/get-sessions', {
       params: {
         owner: this.config.orgName,
-        clientId: this.config.clientId,
-        clientSecret: this.config.clientSecret,
       },
-    })) as unknown as Promise<AxiosResponse<Session[]>>
+    })) as unknown as Promise<AxiosResponse<{ data: Session[] }>>
   }
 
-  public async getSession(id: string) {
+  public async getSession(name: string, application: string) {
     if (!this.request) {
       throw new Error('request init failed')
     }
 
     return (await this.request.get('/get-session', {
       params: {
-        id: `${this.config.orgName}/${id}`,
-        clientId: this.config.clientId,
-        clientSecret: this.config.clientSecret,
+        sessionPkId: `${this.config.orgName}/${name}/${application}`,
       },
-    })) as unknown as Promise<AxiosResponse<Session>>
+    })) as unknown as Promise<AxiosResponse<{ data: Session }>>
   }
 
   public async modifySession(method: string, session: Session) {
@@ -69,18 +65,11 @@ export class SessionSDK {
 
     const url = `/${method}`
     session.owner = this.config.orgName
-    const sessionInfo = JSON.stringify(session)
-    return (await this.request.post(
-      url,
-      { sessionInfo },
-      {
-        params: {
-          id: `${session.owner}/${session.name}`,
-          clientId: this.config.clientId,
-          clientSecret: this.config.clientSecret,
-        },
+    return (await this.request.post(url, session, {
+      params: {
+        id: `${session.owner}/${session.name}`,
       },
-    )) as unknown as Promise<AxiosResponse<Record<string, unknown>>>
+    })) as unknown as Promise<AxiosResponse<Record<string, unknown>>>
   }
 
   public async addSession(session: Session) {

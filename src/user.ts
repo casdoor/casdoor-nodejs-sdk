@@ -21,10 +21,10 @@ export interface User {
   owner: string
   name: string
   createdTime: string
-  updatedTime: string
+  updatedTime?: string
 
-  id: string
-  type: string
+  id?: string
+  type?: string
   password?: string
   passwordSalt?: string
   displayName?: string
@@ -32,11 +32,11 @@ export interface User {
   lastName?: string
   avatar?: string
   permanentAvatar?: string
-  email: string
-  emailVerified: boolean
+  email?: string
+  emailVerified?: boolean
   phone?: string
   location?: string
-  address: string[]
+  address?: string[]
   affiliation?: string
   title?: string
   idCardType?: string
@@ -45,20 +45,20 @@ export interface User {
   bio?: string
   tag?: string
   region?: string
-  language: string
+  language?: string
   gender?: string
   birthday?: string
   education?: string
-  score: number
-  karma: number
-  ranking: number
-  isDefaultAvatar: boolean
-  isOnline: boolean
-  isAdmin: boolean
-  isGlobalAdmin: boolean
-  isForbidden: boolean
-  isDeleted: boolean
-  signupApplication: string
+  score?: number
+  karma?: number
+  ranking?: number
+  isDefaultAvatar?: boolean
+  isOnline?: boolean
+  isAdmin?: boolean
+  isGlobalAdmin?: boolean
+  isForbidden?: boolean
+  isDeleted?: boolean
+  signupApplication?: string
   hash?: string
   preHash?: string
 
@@ -93,7 +93,7 @@ export interface User {
   custom?: string
 
   ldap?: string
-  properties: Record<string, string>
+  properties?: Record<string, string>
 }
 
 export class UserSDK {
@@ -139,10 +139,8 @@ export class UserSDK {
     return (await this.request.get('/get-users', {
       params: {
         owner: this.config.orgName,
-        clientId: this.config.clientId,
-        clientSecret: this.config.clientSecret,
       },
-    })) as unknown as Promise<AxiosResponse<User[]>>
+    })) as unknown as Promise<AxiosResponse<{ data: User[] }>>
   }
 
   public async getUser(id: string) {
@@ -153,10 +151,8 @@ export class UserSDK {
     return (await this.request.get('/get-user', {
       params: {
         id: `${this.config.orgName}/${id}`,
-        clientId: this.config.clientId,
-        clientSecret: this.config.clientSecret,
       },
-    })) as unknown as Promise<AxiosResponse<User>>
+    })) as unknown as Promise<AxiosResponse<{ data: User }>>
   }
 
   public async getUserCount(isOnline: boolean) {
@@ -168,8 +164,6 @@ export class UserSDK {
       params: {
         isOnline,
         owner: this.config.orgName,
-        clientId: this.config.clientId,
-        clientSecret: this.config.clientSecret,
       },
     })) as unknown as Promise<AxiosResponse<number>>
   }
@@ -181,18 +175,11 @@ export class UserSDK {
 
     const url = `/${method}`
     user.owner = this.config.orgName
-    const userInfo = JSON.stringify(user)
-    return (await this.request.post(
-      url,
-      { userInfo },
-      {
-        params: {
-          id: `${user.owner}/${user.name}`,
-          clientId: this.config.clientId,
-          clientSecret: this.config.clientSecret,
-        },
+    return (await this.request.post(url, user, {
+      params: {
+        id: `${user.owner}/${user.name}`,
       },
-    )) as unknown as Promise<AxiosResponse<Record<string, unknown>>>
+    })) as unknown as Promise<AxiosResponse<Record<string, unknown>>>
   }
 
   public async addUser(user: User) {

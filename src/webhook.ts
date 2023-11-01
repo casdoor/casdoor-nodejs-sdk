@@ -23,16 +23,16 @@ export interface Webhook {
   createdTime: string
 
   organization: string
-  type: string
+  type?: string
 
-  host: string
-  port: number
-  user: string
-  password: string
-  databaseType: string
-  database: string
-  table: string
-  tablePrimaryKey: string
+  host?: string
+  port?: number
+  user?: string
+  password?: string
+  databaseType?: string
+  database?: string
+  table?: string
+  tablePrimaryKey?: string
   tableColumns?: TableColumn[]
   affiliationTable?: string
   avatarBaseUrl?: string
@@ -61,10 +61,8 @@ export class WebhookSDK {
     return (await this.request.get('/get-webhooks', {
       params: {
         owner: this.config.orgName,
-        clientId: this.config.clientId,
-        clientSecret: this.config.clientSecret,
       },
-    })) as unknown as Promise<AxiosResponse<Webhook[]>>
+    })) as unknown as Promise<AxiosResponse<{ data: Webhook[] }>>
   }
 
   public async getWebhook(id: string) {
@@ -75,10 +73,8 @@ export class WebhookSDK {
     return (await this.request.get('/get-webhook', {
       params: {
         id: `${this.config.orgName}/${id}`,
-        clientId: this.config.clientId,
-        clientSecret: this.config.clientSecret,
       },
-    })) as unknown as Promise<AxiosResponse<Webhook>>
+    })) as unknown as Promise<AxiosResponse<{ data: Webhook }>>
   }
 
   public async modifyWebhook(method: string, webhook: Webhook) {
@@ -88,18 +84,11 @@ export class WebhookSDK {
 
     const url = `/${method}`
     webhook.owner = this.config.orgName
-    const webhookInfo = JSON.stringify(webhook)
-    return (await this.request.post(
-      url,
-      { webhookInfo },
-      {
-        params: {
-          id: `${webhook.owner}/${webhook.name}`,
-          clientId: this.config.clientId,
-          clientSecret: this.config.clientSecret,
-        },
+    return (await this.request.post(url, webhook, {
+      params: {
+        id: `${webhook.owner}/${webhook.name}`,
       },
-    )) as unknown as Promise<AxiosResponse<Record<string, unknown>>>
+    })) as unknown as Promise<AxiosResponse<Record<string, unknown>>>
   }
 
   public async addWebhook(webhook: Webhook) {
