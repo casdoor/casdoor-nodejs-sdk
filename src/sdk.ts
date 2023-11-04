@@ -443,6 +443,10 @@ export class SDK {
     return await this.resourceSDK.deleteResource(resource)
   }
 
+  public async uploadResource(resource: Resource, file: any) {
+    return await this.resourceSDK.uploadResource(resource, file)
+  }
+
   public async getRoles() {
     return await this.roleSDK.getRoles()
   }

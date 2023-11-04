@@ -19,19 +19,20 @@ import Request from './request'
 export interface Resource {
   owner: string
   name: string
-  createdTime: string
+  createdTime?: string
 
-  user: string
-  provider: string
-  application: string
-  tag: string
-  parent: string
-  fileName: string
-  fileType: string
-  fileFormat: string
-  fileSize: number
-  url: string
-  description: string
+  user?: string
+  provider?: string
+  application?: string
+  tag?: string
+  parent?: string
+  fileName?: string
+  fileType?: string
+  fileFormat?: string
+  fileSize?: number
+  url?: string
+  description?: string
+  fullFilePath?: string
 }
 
 export class ResourceSDK {
@@ -41,6 +42,24 @@ export class ResourceSDK {
   constructor(config: Config, request: Request) {
     this.config = config
     this.request = request
+  }
+
+  public async uploadResource(resource: Resource, psotFile: any) {
+    if (!this.request) {
+      throw new Error('request init failed')
+    }
+
+    const url = `/upload-resource`
+    return (await this.request.postFile(url, psotFile, {
+      params: {
+        owner: this.config.orgName,
+        user: resource.owner,
+        application: this.config.appName,
+        tag: resource.name,
+        parent: resource.parent,
+        fullFilePath: resource.fullFilePath,
+      },
+    })) as unknown as Promise<AxiosResponse<Record<string, unknown>>>
   }
 
   public async getResources(
@@ -102,6 +121,18 @@ export class ResourceSDK {
   }
 
   public async deleteResource(resource: Resource) {
-    return this.modifyResource('delete-resource', resource)
+    if (!this.request) {
+      throw new Error('request init failed')
+    }
+
+    const url = `/delete-resource`
+    const post = {
+      owner: resource.owner,
+      name: resource.name,
+    }
+    return (await this.request.post(
+      url,
+      JSON.stringify(post),
+    )) as unknown as Promise<AxiosResponse<Record<string, unknown>>>
   }
 }

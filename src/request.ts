@@ -13,6 +13,7 @@
 // limitations under the License.
 
 import axios, { AxiosInstance, AxiosRequestConfig } from 'axios'
+import * as FormData from 'form-data'
 
 export default class Request {
   private client: AxiosInstance
@@ -30,5 +31,14 @@ export default class Request {
 
   post(url: string, data: any, config?: AxiosRequestConfig<any>) {
     return this.client.post(url, data, config)
+  }
+
+  postFile(url: string, postFile: any, config?: AxiosRequestConfig<any>) {
+    const formData = new FormData()
+    formData.append('file', postFile)
+    return this.client.post(url, formData, {
+      params: config?.params,
+      headers: formData.getHeaders(),
+    })
   }
 }
