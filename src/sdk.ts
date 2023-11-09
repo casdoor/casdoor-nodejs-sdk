@@ -68,7 +68,7 @@ export class SDK {
       timeout: 60000,
       headers: {
         Authorization:
-          'Basic ' +
+          'Bearer Basic ' +
           Buffer.from(
             `${this.config.clientId}:${this.config.clientSecret}`,
           ).toString('base64'),
