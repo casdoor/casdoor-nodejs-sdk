@@ -34,7 +34,7 @@ export default class Request {
     // fixed issue:  "grant_type:  is not supported in this application"
     config = config || {}
     config.headers = config.headers || {}
-    config.headers = Object.assign(config.headers, this.config.headers || {})
+    config.headers = Object.assign(this.config.headers || {}, config.headers)
     if (url === 'login/oauth/access_token') {
         delete config.headers.Authorization
     }
