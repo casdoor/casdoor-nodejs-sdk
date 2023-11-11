@@ -6,45 +6,37 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        node-version: [^12, ^14, ^16]
+        node-version: [^16, ^18, ^20]
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
 
-      - uses: actions/setup-node@v1
+      - uses: actions/setup-node@v3
         with:
           node-version: ${{ matrix.node-version }}
       - run: yarn install
       - run: yarn lint
       - run: yarn test
-# TODO: no test cases
-#      - run: yarn coverage
-#      - name: Coveralls
-#        uses: coverallsapp/github-action@master
-#        with:
-#          github-token: ${{ secrets.GITHUB_TOKEN }}
-#          flag-name: run-${{ matrix.node-version }}
-#          parallel: true
 
   semantic-release:
     needs: [test]
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
+
+      - uses: actions/setup-node@v3
+        with:
+          cache: npm
+          node-version: 18
+
+      # Install yarn
+      - run: npm install -g yarn
 
       - name: Run semantic-release
         if: github.repository == 'casdoor/casdoor-nodejs-sdk' && github.event_name == 'push'
-        run: yarn install && yarn semantic-release
+        run: |
+          yarn install
+          yarn semantic-release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
-
-# TODO: no test cases
-#  finish:
-#    needs: test
-#    runs-on: ubuntu-latest
-#    steps:
-#      - name: Coveralls Finished
-#        uses: coverallsapp/github-action@master
-#        with:
-#          github-token: ${{ secrets.github_token }}
-#          parallel-finished: true
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}

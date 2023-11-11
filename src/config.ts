@@ -12,4 +12,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-export * from './sdk'
+// the configuration of the SDK
+export interface Config {
+  endpoint: string
+  clientId: string
+  clientSecret: string
+  certificate: string
+  orgName: string
+  appName?: string
+}

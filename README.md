@@ -6,7 +6,7 @@
 [![GitHub Actions](https://github.com/casdoor/casdoor-nodejs-sdk/workflows/main/badge.svg)](https://github.com/casdoor/casdoor-nodejs-sdk/actions)
 [![Coverage Status](https://coveralls.io/repos/github/casdoor/casdoor-nodejs-sdk/badge.svg?branch=master)](https://coveralls.io/github/casdoor/casdoor-nodejs-sdk?branch=master)
 [![Release](https://img.shields.io/github/release/casdoor/casdoor-nodejs-sdk.svg)](https://github.com/casdoor/casdoor-nodejs-sdk/releases/latest)
-[![Gitter](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/casbin/casdoor)
+[![Discord](https://img.shields.io/discord/1022748306096537660?logo=discord&label=discord&color=5865F2)](https://discord.gg/5rPsrAzK7S)
 
 [npm-image]: https://img.shields.io/npm/v/casdoor-nodejs-sdk.svg?style=flat-square
 [npm-url]: https://npmjs.com/package/casdoor-nodejs-sdk
@@ -17,7 +17,12 @@ This is Casdoor's SDK for NodeJS will allow you to easily connect your applicati
 
 Casdoor SDK is very simple to use. We will show you the steps below.
 
-> Noted that this sdk has been applied to casnode, if you still don’t know how to use it after reading README.md, you can refer to it
+## Examples
+
+The following examples use Node.js Express as backend, but have different frontend frameworks. Choose the appropriate example based on your tech stack:
+
+1. React frontend: https://github.com/casdoor/casdoor-nodejs-react-example
+2. Angular frontend: https://github.com/casdoor/casdoor-nodejs-angular-example
 
 ## Installation
 
@@ -33,22 +38,24 @@ yarn add casdoor-nodejs-sdk
 
 Initialization requires 5 parameters, which are all string type:
 
-| Name (in order)  | Must | Description                                         |
-| ---------------- | ---- | --------------------------------------------------- |
-| issuer           | Yes  | casdoor OIDC Issuer endpoint |
-| clientId         | Yes  | your Casdoor OAuth Client ID                        |
-| clientSecret     | Yes  | your Casdoor OAuth Client Secret                    |
-| casdoorEndpoint  | No  | your Casdoor API endpoint                   |
-
+| Name (in order) | Must | Description                                         |
+|-----------------|------|-----------------------------------------------------|
+| endpoint        | Yes  | Casdoor Server Url, such as `http://localhost:8000` |
+| clientId        | Yes  | Client ID for the Casdoor application               |
+| clientSecret    | Yes  | Client secret for the Casdoor application           |
+| certificate     | Yes  | x509 certificate content of Application.cert        |
+| orgName         | Yes  | The name for the Casdoor organization               |
+| appName         | No   | The name for the Casdoor application                |
 
 ```typescript
-import { SDK, AuthConfig } from 'casdoor-nodejs-sdk'
+import { SDK, Config } from 'casdoor-nodejs-sdk'
 
-const authCfg: AuthConfig = {
-  issuer: 'https://b4464f21-7cef-48f1-9591-4acbe1a4590e.mock.pstmn.io/.well-known/openid-configuration',
-  clientId: '673c704036c6bcd04aaa',
-  clientSecret: '2ba9708658b3036206b9b96ee8872242d3f9e956',
-  casdoorEndpoint: 'http://casdoor.anxing.io'
+const authCfg: Config = {
+  endpoint: '',
+  clientId: '',
+  clientSecret: '',
+  certificate: '',
+  orgName: '',
 }
 
 const sdk = new SDK(authCfg)
@@ -56,46 +63,13 @@ const sdk = new SDK(authCfg)
 // call sdk to handle
 ```
 
-## Step2. Get token and parse
-
-After casdoor verification passed, it will be redirected to your application with code and state, like `http://forum.casbin.org?code=xxx&state=yyyy`.
-
-Your web application can get the `code`,`state` and call `getOAuthToken(code, state)`, then parse out jwt token.
-
-The general process is as follows:
+## Step2. Get service and use
 
 ```typescript
-import { SDK, AuthConfig } from 'casdoor-nodejs-sdk'
+// user
+const { data: users } = await sdk.getUsers()
 
-const authCfg: AuthConfig = {
-  issuer: 'https://b4464f21-7cef-48f1-9591-4acbe1a4590e.mock.pstmn.io/.well-known/openid-configuration',
-  clientId: '673c704036c6bcd04aaa',
-  clientSecret: '2ba9708658b3036206b9b96ee8872242d3f9e956',
-  casdoorEndpoint: 'http://casdoor.anxing.io'
-}
-
-const sdk = new SDK(authCfg)
-
-const tokenSet = await sdk.callback({
-  code: 'your authorization code',
-  state: 'your casdoor application name'
-})
-const parseToken = sdk.parseJwtToken(tokenSet.access_token || '')
-```
-
-## Test
-
-test env parameters
-
-| Name (in order)         | Must | Description                                         |
-| ----------------------- | ---- | --------------------------------------------------- |
-| TEST_CASDOOR_ISSUER     | Yes  | Casdoor OIDC Issuer endpoint                        |
-| TEST_CASDOOR_CLIENT_ID           | Yes  | your Casdoor OAuth Client ID               |
-| TEST_CASDOOR_CLIENT_SECRET       | Yes  | your Casdoor OAuth Client Secret           |
-| TEST_AUTHORIZATION_CODE          | No   | Test Authorization code                         |
-| TEST_APP                         | No   | Application.app, like: "built-in"          |
-| TEST_TEST_ORGANIZATION           | No   | Application.organization, like: "built-in"          |
-
-```bash
-	yarn run test
+// auth
+const token = await sdk.getAuthToken('<callback-code>')
+const user = sdk.parseJwtToken(token)
 ```
