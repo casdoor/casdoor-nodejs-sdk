@@ -22,7 +22,7 @@ export default class Request {
     this.client = axios.create({
       baseURL: config.url,
       timeout: config.timeout || 60000,
-      headers: config.headers,
+      // headers: config.headers,
     })
   }
   get(url: string, config?: AxiosRequestConfig<any>) {
@@ -30,6 +30,14 @@ export default class Request {
   }
 
   post(url: string, data: any, config?: AxiosRequestConfig<any>) {
+    // 解决 /api/login/oauth/access_token 出现 “grant_type:  is not supported in this application” 错误问题
+    // fixed issue:  "grant_type:  is not supported in this application"
+    config = config || {}
+    config.headers = config.headers || {}
+    config.headers = Object.assign(config.headers, this.config.headers || {})
+    if (url === 'login/oauth/access_token') {
+        delete config.headers.Authorization
+    }
     return this.client.post(url, data, config)
   }
 
