@@ -69,8 +69,8 @@ export interface Application {
   clientId?: string
   clientSecret?: string
   redirectUris?: string[]
-  tokenFormat?: string,
-  tokenFields?: string[],
+  tokenFormat?: string
+  tokenFields?: string[]
   expireInHours?: number
   refreshExpireInHours?: number
   signupUrl?: string
