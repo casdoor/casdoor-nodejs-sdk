@@ -71,8 +71,8 @@ test('TestSyncer', async () => {
   }
 
   // Update the object
-  const updatedPassword = '123456'
-  retrievedSyncer.password = updatedPassword
+  const updatedHost = 'Updated Host'
+  retrievedSyncer.host = updatedHost
   const { data: updateResponse } = await sdk.updateSyncer(retrievedSyncer)
   if (updateResponse.data !== 'Affected') {
     throw new Error('Failed to update object')
@@ -82,9 +82,9 @@ test('TestSyncer', async () => {
   const {
     data: { data: updatedSyncer },
   } = await sdk.getSyncer(name)
-  if (updatedSyncer.password !== updatedPassword) {
+  if (updatedSyncer.host !== updatedHost) {
     throw new Error(
-      `Failed to update object, description mismatch: ${updatedSyncer.password} != ${updatedPassword}`,
+      `Failed to update object, host mismatch: ${updatedSyncer.host} != ${updatedHost}`,
     )
   }
 
