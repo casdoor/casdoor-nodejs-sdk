@@ -70,6 +70,7 @@ export interface Application {
   clientSecret?: string
   redirectUris?: string[]
   tokenFormat?: string
+  tokenFields?: string[]
   expireInHours?: number
   refreshExpireInHours?: number
   signupUrl?: string
