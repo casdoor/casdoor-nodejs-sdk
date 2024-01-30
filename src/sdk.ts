@@ -558,10 +558,10 @@ export class SDK {
   }
 
   public async sendEmail(email: Email) {
-    return await this.emailSDK.sendEmail(email);
+    return await this.emailSDK.sendEmail(email)
   }
 
   public async sendSms(sms: Sms) {
-    return await this.smsSDK.sendSms(sms);
+    return await this.smsSDK.sendSms(sms)
   }
 }

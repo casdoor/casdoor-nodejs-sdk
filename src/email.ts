@@ -17,26 +17,29 @@ import { Config } from './config'
 import Request from './request'
 
 export interface Email {
-    title: string,
-    content: string,
-    sender: string,
-    receivers: string[]
+  title: string
+  content: string
+  sender: string
+  receivers: string[]
 }
 
 export class EmailSDK {
-    private config: Config
-    private readonly request: Request
+  private config: Config
+  private readonly request: Request
 
-    constructor(config: Config, request: Request) {
-        this.config = config
-        this.request = request
+  constructor(config: Config, request: Request) {
+    this.config = config
+    this.request = request
+  }
+
+  public async sendEmail(email: Email) {
+    if (!this.request) {
+      throw new Error('request init failed')
     }
 
-    public async sendEmail(email: Email) {
-        if (!this.request) {
-            throw new Error('request init failed')
-        }
-
-        return (await this.request.post('/send-email', email)) as unknown as Promise<AxiosResponse<Record<string, unknown>>>
-    }
+    return (await this.request.post(
+      '/send-email',
+      email,
+    )) as unknown as Promise<AxiosResponse<Record<string, unknown>>>
+  }
 }
