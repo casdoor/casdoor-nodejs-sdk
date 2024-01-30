@@ -125,6 +125,26 @@ export class UserSDK {
     return { access_token: access_token, refresh_token: refresh_token }
   }
 
+  public async refreshToken(refreshToken: string) {
+    if (!this.request) {
+      throw new Error('request init failed')
+    }
+
+    const {
+      data: { access_token, refresh_token },
+    } = (await this.request.post('login/oauth/refresh_token', {
+      client_id: this.config.clientId,
+      client_secret: this.config.clientSecret,
+      grant_type: 'refresh_token',
+      refresh_token: refreshToken,
+    })) as unknown as AxiosResponse<{
+      access_token: string
+      refresh_token: string
+    }>
+
+    return { access_token: access_token, refresh_token: refresh_token }
+  }
+
   public parseJwtToken(token: string) {
     return jwt.verify(token, this.config.certificate, {
       algorithms: ['RS256'],
