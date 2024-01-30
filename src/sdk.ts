@@ -35,8 +35,8 @@ import { Subscription, SubscriptionSDK } from './subscription'
 import { Token, TokenSDK } from './token'
 import { Webhook, WebhookSDK } from './webhook'
 import { Product, ProductSDK } from './product'
-import { EmailSDK } from './email'
-import { SmsSDK } from './sms'
+import { Email, EmailSDK } from './email'
+import { Sms, SmsSDK } from './sms'
 
 export class SDK {
   private readonly config: Config
@@ -557,16 +557,11 @@ export class SDK {
     return await this.productSDK.deleteProduct(product)
   }
 
-  public async sendEmail(
-    title: string,
-    content: string,
-    sender: string,
-    receivers: string[],
-  ) {
-    return await this.emailSDK.sendEmail(title, content, sender, receivers)
+  public async sendEmail(email: Email) {
+    return await this.emailSDK.sendEmail(email);
   }
 
-  public async sendSms(title: string, receivers: string[]) {
-    return await this.smsSDK.sendSms(title, receivers)
+  public async sendSms(sms: Sms) {
+    return await this.smsSDK.sendSms(sms);
   }
 }

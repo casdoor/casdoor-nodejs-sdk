@@ -16,23 +16,25 @@ import { AxiosResponse } from 'axios'
 import { Config } from './config'
 import Request from './request'
 
+export interface Sms {
+    content: string,
+    receivers: string[]
+}
+
 export class SmsSDK {
-  private config: Config
-  private readonly request: Request
+    private config: Config
+    private readonly request: Request
 
-  constructor(config: Config, request: Request) {
-    this.config = config
-    this.request = request
-  }
-
-  public async sendSms(content: string, receivers: string[]) {
-    if (!this.request) {
-      throw new Error('request init failed')
+    constructor(config: Config, request: Request) {
+        this.config = config
+        this.request = request
     }
 
-    return (await this.request.post('/send-sms', {
-      content: content,
-      receivers: receivers,
-    })) as unknown as Promise<AxiosResponse<Record<string, unknown>>>
-  }
+    public async sendSms(sms: Sms) {
+        if (!this.request) {
+            throw new Error('request init failed')
+        }
+
+        return (await this.request.post('/send-sms', sms)) as unknown as Promise<AxiosResponse<Record<string, unknown>>>
+    }
 }

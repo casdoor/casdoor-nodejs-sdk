@@ -16,30 +16,27 @@ import { AxiosResponse } from 'axios'
 import { Config } from './config'
 import Request from './request'
 
-export class EmailSDK {
-  private config: Config
-  private readonly request: Request
-
-  constructor(config: Config, request: Request) {
-    this.config = config
-    this.request = request
-  }
-
-  public async sendEmail(
+export interface Email {
     title: string,
     content: string,
     sender: string,
-    receivers: string[],
-  ) {
-    if (!this.request) {
-      throw new Error('request init failed')
+    receivers: string[]
+}
+
+export class EmailSDK {
+    private config: Config
+    private readonly request: Request
+
+    constructor(config: Config, request: Request) {
+        this.config = config
+        this.request = request
     }
 
-    return (await this.request.post('/send-email', {
-      title: title,
-      content: content,
-      sender: sender,
-      receivers: receivers,
-    })) as unknown as Promise<AxiosResponse<Record<string, unknown>>>
-  }
+    public async sendEmail(email: Email) {
+        if (!this.request) {
+            throw new Error('request init failed')
+        }
+
+        return (await this.request.post('/send-email', email)) as unknown as Promise<AxiosResponse<Record<string, unknown>>>
+    }
 }
