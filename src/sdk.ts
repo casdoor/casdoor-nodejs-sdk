@@ -35,6 +35,8 @@ import { Subscription, SubscriptionSDK } from './subscription'
 import { Token, TokenSDK } from './token'
 import { Webhook, WebhookSDK } from './webhook'
 import { Product, ProductSDK } from './product'
+import { Email, EmailSDK } from './email'
+import { Sms, SmsSDK } from './sms'
 
 export class SDK {
   private readonly config: Config
@@ -60,6 +62,8 @@ export class SDK {
   private tokenSDK: TokenSDK
   private webhookSDK: WebhookSDK
   private productSDK: ProductSDK
+  private emailSDK: EmailSDK
+  private smsSDK: SmsSDK
 
   constructor(config: Config) {
     this.config = config
@@ -95,10 +99,16 @@ export class SDK {
     this.tokenSDK = new TokenSDK(this.config, this.request)
     this.webhookSDK = new WebhookSDK(this.config, this.request)
     this.productSDK = new ProductSDK(this.config, this.request)
+    this.emailSDK = new EmailSDK(this.config, this.request)
+    this.smsSDK = new SmsSDK(this.config, this.request)
   }
 
   public async getAuthToken(code: string) {
     return await this.userSDK.getAuthToken(code)
+  }
+
+  public async refreshToken(refreshToken: string) {
+    return await this.userSDK.refreshToken(refreshToken)
   }
 
   public parseJwtToken(token: string) {
@@ -545,5 +555,13 @@ export class SDK {
 
   public async deleteProduct(product: Product) {
     return await this.productSDK.deleteProduct(product)
+  }
+
+  public async sendEmail(email: Email) {
+    return await this.emailSDK.sendEmail(email)
+  }
+
+  public async sendSms(sms: Sms) {
+    return await this.smsSDK.sendSms(sms)
   }
 }
