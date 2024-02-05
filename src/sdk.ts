@@ -14,7 +14,7 @@
 
 import { Config } from './config'
 import Request from './request'
-import { User, UserSDK } from './user'
+import { SetPassword, User, UserSDK } from './user'
 import { Adapter, AdapterSDK } from './adapter'
 import { Application, ApplicationSDK } from './application'
 import { Cert, CertSDK } from './cert'
@@ -563,5 +563,9 @@ export class SDK {
 
   public async sendSms(sms: Sms) {
     return await this.smsSDK.sendSms(sms)
+  }
+
+  public async setPassword(data: SetPassword) {
+    return await this.userSDK.setPassword(data)
   }
 }

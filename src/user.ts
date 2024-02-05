@@ -14,6 +14,7 @@
 
 import { AxiosResponse } from 'axios'
 import * as jwt from 'jsonwebtoken'
+import * as FormData from 'form-data'
 import { Config } from './config'
 import Request from './request'
 
@@ -94,6 +95,13 @@ export interface User {
 
   ldap?: string
   properties?: Record<string, string>
+}
+
+export interface SetPassword {
+  owner: string
+  name: string
+  newPassword?: string
+  oldPassword?: string
 }
 
 export class UserSDK {
@@ -212,5 +220,18 @@ export class UserSDK {
 
   public async deleteUser(user: User) {
     return this.modifyUser('delete-user', user)
+  }
+
+  public async setPassword(data: SetPassword) {
+    console.log(JSON.stringify(data))
+    const formData = new FormData()
+    formData.append('userOwner', data.owner)
+    formData.append('userName', data.name)
+    formData.append('oldPassword', data.oldPassword ?? '')
+    formData.append('newPassword', data.newPassword)
+    console.log(JSON.stringify(formData))
+    return (await this.request.post('set-password', formData, {
+      headers: formData.getHeaders(),
+    })) as unknown as Promise<AxiosResponse<Record<string, unknown>>>
   }
 }
