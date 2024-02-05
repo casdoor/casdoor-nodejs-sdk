@@ -223,7 +223,6 @@ export class UserSDK {
   }
 
   public async setPassword(data: SetPassword) {
-    console.log(JSON.stringify(data))
     const formData = new FormData()
     formData.append('userOwner', data.owner)
     formData.append('userName', data.name)
