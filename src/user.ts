@@ -229,7 +229,6 @@ export class UserSDK {
     formData.append('userName', data.name)
     formData.append('oldPassword', data.oldPassword ?? '')
     formData.append('newPassword', data.newPassword)
-    console.log(JSON.stringify(formData))
     return (await this.request.post('set-password', formData, {
       headers: formData.getHeaders(),
     })) as unknown as Promise<AxiosResponse<Record<string, unknown>>>
