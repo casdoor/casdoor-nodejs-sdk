@@ -37,6 +37,7 @@ import { Webhook, WebhookSDK } from './webhook'
 import { Product, ProductSDK } from './product'
 import { Email, EmailSDK } from './email'
 import { Sms, SmsSDK } from './sms'
+import { MfaData, MfaSDK } from './mfa'
 
 export class SDK {
   private readonly config: Config
@@ -64,6 +65,7 @@ export class SDK {
   private productSDK: ProductSDK
   private emailSDK: EmailSDK
   private smsSDK: SmsSDK
+  private mfaSDK: MfaSDK
 
   constructor(config: Config) {
     this.config = config
@@ -101,6 +103,7 @@ export class SDK {
     this.productSDK = new ProductSDK(this.config, this.request)
     this.emailSDK = new EmailSDK(this.config, this.request)
     this.smsSDK = new SmsSDK(this.config, this.request)
+    this.mfaSDK = new MfaSDK(this.config, this.request)
   }
 
   public async getAuthToken(code: string) {
@@ -567,5 +570,25 @@ export class SDK {
 
   public async setPassword(data: SetPassword) {
     return await this.userSDK.setPassword(data)
+  }
+
+  public async initiateMfa(data: MfaData) {
+    return await this.mfaSDK.initiate(data)
+  }
+
+  public async verifyMfa(data: MfaData, passcode: string) {
+    return await this.mfaSDK.verify(data, passcode)
+  }
+
+  public async enableMfa(data: MfaData) {
+    return await this.mfaSDK.enable(data)
+  }
+
+  public async setPreferredMfa(data: MfaData) {
+    return await this.mfaSDK.setPreferred(data)
+  }
+
+  public async deleteMfa(owner: string, name: string) {
+    return await this.mfaSDK.delete(owner, name)
   }
 }

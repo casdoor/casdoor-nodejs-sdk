@@ -17,6 +17,7 @@ import * as jwt from 'jsonwebtoken'
 import * as FormData from 'form-data'
 import { Config } from './config'
 import Request from './request'
+import { CasdoorMfaProps } from './mfa'
 
 export interface User {
   owner: string
@@ -95,6 +96,14 @@ export interface User {
 
   ldap?: string
   properties?: Record<string, string>
+
+  //mfa
+  preferredMfaType?: string
+  recoveryCodes?: string[]
+  totpSecret?: string
+  mfaPhoneEnabled?: boolean
+  mfaEmailEnabled?: boolean
+  multiFactorAuths?: CasdoorMfaProps[]
 }
 
 export interface SetPassword {
