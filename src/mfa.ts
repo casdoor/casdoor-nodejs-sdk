@@ -76,18 +76,23 @@ export class MfaSDK {
     payload.append('passcode', passcode)
     return (await this.request.post('mfa/setup/verify', payload, {
       headers: payload.getHeaders(),
+      withCredentials: true,
     })) as unknown as Promise<AxiosResponse<{ data: string }>>
   }
 
-  public async enable(data: MfaData) {
+  public async enable(data: MfaData, cookie: any = null) {
     if (!this.request) {
       throw new Error('request init failed')
     }
 
     const payload = this.prepareMfaPayload(data)
-    console.log(payload)
+    const headers = payload.getHeaders()
+    if (cookie)
+      headers.Cookie = cookie
+
     return (await this.request.post('mfa/setup/enable', payload, {
-      headers: payload.getHeaders(),
+      headers: headers,
+      withCredentials: true,
     })) as unknown as Promise<AxiosResponse<{ data: string }>>
   }
 
