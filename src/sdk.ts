@@ -583,8 +583,8 @@ export class SDK {
     return await this.mfaSDK.verify(data, passcode)
   }
 
-  public async enableMfa(data: MfaData) {
-    return await this.mfaSDK.enable(data)
+  public async enableMfa(data: MfaData, cookie: any = null) {
+    return await this.mfaSDK.enable(data, cookie)
   }
 
   public async setPreferredMfa(data: MfaData) {
