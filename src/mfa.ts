@@ -87,8 +87,7 @@ export class MfaSDK {
 
     const payload = this.prepareMfaPayload(data)
     const headers = payload.getHeaders()
-    if (cookie)
-      headers.Cookie = cookie
+    if (cookie) headers.Cookie = cookie
 
     return (await this.request.post('mfa/setup/enable', payload, {
       headers: headers,
