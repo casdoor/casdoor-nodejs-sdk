@@ -38,6 +38,7 @@ import { Product, ProductSDK } from './product'
 import { Email, EmailSDK } from './email'
 import { Sms, SmsSDK } from './sms'
 import { MfaData, MfaSDK } from './mfa'
+import { CasbinRequest, EnforceSDK } from './enforce'
 
 export class SDK {
   private readonly config: Config
@@ -66,6 +67,7 @@ export class SDK {
   private emailSDK: EmailSDK
   private smsSDK: SmsSDK
   private mfaSDK: MfaSDK
+  private enforceSDK: EnforceSDK
 
   constructor(config: Config) {
     this.config = config
@@ -104,6 +106,7 @@ export class SDK {
     this.emailSDK = new EmailSDK(this.config, this.request)
     this.smsSDK = new SmsSDK(this.config, this.request)
     this.mfaSDK = new MfaSDK(this.config, this.request)
+    this.enforceSDK = new EnforceSDK(this.config, this.request)
   }
 
   public async getAuthToken(code: string) {
@@ -590,5 +593,33 @@ export class SDK {
 
   public async deleteMfa(owner: string, name: string) {
     return await this.mfaSDK.delete(owner, name)
+  }
+
+  public async enforce(
+    permissionId: string,
+    modelId: string,
+    resourceId: string,
+    casbinRequest: CasbinRequest,
+  ) {
+    return await this.enforceSDK.enforce(
+      permissionId,
+      modelId,
+      resourceId,
+      casbinRequest,
+    )
+  }
+
+  public async batchEnforce(
+    permissionId: string,
+    modelId: string,
+    resourceId: string,
+    casbinRequest: CasbinRequest[],
+  ) {
+    return await this.enforceSDK.batchEnforce(
+      permissionId,
+      modelId,
+      resourceId,
+      casbinRequest,
+    )
   }
 }
