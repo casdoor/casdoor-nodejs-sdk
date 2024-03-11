@@ -19,6 +19,25 @@ import { Config } from './config'
 import Request from './request'
 import { CasdoorMfaProps } from './mfa'
 
+// https://github.com/casdoor/casdoor-go-sdk/blob/master/casdoorsdk/user.go
+export interface GetUsersParams {
+  // sorter?: string;
+  // limit?: number;
+
+  p?: number //分页
+  pageSize?: number // 页面大小
+
+  field?: string
+  value?: string
+  sortField?: string
+  sortOrder?: string
+  // field值
+  isOnline?: boolean
+  email?: string
+  phone?: string
+  id?: string
+}
+
 export interface User {
   owner: string
   name: string
@@ -167,14 +186,14 @@ export class UserSDK {
       algorithms: ['RS256'],
     }) as User
   }
-
-  public async getUsers() {
+  public async getUsers(options: GetUsersParams | null = null) {
     if (!this.request) {
       throw new Error('request init failed')
     }
 
     return (await this.request.get('/get-users', {
       params: {
+        ...(options || {}), // 由于参数众多,所以不如兼容所有
         owner: this.config.orgName,
       },
     })) as unknown as Promise<AxiosResponse<{ data: User[] }>>
