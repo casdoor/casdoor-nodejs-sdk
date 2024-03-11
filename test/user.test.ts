@@ -94,3 +94,29 @@ test('TestUser', async () => {
     throw new Error("Failed to delete object, it's still retrievable")
   }
 })
+test('TestGetPaginationUser', async () => {
+  const testConfig: Config = {
+    endpoint: util.TestCasdoorEndpoint,
+    clientId: util.TestClientId,
+    clientSecret: util.TestClientSecret,
+    certificate: util.TestJwtPublicKey,
+    orgName: util.TestCasdoorOrganization,
+    appName: util.TestCasdoorApplication,
+  }
+  const sdk = new SDK(testConfig)
+
+  const params = {
+    p: 1,
+    pageSize: 10,
+  }
+  // Get all objects and check if our added object is in the list
+  const {
+    data: { data: users },
+  } = await sdk.getUsersByParams(params)
+  if (users.length !== params.pageSize) {
+    console.log(`users`, users.length)
+    throw new Error('pageSize is not correct')
+  }
+})
+
+// test('sorterUser', async () => {})

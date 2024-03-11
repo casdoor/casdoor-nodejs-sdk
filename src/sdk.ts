@@ -14,7 +14,7 @@
 
 import { Config } from './config'
 import Request from './request'
-import { SetPassword, User, UserSDK } from './user'
+import { GetUsersParams, SetPassword, User, UserSDK } from './user'
 import { Adapter, AdapterSDK } from './adapter'
 import { Application, ApplicationSDK } from './application'
 import { Cert, CertSDK } from './cert'
@@ -126,6 +126,9 @@ export class SDK {
 
   public async getUsers() {
     return await this.userSDK.getUsers()
+  }
+  public async getUsersByParams(options: GetUsersParams) {
+    return await this.userSDK.getUsersByParams(options)
   }
 
   public async getUser(id: string) {

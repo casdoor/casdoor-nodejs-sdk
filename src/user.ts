@@ -36,6 +36,7 @@ export interface GetUsersParams {
   email?: string
   phone?: string
   id?: string
+  name?: string
 }
 
 export interface User {
@@ -186,14 +187,29 @@ export class UserSDK {
       algorithms: ['RS256'],
     }) as User
   }
-  public async getUsers(options: GetUsersParams | null = null) {
+  // pagination etc...
+  public async getUsersByParams(options: GetUsersParams = {}) {
+    if (!this.request) {
+      throw new Error('request init failed')
+    }
+
+    const result = (await this.request.get('/get-users', {
+      params: {
+        ...options,
+        owner: this.config.orgName,
+      },
+    })) as unknown as AxiosResponse<{
+      data: User[]
+    }>
+    return result
+  }
+  public async getUsers() {
     if (!this.request) {
       throw new Error('request init failed')
     }
 
     return (await this.request.get('/get-users', {
       params: {
-        ...(options || {}), // 由于参数众多,所以不如兼容所有
         owner: this.config.orgName,
       },
     })) as unknown as Promise<AxiosResponse<{ data: User[] }>>
