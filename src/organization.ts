@@ -78,7 +78,7 @@ export class OrganizationSDK {
 
     return (await this.request.get('/get-organizations', {
       params: {
-        owner: this.config.orgName,
+        owner: 'admin',
       },
     })) as unknown as Promise<AxiosResponse<{ data: Organization[] }>>
   }
@@ -90,7 +90,7 @@ export class OrganizationSDK {
 
     return (await this.request.get('/get-organization', {
       params: {
-        id: `${this.config.orgName}/${id}`,
+        id: `admin/${id}`,
       },
     })) as unknown as Promise<AxiosResponse<{ data: Organization }>>
   }
@@ -101,7 +101,7 @@ export class OrganizationSDK {
     }
 
     const url = `/${method}`
-    organization.owner = this.config.orgName
+    organization.owner = 'admin'
     return (await this.request.post(url, organization, {
       params: {
         id: `${organization.owner}/${organization.name}`,

@@ -54,7 +54,7 @@ export class TokenSDK {
       params: {
         p: String(p),
         pageSize: String(pageSize),
-        owner: this.config.orgName,
+        owner: 'admin',
       },
     })) as unknown as Promise<AxiosResponse<{ data: Token[] }>>
   }
@@ -66,7 +66,7 @@ export class TokenSDK {
 
     return (await this.request.get('/get-token', {
       params: {
-        id: `${this.config.orgName}/${id}`,
+        id: `admin/${id}`,
       },
     })) as unknown as Promise<AxiosResponse<{ data: Token }>>
   }
@@ -77,7 +77,7 @@ export class TokenSDK {
     }
 
     const url = `/${method}`
-    token.owner = this.config.orgName
+    token.owner = 'admin'
     return (await this.request.post(url, token, {
       params: {
         id: `${token.owner}/${token.name}`,
