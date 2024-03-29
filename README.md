@@ -1,10 +1,9 @@
 # casdoor-nodejs-sdk
 
+[![GitHub Actions](https://github.com/casdoor/casdoor-nodejs-sdk/workflows/main/badge.svg)](https://github.com/casdoor/casdoor-nodejs-sdk/actions)
+[![codebeat badge](https://codebeat.co/badges/4f1d141f-047a-43fe-a5d0-889fa4aaf726)](https://codebeat.co/projects/github-com-casdoor-casdoor-nodejs-sdk-master)
 [![NPM version][npm-image]][npm-url]
 [![NPM download][download-image]][download-url]
-[![codebeat badge](https://codebeat.co/badges/4f1d141f-047a-43fe-a5d0-889fa4aaf726)](https://codebeat.co/projects/github-com-casdoor-casdoor-nodejs-sdk-master)
-[![GitHub Actions](https://github.com/casdoor/casdoor-nodejs-sdk/workflows/main/badge.svg)](https://github.com/casdoor/casdoor-nodejs-sdk/actions)
-[![Coverage Status](https://coveralls.io/repos/github/casdoor/casdoor-nodejs-sdk/badge.svg?branch=master)](https://coveralls.io/github/casdoor/casdoor-nodejs-sdk?branch=master)
 [![Release](https://img.shields.io/github/release/casdoor/casdoor-nodejs-sdk.svg)](https://github.com/casdoor/casdoor-nodejs-sdk/releases/latest)
 [![Discord](https://img.shields.io/discord/1022748306096537660?logo=discord&label=discord&color=5865F2)](https://discord.gg/5rPsrAzK7S)
 
