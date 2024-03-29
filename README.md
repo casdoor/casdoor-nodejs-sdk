@@ -1,6 +1,6 @@
 # casdoor-nodejs-sdk
 
-[![GitHub Actions](https://github.com/casdoor/casdoor-nodejs-sdk/workflows/main/badge.svg)](https://github.com/casdoor/casdoor-nodejs-sdk/actions)
+[![GitHub Actions](https://github.com/casdoor/casdoor-nodejs-sdk/actions/workflows/semantic-release.yml/badge.svg)](https://github.com/casdoor/casdoor-nodejs-sdk/actions)
 [![codebeat badge](https://codebeat.co/badges/4f1d141f-047a-43fe-a5d0-889fa4aaf726)](https://codebeat.co/projects/github-com-casdoor-casdoor-nodejs-sdk-master)
 [![NPM version][npm-image]][npm-url]
 [![NPM download][download-image]][download-url]
