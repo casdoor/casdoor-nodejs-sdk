@@ -47,15 +47,18 @@ export class GroupSDK {
     this.request = request
   }
 
-  public async getGroups() {
+  public async getGroups(withTree?: boolean) {
     if (!this.request) {
       throw new Error('request init failed')
     }
 
+    const params: any = { owner: this.config.orgName }
+    if (withTree) {
+      params.withTree = 'true'
+    }
+
     return (await this.request.get('/get-groups', {
-      params: {
-        owner: this.config.orgName,
-      },
+      params,
     })) as unknown as Promise<AxiosResponse<{ data: Group[] }>>
   }
 
