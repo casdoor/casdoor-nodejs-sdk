@@ -54,7 +54,7 @@ test('TestSyncer', async () => {
   // Get all objects and check if our added object is in the list
   const {
     data: { data: syncers },
-  } = await sdk.getSyncers()
+  } = await sdk.getSyncers(syncer.owner)
   const found = syncers.some((item) => item.name === name)
   if (!found) {
     throw new Error('Added object not found in list')
@@ -68,6 +68,14 @@ test('TestSyncer', async () => {
     throw new Error(
       `Retrieved object does not match added object: ${retrievedSyncer.name} != ${name}`,
     )
+  }
+
+  // Get the objects
+  const {
+    data: { data: retrievedSyncers },
+  } = await sdk.getSyncers(syncer.owner)
+  if (retrievedSyncers.length !== 1 || retrievedSyncers[0].name !== name) {
+    throw new Error('Failed to get objects')
   }
 
   // Update the object

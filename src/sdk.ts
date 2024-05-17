@@ -328,24 +328,24 @@ export class SDK {
     return await this.sessionSDK.deleteSession(session)
   }
 
-  public async getSyncers() {
-    return await this.syncerSDK.getSyncers()
+  public async getSyncers(owner?: string) {
+    return await this.syncerSDK.getSyncers(owner)
   }
 
   public async getSyncer(id: string) {
     return await this.syncerSDK.getSyncer(id)
   }
 
-  public async addSyncer(syncer: Syncer) {
-    return await this.syncerSDK.addSyncer(syncer)
+  public async addSyncer(syncer: Syncer, owner?: string) {
+    return await this.syncerSDK.addSyncer(syncer, owner)
   }
 
-  public async updateSyncer(syncer: Syncer) {
-    return await this.syncerSDK.updateSyncer(syncer)
+  public async updateSyncer(syncer: Syncer, owner?: string) {
+    return await this.syncerSDK.updateSyncer(syncer, owner)
   }
 
-  public async deleteSyncer(syncer: Syncer) {
-    return await this.syncerSDK.deleteSyncer(syncer)
+  public async deleteSyncer(syncer: Syncer, owner?: string) {
+    return await this.syncerSDK.deleteSyncer(syncer, owner)
   }
 
   public async getPermissions() {
