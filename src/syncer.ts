@@ -61,14 +61,14 @@ export class SyncerSDK {
     this.request = request
   }
 
-  public async getSyncers() {
+  public async getSyncers(owner = this.config.orgName) {
     if (!this.request) {
       throw new Error('request init failed')
     }
 
     return (await this.request.get('/get-syncers', {
       params: {
-        owner: this.config.orgName,
+        owner,
       },
     })) as unknown as Promise<AxiosResponse<{ data: Syncer[] }>>
   }
@@ -85,13 +85,17 @@ export class SyncerSDK {
     })) as unknown as Promise<AxiosResponse<{ data: Syncer }>>
   }
 
-  public async modifySyncer(method: string, syncer: Syncer) {
+  public async modifySyncer(
+    method: string,
+    syncer: Syncer,
+    owner = this.config.orgName,
+  ) {
     if (!this.request) {
       throw new Error('request init failed')
     }
 
     const url = `/${method}`
-    syncer.owner = this.config.orgName
+    syncer.owner = owner
     return (await this.request.post(url, syncer, {
       params: {
         id: `${syncer.owner}/${syncer.name}`,
@@ -99,15 +103,15 @@ export class SyncerSDK {
     })) as unknown as Promise<AxiosResponse<Record<string, unknown>>>
   }
 
-  public async addSyncer(syncer: Syncer) {
-    return this.modifySyncer('add-syncer', syncer)
+  public async addSyncer(syncer: Syncer, owner?: string) {
+    return this.modifySyncer('add-syncer', syncer, owner)
   }
 
-  public async updateSyncer(syncer: Syncer) {
-    return this.modifySyncer('update-syncer', syncer)
+  public async updateSyncer(syncer: Syncer, owner?: string) {
+    return this.modifySyncer('update-syncer', syncer, owner)
   }
 
-  public async deleteSyncer(syncer: Syncer) {
-    return this.modifySyncer('delete-syncer', syncer)
+  public async deleteSyncer(syncer: Syncer, owner?: string) {
+    return this.modifySyncer('delete-syncer', syncer, owner)
   }
 }
