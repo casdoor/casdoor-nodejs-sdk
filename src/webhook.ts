@@ -12,33 +12,25 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import { TableColumn } from './syncer'
 import { AxiosResponse } from 'axios'
 import { Config } from './config'
 import Request from './request'
 
+// Webhook has same definition as https://github.com/casdoor/casdoor/blob/master/object/webhook.go#L29
 export interface Webhook {
   owner: string
   name: string
-  createdTime: string
+  createdTime?: string
 
-  organization: string
-  type?: string
+  organization?: string
 
-  host?: string
-  port?: number
-  user?: string
-  password?: string
-  databaseType?: string
-  database?: string
-  table?: string
-  tablePrimaryKey?: string
-  tableColumns?: TableColumn[]
-  affiliationTable?: string
-  avatarBaseUrl?: string
-  errorText?: string
-  syncInterval?: number
-  isReadOnly?: boolean
+  url?: string
+  method?: string
+  contentType?: string
+  headers?: { name?: string; value?: string }[]
+  events?: string[]
+  isUserExtended?: boolean
+  singleOrgOnly?: boolean
   isEnabled?: boolean
 
   // Ormer *Ormer `xorm:"-" json:"-"`
