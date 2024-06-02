@@ -528,6 +528,10 @@ export class SDK {
     return await this.tokenSDK.deleteToken(token)
   }
 
+  public async introspect(token: string, token_type_hint: string) {
+    return await this.tokenSDK.introspect(token, token_type_hint)
+  }
+
   public async getWebhooks() {
     return await this.webhookSDK.getWebhooks()
   }
