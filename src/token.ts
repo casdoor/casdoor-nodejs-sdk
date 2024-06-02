@@ -102,11 +102,17 @@ export class TokenSDK {
       throw new Error('request init failed')
     }
 
-    return (await this.request.post('/login/oauth/introspect', {
-      params: {
+    return (await this.request.post(
+      '/login/oauth/introspect',
+      {
         token,
         token_type_hint,
       },
-    })) as unknown as Promise<AxiosResponse<Record<string, unknown>>>
+      {
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded',
+        },
+      },
+    )) as unknown as Promise<AxiosResponse<Record<string, unknown>>>
   }
 }
