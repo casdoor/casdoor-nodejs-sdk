@@ -96,4 +96,17 @@ export class TokenSDK {
   public async deleteToken(token: Token) {
     return this.modifyToken('delete-token', token)
   }
+
+  public async introspect(token: string, token_type_hint: string) {
+    if (!this.request) {
+      throw new Error('request init failed')
+    }
+
+    return (await this.request.post('/login/oauth/introspect', {
+      params: {
+        token,
+        token_type_hint,
+      },
+    })) as unknown as Promise<AxiosResponse<Record<string, unknown>>>
+  }
 }
