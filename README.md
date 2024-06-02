@@ -48,6 +48,13 @@ Initialization requires 5 parameters, which are all string type:
 
 ```typescript
 import { SDK, Config } from 'casdoor-nodejs-sdk'
+import type { AxiosRequestConfig } from 'axios';
+import https from 'node:https';
+
+// Optional param for providing a self-signed CA with requests.
+const axiosConfig: AxiosRequestConfig = {
+  httpsAgent: new https.Agent({ ca: ... })
+}
 
 const authCfg: Config = {
   endpoint: '',
@@ -58,6 +65,8 @@ const authCfg: Config = {
 }
 
 const sdk = new SDK(authCfg)
+// or
+const sdk = new SDK(authCfg, axiosConfig)
 
 // call sdk to handle
 ```
