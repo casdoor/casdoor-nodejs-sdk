@@ -40,6 +40,7 @@ import { Sms, SmsSDK } from './sms'
 import { MfaData, MfaSDK } from './mfa'
 import { CasbinRequest, EnforceSDK } from './enforce'
 import { UrlSDK } from './url'
+import type { AxiosRequestConfig } from 'axios'
 
 export class SDK {
   private readonly config: Config
@@ -71,7 +72,7 @@ export class SDK {
   private enforceSDK: EnforceSDK
   private urlSDK: UrlSDK
 
-  constructor(config: Config) {
+  constructor(config: Config, axiosConfig?: AxiosRequestConfig) {
     this.config = config
     this.request = new Request({
       url: config.endpoint + '/api',
@@ -83,6 +84,7 @@ export class SDK {
             `${this.config.clientId}:${this.config.clientSecret}`,
           ).toString('base64'),
       },
+      ...axiosConfig,
     })
     this.userSDK = new UserSDK(this.config, this.request)
     this.adapterSDK = new AdapterSDK(this.config, this.request)
