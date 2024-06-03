@@ -23,6 +23,7 @@ export default class Request {
       baseURL: config.url,
       timeout: config.timeout || 60000,
       headers: config.headers,
+      ...config,
     })
   }
   get(url: string, config?: AxiosRequestConfig<any>) {
