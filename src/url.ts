@@ -45,13 +45,13 @@ export class UrlSDK {
     return this.getSignUrl('login', redirectUri)
   }
 
-  public getUserProfileUrl(userName: string, accessToken: string): string {
-    const param = accessToken ? `?access_token=${accessToken}}` : ''
+  public getUserProfileUrl(userName: string, accessToken?: string): string {
+    const param = accessToken ? `?access_token=${accessToken}` : ''
     return `${this.config.endpoint}/users/${this.config.orgName}/${userName}${param}`
   }
 
-  public getMyProfileUrl(accessToken: string): string {
-    const param = accessToken ? `?access_token=${accessToken}}` : ''
+  public getMyProfileUrl(accessToken?: string): string {
+    const param = accessToken ? `?access_token=${accessToken}` : ''
     return `${this.config.endpoint}/account${param}`
   }
 }
