@@ -640,11 +640,11 @@ export class SDK {
     return this.urlSDK.getSignInUrl(redirectUri)
   }
 
-  public getUserProfileUrl(userName: string, accessToken: string) {
+  public getUserProfileUrl(userName: string, accessToken?: string) {
     return this.urlSDK.getUserProfileUrl(userName, accessToken)
   }
 
-  public getMyProfileUrl(accessToken: string) {
+  public getMyProfileUrl(accessToken?: string) {
     return this.urlSDK.getMyProfileUrl(accessToken)
   }
 }

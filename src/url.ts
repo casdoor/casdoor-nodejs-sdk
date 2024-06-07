@@ -35,7 +35,7 @@ export class UrlSDK {
 
   public getSignUpUrl(enablePassword: boolean, redirectUri: string): string {
     if (enablePassword) {
-      return `${this.config.endpoint}/signup/${this.config.appName}}`
+      return `${this.config.endpoint}/signup/${this.config.appName}`
     } else {
       return this.getSignUrl('signup', redirectUri)
     }
