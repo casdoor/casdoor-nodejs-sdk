@@ -43,8 +43,8 @@ import { UrlSDK } from './url'
 import type { AxiosRequestConfig } from 'axios'
 
 export class SDK {
-  private readonly config: Config
-  private readonly request: Request
+  protected readonly config: Config
+  protected readonly request: Request
   private userSDK: UserSDK
   private adapterSDK: AdapterSDK
   private applicationSDK: ApplicationSDK
