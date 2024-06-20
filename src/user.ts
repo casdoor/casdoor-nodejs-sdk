@@ -18,6 +18,7 @@ import * as FormData from 'form-data'
 import { Config } from './config'
 import Request from './request'
 import { CasdoorMfaProps } from './mfa'
+import { Role } from './role'
 
 export interface User {
   owner: string
@@ -63,6 +64,7 @@ export interface User {
   signupApplication?: string
   hash?: string
   preHash?: string
+  roles?: Role[]
 
   createdIp?: string
   lastSigninTime?: string
