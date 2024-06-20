@@ -64,7 +64,7 @@ export interface User {
   signupApplication?: string
   hash?: string
   preHash?: string
-  roles?: Role
+  roles?: Role[]
 
   createdIp?: string
   lastSigninTime?: string
