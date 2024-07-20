@@ -27,6 +27,7 @@ import { Session, SessionSDK } from './session'
 import { Syncer, SyncerSDK } from './syncer'
 import { Permission, PermissionSDK } from './permission'
 import { Plan, PlanSDK } from './plan'
+import { Policy, PolicySDK } from './policy'
 import { Pricing, PricingSDK } from './pricing'
 import { Provider, ProviderSDK } from './provider'
 import { Resource, ResourceSDK } from './resource'
@@ -58,6 +59,7 @@ export class SDK {
   private syncerSDK: SyncerSDK
   private permissionSDK: PermissionSDK
   private planSDK: PlanSDK
+  private policySDK: PolicySDK
   private pricingSDK: PricingSDK
   private providerSDK: ProviderSDK
   private resourceSDK: ResourceSDK
@@ -99,6 +101,7 @@ export class SDK {
     this.syncerSDK = new SyncerSDK(this.config, this.request)
     this.permissionSDK = new PermissionSDK(this.config, this.request)
     this.planSDK = new PlanSDK(this.config, this.request)
+    this.policySDK = new PolicySDK(this.config, this.request)
     this.pricingSDK = new PricingSDK(this.config, this.request)
     this.providerSDK = new ProviderSDK(this.config, this.request)
     this.resourceSDK = new ResourceSDK(this.config, this.request)
@@ -388,6 +391,26 @@ export class SDK {
 
   public async deletePlan(plan: Plan) {
     return await this.planSDK.deletePlan(plan)
+  }
+
+  public async getPolicies(enforcerName: string, adapterId?: string) {
+    return await this.policySDK.getPolicies(enforcerName, adapterId)
+  }
+
+  public async addPolicy(enforcer: Enforcer, policy: Policy) {
+    return await this.policySDK.addPolicy(enforcer, policy)
+  }
+
+  public async updatePolicy(
+    enforcer: Enforcer,
+    oldPolicy: Policy,
+    newPolicy: Policy,
+  ) {
+    return await this.policySDK.updatePolicy(enforcer, oldPolicy, newPolicy)
+  }
+
+  public async deletePolicy(enforcer: Enforcer, policy: Policy) {
+    return await this.policySDK.deletePolicy(enforcer, policy)
   }
 
   public async getPricings() {
