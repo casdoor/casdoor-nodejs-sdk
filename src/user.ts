@@ -184,21 +184,21 @@ export interface User {
 }
 
 export interface ManagedAccount {
-  application?: string;
-  username?: string;
-  password?: string;
-  signinUrl?: string;
+  application?: string
+  username?: string
+  password?: string
+  signinUrl?: string
 }
 
 export interface MfaAccount {
-  accountName: string;
-  issuer: string;
-  secretKey: string;
+  accountName: string
+  issuer: string
+  secretKey: string
 }
 
 export interface FaceId {
-  name: string;
-  faceIdData: number[];
+  name: string
+  faceIdData: number[]
 }
 
 export interface SetPassword {
