@@ -24,6 +24,7 @@ export interface Permission {
   description: string
 
   users?: string[]
+  groups?: string[]
   roles?: string[]
   domains?: string[]
 
