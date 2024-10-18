@@ -30,6 +30,7 @@ export interface User {
   type?: string
   password?: string
   passwordSalt?: string
+  passwordType?: string
   displayName?: string
   firstName?: string
   lastName?: string
