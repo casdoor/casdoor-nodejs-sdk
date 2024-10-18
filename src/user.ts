@@ -19,14 +19,17 @@ import { Config } from './config'
 import Request from './request'
 import { CasdoorMfaProps } from './mfa'
 import { Role } from './role'
+import { Permission } from './permission'
 
 export interface User {
   owner: string
   name: string
   createdTime: string
   updatedTime?: string
+  deletedTime?: string
 
   id?: string
+  externalId?: string
   type?: string
   password?: string
   passwordSalt?: string
@@ -35,10 +38,13 @@ export interface User {
   firstName?: string
   lastName?: string
   avatar?: string
+  avatarType?: string
   permanentAvatar?: string
   email?: string
   emailVerified?: boolean
   phone?: string
+  countryCode?: string
+  region?: string
   location?: string
   address?: string[]
   affiliation?: string
@@ -48,7 +54,6 @@ export interface User {
   homepage?: string
   bio?: string
   tag?: string
-  region?: string
   language?: string
   gender?: string
   birthday?: string
@@ -56,16 +61,19 @@ export interface User {
   score?: number
   karma?: number
   ranking?: number
+  balance?: number
+  currency?: string
   isDefaultAvatar?: boolean
   isOnline?: boolean
   isAdmin?: boolean
-  isGlobalAdmin?: boolean
   isForbidden?: boolean
   isDeleted?: boolean
   signupApplication?: string
   hash?: string
   preHash?: string
-  roles?: Role[]
+  accessKey?: string
+  accessSecret?: string
+  accessToken?: string
 
   createdIp?: string
   lastSigninTime?: string
@@ -74,12 +82,12 @@ export interface User {
   github?: string
   google?: string
   qq?: string
-  wechat?: string
+  weChat?: string
   facebook?: string
-  dingtalk?: string
+  dingTalk?: string
   weibo?: string
   gitee?: string
-  linkedin?: string
+  linkedIn?: string
   wecom?: string
   lark?: string
   gitlab?: string
@@ -89,24 +97,108 @@ export interface User {
   casdoor?: string
   infoflow?: string
   apple?: string
-  azuread?: string
+  azureAD?: string
+  azureADB2c?: string
   slack?: string
   steam?: string
   bilibili?: string
   okta?: string
   douyin?: string
+  line?: string
+  amazon?: string
+  auth0?: string
+  battleNet?: string
+  bitbucket?: string
+  box?: string
+  cloudFoundry?: string
+  dailymotion?: string
+  deezer?: string
+  digitalOcean?: string
+  discord?: string
+  dropbox?: string
+  eveOnline?: string
+  fitbit?: string
+  gitea?: string
+  heroku?: string
+  influxCloud?: string
+  instagram?: string
+  intercom?: string
+  kakao?: string
+  lastfm?: string
+  mailru?: string
+  meetup?: string
+  microsoftOnline?: string
+  naver?: string
+  nextcloud?: string
+  oneDrive?: string
+  oura?: string
+  patreon?: string
+  paypal?: string
+  salesForce?: string
+  shopify?: string
+  soundcloud?: string
+  spotify?: string
+  strava?: string
+  stripe?: string
+  tiktok?: string
+  tumblr?: string
+  twitch?: string
+  twitter?: string
+  typetalk?: string
+  uber?: string
+  vk?: string
+  wepay?: string
+  xero?: string
+  yahoo?: string
+  yammer?: string
+  yandex?: string
+  zoom?: string
+  metaMask?: string
+  web3Onboard?: string
   custom?: string
 
-  ldap?: string
-  properties?: Record<string, string>
-
-  //mfa
   preferredMfaType?: string
   recoveryCodes?: string[]
   totpSecret?: string
   mfaPhoneEnabled?: boolean
   mfaEmailEnabled?: boolean
   multiFactorAuths?: CasdoorMfaProps[]
+  invitation?: string
+  invitationCode?: string
+  faceIds?: FaceId[]
+
+  ldap?: string
+  properties?: Record<string, string>
+
+  roles?: Role[]
+  permissions?: Permission[]
+  groups?: string[]
+
+  lastSigninWrongTime?: string
+  signinWrongTimes?: number
+
+  managedAccounts?: ManagedAccount[]
+  mfaAccounts?: MfaAccount[]
+  needUpdatePassword?: boolean
+  ipWhitelist?: string
+}
+
+export interface ManagedAccount {
+  application?: string;
+  username?: string;
+  password?: string;
+  signinUrl?: string;
+}
+
+export interface MfaAccount {
+  accountName: string;
+  issuer: string;
+  secretKey: string;
+}
+
+export interface FaceId {
+  name: string;
+  faceIdData: number[];
 }
 
 export interface SetPassword {
