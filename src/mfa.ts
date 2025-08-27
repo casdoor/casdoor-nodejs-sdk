@@ -27,6 +27,7 @@ export interface MfaData {
   owner: string
   mfaType: MfaType
   name: string
+  secret: string
 }
 
 export interface CasdoorMfaProps {
@@ -53,6 +54,7 @@ export class MfaSDK {
     formData.append('owner', data.owner)
     formData.append('mfaType', data.mfaType)
     formData.append('name', data.name)
+    formData.append('secret', data.secret)
     return formData
   }
 
