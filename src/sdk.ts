@@ -121,8 +121,8 @@ export class SDK {
     return await this.userSDK.getAuthToken(code)
   }
 
-  public async refreshToken(refreshToken: string) {
-    return await this.userSDK.refreshToken(refreshToken)
+  public async refreshToken(refreshToken: string, scope?: string) {
+    return await this.userSDK.refreshToken(refreshToken, scope)
   }
 
   public parseJwtToken(token: string) {

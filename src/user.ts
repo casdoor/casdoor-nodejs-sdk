@@ -237,7 +237,7 @@ export class UserSDK {
     return { access_token: access_token, refresh_token: refresh_token }
   }
 
-  public async refreshToken(refreshToken: string) {
+  public async refreshToken(refreshToken: string, scope?: string) {
     if (!this.request) {
       throw new Error('request init failed')
     }
@@ -249,6 +249,7 @@ export class UserSDK {
       client_secret: this.config.clientSecret,
       grant_type: 'refresh_token',
       refresh_token: refreshToken,
+      ...(scope && { scope }),
     })) as unknown as AxiosResponse<{
       access_token: string
       refresh_token: string
