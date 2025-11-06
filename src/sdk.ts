@@ -120,7 +120,11 @@ export class SDK {
   public async getAuthToken(code: string) {
     return await this.userSDK.getAuthToken(code)
   }
-
+  
+  public async getAuthTokenByPassword(username: string, password: string) {
+    return await this.userSDK.getAuthTokenByPassword(username, password)
+  }
+  
   public async refreshToken(refreshToken: string, scope?: string) {
     return await this.userSDK.refreshToken(refreshToken, scope)
   }
