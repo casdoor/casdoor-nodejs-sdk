@@ -18,7 +18,7 @@ import { Config } from '../src/config'
 import { Model } from '../src/model'
 import { Adapter } from '../src/adapter'
 import { Enforcer } from '../src/enforcer'
-import { CasbinRule } from '../src/policy'
+import { Policy } from '../src/policy'
 
 test('TestEnforce', async () => {
   const testConfig: Config = {
@@ -62,8 +62,9 @@ m = r.sub == p.sub && r.obj == p.obj && r.act == p.act`,
     owner: 'casbin',
     name: adapterName,
     createdTime: new Date().toISOString(),
+    user: adapterName,
+    host: 'https://casdoor.org',
     table: adapterName + '_policy',
-    useSameDb: true,
   }
 
   const { data: addAdapterResponse } = await sdk.addAdapter(adapter)
@@ -88,11 +89,12 @@ m = r.sub == p.sub && r.obj == p.obj && r.act == p.act`,
   }
 
   // Add policies
-  const policy1: CasbinRule = {
-    ptype: 'p',
-    v0: 'alice',
-    v1: 'data1',
-    v2: 'read',
+  const policy1: Policy = {
+    Id: 0,
+    Ptype: 'p',
+    V0: 'alice',
+    V1: 'data1',
+    V2: 'read',
   }
 
   const { data: addPolicy1Response } = await sdk.addPolicy(enforcer, policy1)
@@ -100,11 +102,12 @@ m = r.sub == p.sub && r.obj == p.obj && r.act == p.act`,
     throw new Error('Failed to add policy 1')
   }
 
-  const policy2: CasbinRule = {
-    ptype: 'p',
-    v0: 'bob',
-    v1: 'data2',
-    v2: 'write',
+  const policy2: Policy = {
+    Id: 0,
+    Ptype: 'p',
+    V0: 'bob',
+    V1: 'data2',
+    V2: 'write',
   }
 
   const { data: addPolicy2Response } = await sdk.addPolicy(enforcer, policy2)
