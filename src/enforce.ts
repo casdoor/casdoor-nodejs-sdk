@@ -32,6 +32,8 @@ export class EnforceSDK {
     permissionId: string,
     modelId: string,
     resourceId: string,
+    enforcerId: string,
+    owner: string,
     casbinRequest: CasbinRequest,
   ): Promise<boolean> {
     const response = await this.doEnforce<CasbinResponse>(
@@ -39,9 +41,14 @@ export class EnforceSDK {
       permissionId,
       modelId,
       resourceId,
+      enforcerId,
+      owner,
       casbinRequest,
     )
     const { data } = response.data
+    if (!Array.isArray(data)) {
+      throw new Error('Invalid response data format: expected array')
+    }
     for (const isAllow of data) {
       if (isAllow) {
         return isAllow
@@ -54,17 +61,25 @@ export class EnforceSDK {
     permissionId: string,
     modelId: string,
     resourceId: string,
+    enforcerId: string,
+    owner: string,
     casbinRequest: CasbinRequest[],
-  ): Promise<boolean[]> {
+  ): Promise<boolean[][]> {
     const response = await this.doEnforce<CasbinResponse[]>(
       'batch-enforce',
       permissionId,
       modelId,
       resourceId,
+      enforcerId,
+      owner,
       casbinRequest,
     )
     const { data } = response.data
-    return data.flat(2)
+    if (!Array.isArray(data)) {
+      throw new Error('Invalid response data format: expected array')
+    }
+    // data is already a 2D array (boolean[][])
+    return data as unknown as boolean[][]
   }
 
   private async doEnforce<T>(
@@ -72,6 +87,8 @@ export class EnforceSDK {
     permissionId: string,
     modelId: string,
     resourceId: string,
+    enforcerId: string,
+    owner: string,
     casbinRequest: CasbinRequest | CasbinRequest[],
   ) {
     if (!this.request) {
@@ -84,6 +101,8 @@ export class EnforceSDK {
         permissionId: permissionId,
         modelId: modelId,
         resourceId: resourceId,
+        enforcerId: enforcerId,
+        owner: owner,
       },
     })) as unknown as Promise<
       AxiosResponse<{
