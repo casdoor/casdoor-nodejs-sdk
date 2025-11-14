@@ -16,7 +16,7 @@ import { AxiosResponse } from 'axios'
 import { Config } from './config'
 import Request from './request'
 
-export type CasbinRequest = string[]
+export type CasbinRequest = any[]
 export type CasbinResponse = boolean[]
 
 export class EnforceSDK {
