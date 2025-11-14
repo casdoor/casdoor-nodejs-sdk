@@ -43,6 +43,8 @@ import { CasbinRequest, EnforceSDK } from './enforce'
 import { UrlSDK } from './url'
 import type { AxiosRequestConfig } from 'axios'
 
+export type { CasbinRequest }
+
 export class SDK {
   protected readonly config: Config
   protected readonly request: Request
