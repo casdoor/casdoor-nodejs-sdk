@@ -32,6 +32,8 @@ export class EnforceSDK {
     permissionId: string,
     modelId: string,
     resourceId: string,
+    enforcerId: string,
+    owner: string,
     casbinRequest: CasbinRequest,
   ): Promise<boolean> {
     const response = await this.doEnforce<CasbinResponse>(
@@ -39,9 +41,17 @@ export class EnforceSDK {
       permissionId,
       modelId,
       resourceId,
+      enforcerId,
+      owner,
       casbinRequest,
     )
     const { data } = response.data
+
+    // Handle case where data might not be an array
+    if (!Array.isArray(data)) {
+      throw new Error('Invalid data returned from enforce API')
+    }
+
     for (const isAllow of data) {
       if (isAllow) {
         return isAllow
@@ -54,17 +64,42 @@ export class EnforceSDK {
     permissionId: string,
     modelId: string,
     resourceId: string,
+    enforcerId: string,
+    owner: string,
     casbinRequest: CasbinRequest[],
-  ): Promise<boolean[]> {
-    const response = await this.doEnforce<CasbinResponse[]>(
+  ): Promise<boolean[][]> {
+    const response = await this.doEnforce<any>(
       'batch-enforce',
       permissionId,
       modelId,
       resourceId,
+      enforcerId,
+      owner,
       casbinRequest,
     )
     const { data } = response.data
-    return data.flat(2)
+
+    // Handle case where data might not be an array
+    if (!Array.isArray(data)) {
+      throw new Error('Invalid data returned from batch-enforce API')
+    }
+
+    const allows: boolean[][] = []
+    for (const d of data) {
+      if (!Array.isArray(d)) {
+        throw new Error('Invalid data format in batch-enforce response')
+      }
+      const permRes: boolean[] = []
+      for (const el of d) {
+        if (typeof el !== 'boolean') {
+          throw new Error('Invalid data format in batch-enforce response')
+        }
+        permRes.push(el)
+      }
+      allows.push(permRes)
+    }
+
+    return allows
   }
 
   private async doEnforce<T>(
@@ -72,6 +107,8 @@ export class EnforceSDK {
     permissionId: string,
     modelId: string,
     resourceId: string,
+    enforcerId: string,
+    owner: string,
     casbinRequest: CasbinRequest | CasbinRequest[],
   ) {
     if (!this.request) {
@@ -84,6 +121,8 @@ export class EnforceSDK {
         permissionId: permissionId,
         modelId: modelId,
         resourceId: resourceId,
+        enforcerId: enforcerId,
+        owner: owner,
       },
     })) as unknown as Promise<
       AxiosResponse<{
