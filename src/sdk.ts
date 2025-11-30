@@ -631,12 +631,14 @@ export class SDK {
     permissionId: string,
     modelId: string,
     resourceId: string,
+    enforcerId: string,
     casbinRequest: CasbinRequest,
   ) {
     return await this.enforceSDK.enforce(
       permissionId,
       modelId,
       resourceId,
+      enforcerId,
       casbinRequest,
     )
   }
@@ -645,12 +647,14 @@ export class SDK {
     permissionId: string,
     modelId: string,
     resourceId: string,
+    enforcerId: string,
     casbinRequest: CasbinRequest[],
   ) {
     return await this.enforceSDK.batchEnforce(
       permissionId,
       modelId,
       resourceId,
+      enforcerId,
       casbinRequest,
     )
   }

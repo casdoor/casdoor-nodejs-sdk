@@ -32,6 +32,7 @@ export class EnforceSDK {
     permissionId: string,
     modelId: string,
     resourceId: string,
+    enforcerId: string,
     casbinRequest: CasbinRequest,
   ): Promise<boolean> {
     const response = await this.doEnforce<CasbinResponse>(
@@ -39,6 +40,7 @@ export class EnforceSDK {
       permissionId,
       modelId,
       resourceId,
+      enforcerId,
       casbinRequest,
     )
     const { data } = response.data
@@ -54,6 +56,7 @@ export class EnforceSDK {
     permissionId: string,
     modelId: string,
     resourceId: string,
+    enforcerId: string,
     casbinRequest: CasbinRequest[],
   ): Promise<boolean[]> {
     const response = await this.doEnforce<CasbinResponse[]>(
@@ -61,6 +64,7 @@ export class EnforceSDK {
       permissionId,
       modelId,
       resourceId,
+      enforcerId,
       casbinRequest,
     )
     const { data } = response.data
@@ -72,6 +76,7 @@ export class EnforceSDK {
     permissionId: string,
     modelId: string,
     resourceId: string,
+    enforcerId: string,
     casbinRequest: CasbinRequest | CasbinRequest[],
   ) {
     if (!this.request) {
@@ -84,6 +89,7 @@ export class EnforceSDK {
         permissionId: permissionId,
         modelId: modelId,
         resourceId: resourceId,
+        enforcerId: enforcerId,
       },
     })) as unknown as Promise<
       AxiosResponse<{
