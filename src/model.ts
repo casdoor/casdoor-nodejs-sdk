@@ -20,7 +20,7 @@ import Request from './request'
 export interface Model {
   owner: string
   name: string
-  createdTime?: string
+  createdTime: string
   updatedTime?: string
 
   displayName: string

@@ -35,9 +35,10 @@ test('TestEnforce', async () => {
   const modelName = util.getRandomName('enforceModel')
 
   // Add model
-  const model: Model = {
+  const { data: modelAddResponse } = await sdk.addModel({
     owner: 'casbin',
     name: modelName,
+    createdTime: new Date().toISOString(),
     displayName: modelName,
     modelText: `[request_definition]
 r = sub, obj, act
@@ -50,107 +51,91 @@ e = some(where (p.eft == allow))
 
 [matchers]
 m = r.sub == p.sub && r.obj == p.obj && r.act == p.act`,
-  }
+  } as Model)
 
-  const { data: modelAddResponse } = await sdk.addModel(model)
   if (modelAddResponse.data !== 'Affected') {
-    throw new Error(`Failed to add model: ${JSON.stringify(modelAddResponse)}`)
+    throw new Error('Failed to add model')
   }
 
   // Add adapter
   const adapterName = util.getRandomName('enforceAdapter')
-  const adapter: Adapter = {
+  const { data: adapterAddResponse } = await sdk.addAdapter({
     owner: 'casbin',
     name: adapterName,
+    createdTime: new Date().toISOString(),
     table: adapterName + '_policy',
-    useSameDb: true,
-  }
+    host: '',
+    user: '',
+  } as Adapter)
 
-  const { data: adapterAddResponse } = await sdk.addAdapter(adapter)
   if (adapterAddResponse.data !== 'Affected') {
-    throw new Error(
-      `Failed to add adapter: ${JSON.stringify(adapterAddResponse)}`,
-    )
+    throw new Error('Failed to add adapter')
   }
 
   // Add enforcer
-  const enforcerName = util.getRandomName('enforceEnforcer')
+  const enforcerId = util.getRandomName('enforceEnforcer')
   const enforcer: Enforcer = {
     owner: 'casbin',
-    name: enforcerName,
+    name: enforcerId,
     createdTime: new Date().toISOString(),
-    displayName: enforcerName,
+    displayName: enforcerId,
     model: 'casbin/' + modelName,
     adapter: 'casbin/' + adapterName,
-    description: 'Test enforcer',
+    description: '',
   }
 
   const { data: enforcerAddResponse } = await sdk.addEnforcer(enforcer)
   if (enforcerAddResponse.data !== 'Affected') {
-    throw new Error(
-      `Failed to add enforcer: ${JSON.stringify(enforcerAddResponse)}`,
-    )
+    throw new Error('Failed to add enforcer')
   }
 
   // Add policies
-  const policy1: Policy = {
+  const { data: policy1AddResponse } = await sdk.addPolicy(enforcer, {
     Id: 0,
     Ptype: 'p',
     V0: 'alice',
     V1: 'data1',
     V2: 'read',
-  }
-
-  const { data: policy1AddResponse } = await sdk.addPolicy(enforcer, policy1)
+  } as Policy)
   if (policy1AddResponse.data !== 'Affected') {
-    throw new Error(
-      `Failed to add policy1: ${JSON.stringify(policy1AddResponse)}`,
-    )
+    throw new Error('Failed to add policy')
   }
 
-  const policy2: Policy = {
+  const { data: policy2AddResponse } = await sdk.addPolicy(enforcer, {
     Id: 0,
     Ptype: 'p',
     V0: 'bob',
     V1: 'data2',
     V2: 'write',
-  }
-
-  const { data: policy2AddResponse } = await sdk.addPolicy(enforcer, policy2)
+  } as Policy)
   if (policy2AddResponse.data !== 'Affected') {
-    throw new Error(
-      `Failed to add policy2: ${JSON.stringify(policy2AddResponse)}`,
-    )
+    throw new Error('Failed to add policy')
   }
 
-  // Test enforce - alice can read data1
+  // Test enforce
   const req1: CasbinRequest = ['alice', 'data1', 'read']
-  const res1 = await sdk.enforce('', '', '', 'casbin/' + enforcerName, '', req1)
-  if (!res1) {
-    throw new Error('Enforce fail: alice should be able to read data1')
+  const res = await sdk.enforce('', '', '', 'casbin/' + enforcerId, '', req1)
+  if (!res) {
+    throw new Error('Enforce fail')
   }
 
-  // Test enforce - bob can write data2
   const req2: CasbinRequest = ['bob', 'data2', 'write']
-  const res2 = await sdk.enforce('', '', '', 'casbin/' + enforcerName, '', req2)
+  const res2 = await sdk.enforce('', '', '', 'casbin/' + enforcerId, '', req2)
   if (!res2) {
-    throw new Error('Enforce fail: bob should be able to write data2')
+    throw new Error('Enforce fail')
   }
 
-  // Test enforce - alice cannot write data1
   const reqFail: CasbinRequest = ['alice', 'data1', 'write']
   const resFail = await sdk.enforce(
     '',
     '',
     '',
-    'casbin/' + enforcerName,
+    'casbin/' + enforcerId,
     '',
     reqFail,
   )
   if (resFail) {
-    throw new Error(
-      'Enforce test fail: alice should not be able to write data1',
-    )
+    throw new Error('Enforce test fail')
   }
 
   // Test batch enforce
@@ -158,16 +143,14 @@ m = r.sub == p.sub && r.obj == p.obj && r.act == p.act`,
     '',
     '',
     '',
-    'casbin/' + enforcerName,
+    'casbin/' + enforcerId,
     '',
     [req1, reqFail],
   )
   if (!resBatch[0][0]) {
-    throw new Error('BatchEnforce test fail: first request should be allowed')
+    throw new Error('BatchEnforce test fail')
   }
   if (resBatch[0][1]) {
-    throw new Error(
-      'BatchEnforce test fail: second request should not be allowed',
-    )
+    throw new Error('BatchEnforce test fail')
   }
 })

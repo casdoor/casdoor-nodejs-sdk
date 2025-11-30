@@ -47,13 +47,7 @@ export class EnforceSDK {
       casbinRequest,
     )
     const { data } = response.data
-    if (!Array.isArray(data)) {
-      throw new Error('invalid data')
-    }
     for (const isAllow of data) {
-      if (typeof isAllow !== 'boolean') {
-        throw new Error('invalid data')
-      }
       if (isAllow) {
         return isAllow
       }
@@ -69,7 +63,7 @@ export class EnforceSDK {
     owner: string,
     casbinRequests: CasbinRequest[],
   ): Promise<boolean[][]> {
-    const response = await this.doEnforce<unknown[][]>(
+    const response = await this.doEnforce<CasbinResponse[]>(
       'batch-enforce',
       permissionId,
       modelId,
@@ -79,20 +73,11 @@ export class EnforceSDK {
       casbinRequests,
     )
     const { data } = response.data
-    if (!Array.isArray(data)) {
-      throw new Error('invalid data')
-    }
 
     const allows: boolean[][] = []
     for (const d of data) {
-      if (!Array.isArray(d)) {
-        throw new Error('invalid data')
-      }
       const permRes: boolean[] = []
       for (const el of d) {
-        if (typeof el !== 'boolean') {
-          throw new Error('invalid data')
-        }
         permRes.push(el)
       }
       allows.push(permRes)
