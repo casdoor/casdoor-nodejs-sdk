@@ -32,15 +32,16 @@ test('TestPermission', async () => {
 
   // Add a new object
   const permission: Permission = {
-    owner: 'admin',
+    owner: 'casbin',
     name: name,
     createdTime: new Date().toISOString(),
     displayName: name,
     description: 'Casdoor Website',
     users: ['casbin/*'],
+    groups: [],
     roles: [],
     domains: [],
-    model: 'user-model-built-in',
+    model: 'admin/user-model-built-in',
     resourceType: 'Application',
     resources: ['app-casbin'],
     actions: ['Read', 'Write'],
