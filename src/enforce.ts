@@ -16,7 +16,8 @@ import { AxiosResponse } from 'axios'
 import { Config } from './config'
 import Request from './request'
 
-export type CasbinRequest = string[]
+// CasbinRequest matches Go SDK's []interface{} type
+export type CasbinRequest = (string | number | boolean)[]
 export type CasbinResponse = boolean[]
 
 export class EnforceSDK {
@@ -33,6 +34,7 @@ export class EnforceSDK {
     modelId: string,
     resourceId: string,
     enforcerId: string,
+    owner: string,
     casbinRequest: CasbinRequest,
   ): Promise<boolean> {
     const response = await this.doEnforce<CasbinResponse>(
@@ -41,10 +43,17 @@ export class EnforceSDK {
       modelId,
       resourceId,
       enforcerId,
+      owner,
       casbinRequest,
     )
     const { data } = response.data
+    if (!Array.isArray(data)) {
+      throw new Error('invalid data')
+    }
     for (const isAllow of data) {
+      if (typeof isAllow !== 'boolean') {
+        throw new Error('invalid data')
+      }
       if (isAllow) {
         return isAllow
       }
@@ -57,18 +66,39 @@ export class EnforceSDK {
     modelId: string,
     resourceId: string,
     enforcerId: string,
-    casbinRequest: CasbinRequest[],
-  ): Promise<boolean[]> {
-    const response = await this.doEnforce<CasbinResponse[]>(
+    owner: string,
+    casbinRequests: CasbinRequest[],
+  ): Promise<boolean[][]> {
+    const response = await this.doEnforce<unknown[][]>(
       'batch-enforce',
       permissionId,
       modelId,
       resourceId,
       enforcerId,
-      casbinRequest,
+      owner,
+      casbinRequests,
     )
     const { data } = response.data
-    return data.flat(2)
+    if (!Array.isArray(data)) {
+      throw new Error('invalid data')
+    }
+
+    const allows: boolean[][] = []
+    for (const d of data) {
+      if (!Array.isArray(d)) {
+        throw new Error('invalid data')
+      }
+      const permRes: boolean[] = []
+      for (const el of d) {
+        if (typeof el !== 'boolean') {
+          throw new Error('invalid data')
+        }
+        permRes.push(el)
+      }
+      allows.push(permRes)
+    }
+
+    return allows
   }
 
   private async doEnforce<T>(
@@ -77,6 +107,7 @@ export class EnforceSDK {
     modelId: string,
     resourceId: string,
     enforcerId: string,
+    owner: string,
     casbinRequest: CasbinRequest | CasbinRequest[],
   ) {
     if (!this.request) {
@@ -90,6 +121,7 @@ export class EnforceSDK {
         modelId: modelId,
         resourceId: resourceId,
         enforcerId: enforcerId,
+        owner: owner,
       },
     })) as unknown as Promise<
       AxiosResponse<{

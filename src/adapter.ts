@@ -19,13 +19,14 @@ import Request from './request'
 export interface Adapter {
   owner: string
   name: string
-  createdTime: string
+  createdTime?: string
 
+  useSameDb?: boolean
   type?: string
   databaseType?: string
-  host: string
+  host?: string
   port?: number
-  user: string
+  user?: string
   password?: string
   database?: string
   table?: string
