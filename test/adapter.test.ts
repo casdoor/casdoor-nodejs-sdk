@@ -35,6 +35,7 @@ test('TestAdapter', async () => {
     owner: 'admin',
     name: name,
     createdTime: new Date().toISOString(),
+    useSameDb: false,
     user: name,
     host: 'https://casdoor.org',
   }

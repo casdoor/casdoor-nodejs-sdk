@@ -21,6 +21,7 @@ export interface Adapter {
   name: string
   createdTime: string
 
+  useSameDb: boolean
   type?: string
   databaseType?: string
   host: string

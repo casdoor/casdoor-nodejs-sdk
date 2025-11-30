@@ -64,6 +64,7 @@ m = r.sub == p.sub && r.obj == p.obj && r.act == p.act`,
     name: adapterName,
     createdTime: new Date().toISOString(),
     table: adapterName + '_policy',
+    useSameDb: true,
     host: '',
     user: '',
   } as Adapter)
