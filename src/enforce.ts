@@ -16,8 +16,8 @@ import { AxiosResponse } from 'axios'
 import { Config } from './config'
 import Request from './request'
 
-export type CasbinRequest = string[]
-export type CasbinResponse = boolean[]
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export type CasbinRequest = any[]
 
 export class EnforceSDK {
   private config: Config
@@ -33,22 +33,33 @@ export class EnforceSDK {
     modelId: string,
     resourceId: string,
     enforcerId: string,
+    owner: string,
     casbinRequest: CasbinRequest,
   ): Promise<boolean> {
-    const response = await this.doEnforce<CasbinResponse>(
+    const response = await this.doEnforce(
       'enforce',
       permissionId,
       modelId,
       resourceId,
       enforcerId,
+      owner,
       casbinRequest,
     )
     const { data } = response.data
-    for (const isAllow of data) {
-      if (isAllow) {
-        return isAllow
+
+    if (!Array.isArray(data)) {
+      throw new Error('invalid data')
+    }
+
+    for (const result of data) {
+      if (typeof result !== 'boolean') {
+        throw new Error('invalid data')
+      }
+      if (result) {
+        return true
       }
     }
+
     return false
   }
 
@@ -57,26 +68,49 @@ export class EnforceSDK {
     modelId: string,
     resourceId: string,
     enforcerId: string,
-    casbinRequest: CasbinRequest[],
-  ): Promise<boolean[]> {
-    const response = await this.doEnforce<CasbinResponse[]>(
+    owner: string,
+    casbinRequests: CasbinRequest[],
+  ): Promise<boolean[][]> {
+    const response = await this.doEnforce(
       'batch-enforce',
       permissionId,
       modelId,
       resourceId,
       enforcerId,
-      casbinRequest,
+      owner,
+      casbinRequests,
     )
     const { data } = response.data
-    return data.flat(2)
+
+    if (!Array.isArray(data)) {
+      throw new Error('invalid data')
+    }
+
+    const allows: boolean[][] = []
+    for (const d of data) {
+      if (!Array.isArray(d)) {
+        throw new Error('invalid data')
+      }
+      const permRes: boolean[] = []
+      for (const el of d) {
+        if (typeof el !== 'boolean') {
+          throw new Error('invalid data')
+        }
+        permRes.push(el)
+      }
+      allows.push(permRes)
+    }
+
+    return allows
   }
 
-  private async doEnforce<T>(
+  private async doEnforce(
     action: string,
     permissionId: string,
     modelId: string,
     resourceId: string,
     enforcerId: string,
+    owner: string,
     casbinRequest: CasbinRequest | CasbinRequest[],
   ) {
     if (!this.request) {
@@ -90,10 +124,12 @@ export class EnforceSDK {
         modelId: modelId,
         resourceId: resourceId,
         enforcerId: enforcerId,
+        owner: owner,
       },
     })) as unknown as Promise<
       AxiosResponse<{
-        data: T
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        data: any
       }>
     >
   }
