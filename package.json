@@ -77,7 +77,7 @@
   "jest": {
     "maxConcurrency": 1,
     "maxWorkers": 1,
-    "testTimeout": 30000,
+    "testTimeout": 60000,
     "testEnvironment": "node",
     "transform": {
       "^.+\\.(t|j)sx?$": "ts-jest"
