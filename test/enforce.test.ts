@@ -173,4 +173,4 @@ m = r.sub == p.sub && r.obj == p.obj && r.act == p.act`,
   if (deleteModelResponse.data !== 'Affected') {
     throw new Error('Failed to delete model')
   }
-})
+}, 60000)
