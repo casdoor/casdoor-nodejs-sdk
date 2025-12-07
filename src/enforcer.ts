@@ -19,16 +19,14 @@ import Request from './request'
 export interface Enforcer {
   owner: string
   name: string
-  createdTime: string
+  createdTime?: string
   updatedTime?: string
-  displayName: string
-  description: string
+  displayName?: string
+  description?: string
 
   model: string
   adapter: string
   isEnabled?: boolean
-
-  // *casbin.Enforcer
 }
 
 export class EnforcerSDK {

@@ -13,29 +13,15 @@
 // limitations under the License.
 
 import { AxiosResponse } from 'axios'
-import { User } from './user'
 import { Config } from './config'
 import Request from './request'
 
 export interface Model {
   owner: string
   name: string
-  createdTime: string
-  updatedTime?: string
-
-  displayName: string
-  manager?: string
-  contactEmail?: string
-  type?: string
-  parentId?: string
-  isTopModel?: boolean
-  users?: User[]
-
-  title?: string
-  key?: string
-  children?: Model[]
-
-  isEnabled?: boolean
+  createdTime?: string
+  displayName?: string
+  description?: string
 
   modelText: string
 }

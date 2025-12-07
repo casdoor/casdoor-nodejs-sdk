@@ -632,6 +632,7 @@ export class SDK {
     modelId: string,
     resourceId: string,
     enforcerId: string,
+    owner: string,
     casbinRequest: CasbinRequest,
   ) {
     return await this.enforceSDK.enforce(
@@ -639,6 +640,7 @@ export class SDK {
       modelId,
       resourceId,
       enforcerId,
+      owner,
       casbinRequest,
     )
   }
@@ -648,6 +650,7 @@ export class SDK {
     modelId: string,
     resourceId: string,
     enforcerId: string,
+    owner: string,
     casbinRequest: CasbinRequest[],
   ) {
     return await this.enforceSDK.batchEnforce(
@@ -655,6 +658,7 @@ export class SDK {
       modelId,
       resourceId,
       enforcerId,
+      owner,
       casbinRequest,
     )
   }
