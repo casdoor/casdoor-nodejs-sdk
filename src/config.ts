@@ -12,6 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import type { Algorithm } from 'jsonwebtoken'
+
 // the configuration of the SDK
 export interface Config {
   endpoint: string
@@ -20,4 +22,6 @@ export interface Config {
   certificate: string
   orgName: string
   appName?: string
+  // JWT signing algorithms accepted by parseJwtToken, defaults to all algorithms Casdoor can sign with
+  algorithms?: Algorithm[]
 }

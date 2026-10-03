@@ -34,7 +34,7 @@ yarn add casdoor-nodejs-sdk
 
 ## Step1. Init SDK
 
-Initialization requires 5 parameters, which are all string type:
+Initialization requires 5 parameters, which are all string type (plus optional ones):
 
 | Name (in order) | Must | Description                                         |
 |-----------------|------|-----------------------------------------------------|
@@ -44,6 +44,7 @@ Initialization requires 5 parameters, which are all string type:
 | certificate     | Yes  | x509 certificate content of Application.cert        |
 | orgName         | Yes  | The name for the Casdoor organization               |
 | appName         | No   | The name for the Casdoor application                |
+| algorithms      | No   | JWT signing algorithms accepted by `parseJwtToken`, defaults to `['RS256', 'RS512', 'ES256', 'ES384', 'ES512']` |
 
 ```typescript
 import { SDK, Config } from 'casdoor-nodejs-sdk'

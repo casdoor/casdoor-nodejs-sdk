@@ -21,6 +21,15 @@ import { CasdoorMfaProps } from './mfa'
 import { Role } from './role'
 import { Permission } from './permission'
 
+// the algorithms Casdoor can sign JWT with, see the cert's Crypto Algorithm in Casdoor
+export const DefaultJwtAlgorithms: jwt.Algorithm[] = [
+  'RS256',
+  'RS512',
+  'ES256',
+  'ES384',
+  'ES512',
+]
+
 export interface User {
   owner: string
   name: string
@@ -260,7 +269,7 @@ export class UserSDK {
 
   public parseJwtToken(token: string) {
     return jwt.verify(token, this.config.certificate, {
-      algorithms: ['RS256'],
+      algorithms: this.config.algorithms ?? DefaultJwtAlgorithms,
     }) as User
   }
 
