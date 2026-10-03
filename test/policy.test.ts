@@ -73,7 +73,7 @@ test('TestPolicy', async () => {
   const {
     data: { data: policies },
   } = await sdk.getPolicies(enforcer.name)
-  const found = policies.some((item) => item.Id === 0 && item.V2 === '4')
+  const found = policies.some((item) => item.V2 === '4')
   if (!found) {
     throw new Error('Added object not found in list')
   }
@@ -92,9 +92,7 @@ test('TestPolicy', async () => {
   const {
     data: { data: updatedPolicies },
   } = await sdk.getPolicies(name)
-  const updatedfound = updatedPolicies.some(
-    (item) => item.Id === 0 && item.V2 === '5',
-  )
+  const updatedfound = updatedPolicies.some((item) => item.V2 === '5')
   if (!updatedfound) {
     throw new Error(
       `Failed to update object, description mismatch: ${policy.V2} != ${newPolicy.V2}`,

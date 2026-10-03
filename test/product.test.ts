@@ -42,6 +42,7 @@ test('TestProduct', async () => {
     quantity: 999,
     sold: 0,
     state: 'Published',
+    currency: 'USD',
   }
 
   const { data: addResponse } = await sdk.addProduct(product)

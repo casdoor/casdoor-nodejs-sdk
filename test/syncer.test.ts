@@ -42,7 +42,7 @@ test('TestSyncer', async () => {
     password: '123',
     databaseType: 'mysql',
     database: 'syncer_db',
-    table: 'user-table',
+    table: 'user_table',
     syncInterval: 1,
   }
 

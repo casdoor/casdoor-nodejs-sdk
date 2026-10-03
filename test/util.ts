@@ -12,11 +12,16 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-export const TestCasdoorEndpoint = 'https://demo.casdoor.com'
-export const TestClientId = '294b09fbc17f95daf2fe'
-export const TestClientSecret = 'dd8982f7046ccba1bbd7851d5c1ece4e52bf039d'
-export const TestCasdoorOrganization = 'casbin'
-export const TestCasdoorApplication = 'app-vue-python-example'
+export const TestCasdoorEndpoint =
+  process.env.CASDOOR_TEST_ENDPOINT || 'http://localhost:8000'
+export const TestClientId =
+  process.env.CASDOOR_TEST_CLIENT_ID || 'casdoor-nodejs-sdk-ci-client'
+export const TestClientSecret =
+  process.env.CASDOOR_TEST_CLIENT_SECRET || 'casdoor-nodejs-sdk-ci-secret'
+export const TestCasdoorOrganization =
+  process.env.CASDOOR_TEST_ORGANIZATION || 'casbin'
+export const TestCasdoorApplication =
+  process.env.CASDOOR_TEST_APPLICATION || 'app-vue-python-example'
 
 export const TestJwtPublicKey = `-----BEGIN CERTIFICATE-----
 MIIE+TCCAuGgAwIBAgIDAeJAMA0GCSqGSIb3DQEBCwUAMDYxHTAbBgNVBAoTFENh
