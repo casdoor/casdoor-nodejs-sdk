@@ -15,7 +15,7 @@
 import { AxiosResponse } from 'axios'
 import { Config } from './config'
 import Request from './request'
-import { CasdoorResponse, getAdminId, getId, getOwner } from './util'
+import { CasdoorResponse, getId, getOwner } from './util'
 
 export interface Ldap {
   id: string
@@ -91,7 +91,7 @@ export class LdapSDK {
 
     return (await this.request.get('/get-ldaps', {
       params: {
-        owner: 'admin',
+        owner: this.config.orgName,
       },
     })) as unknown as Promise<AxiosResponse<CasdoorResponse<Ldap[]>>>
   }
@@ -103,7 +103,7 @@ export class LdapSDK {
 
     return (await this.request.get('/get-ldap', {
       params: {
-        id: getAdminId(id),
+        id: getId(id, this.config.orgName),
       },
     })) as unknown as Promise<AxiosResponse<CasdoorResponse<Ldap>>>
   }
@@ -150,7 +150,7 @@ export class LdapSDK {
       throw new Error('request init failed')
     }
 
-    ldap.owner = getOwner(ldap.owner, 'admin')
+    ldap.owner = getOwner(ldap.owner, this.config.orgName)
     return (await this.request.post(`/${method}`, ldap, {
       params: {
         ...params,
