@@ -15,7 +15,7 @@
 import { AxiosResponse } from 'axios'
 import { Config } from './config'
 import Request from './request'
-import { CasdoorResponse, getId } from './util'
+import { CasdoorResponse } from './util'
 
 export interface Record {
   id?: number
@@ -76,16 +76,24 @@ export class RecordSDK {
     })) as unknown as Promise<AxiosResponse<CasdoorResponse<Record[], number>>>
   }
 
-  public async getRecord(name: string) {
-    if (!this.request) {
-      throw new Error('request init failed')
-    }
+  // getRecord gets a record by name, the data of the response is null if it doesn't exist.
+  // Casdoor has no API to get a single record, so it searches the records by name. Like the
+  // other APIs that read records, it needs the access token of an admin user, see withAccessToken().
+  public async getRecord(
+    name: string,
+  ): Promise<AxiosResponse<CasdoorResponse<Record | null>>> {
+    const recordName = name.split('/').pop() as string
 
-    return (await this.request.get('/get-record', {
-      params: {
-        id: getId(name, this.config.orgName),
-      },
-    })) as unknown as Promise<AxiosResponse<CasdoorResponse<Record>>>
+    // the name filter matches the records whose names contain the given name
+    const response = await this.getPaginationRecords(1, 100, {
+      field: 'name',
+      value: recordName,
+    })
+    const record =
+      (response.data.data || []).find((item) => item.name === recordName) ||
+      null
+
+    return { ...response, data: { ...response.data, data: record } }
   }
 
   public async addRecord(record: Record) {

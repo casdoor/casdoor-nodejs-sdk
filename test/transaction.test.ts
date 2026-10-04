@@ -39,6 +39,7 @@ test('TestTransaction', async () => {
     tag: 'Organization',
     amount: 100,
     currency: 'USD',
+    user: 'admin',
     state: 'Paid',
   }
 
@@ -57,6 +58,11 @@ test('TestTransaction', async () => {
     data: { data: transactions },
   } = await sdk.getTransactions()
   expect(transactions.some((item) => item.name === name)).toBe(true)
+
+  const {
+    data: { data: userTransactions },
+  } = await sdk.getUserTransactions('admin')
+  expect(userTransactions.some((item) => item.name === name)).toBe(true)
 
   const {
     data: { data2: total },

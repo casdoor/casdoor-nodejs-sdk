@@ -95,10 +95,12 @@ export class TransactionSDK {
       throw new Error('request init failed')
     }
 
-    return (await this.request.get('/get-user-transactions', {
+    // Casdoor has no get-user-transactions API, get-transactions filters the transactions by user
+    return (await this.request.get('/get-transactions', {
       params: {
         owner: this.config.orgName,
-        user: userName,
+        field: 'user',
+        value: userName,
       },
     })) as unknown as Promise<AxiosResponse<CasdoorResponse<Transaction[]>>>
   }
