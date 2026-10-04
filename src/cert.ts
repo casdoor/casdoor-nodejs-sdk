@@ -15,6 +15,7 @@
 import { AxiosResponse } from 'axios'
 import { Config } from './config'
 import Request from './request'
+import { CasdoorResponse, getId, getOwner } from './util'
 
 export interface Cert {
   owner: string
@@ -32,6 +33,12 @@ export interface Cert {
   privateKey?: string
   authorityPublicKey?: string
   authorityRootPublicKey?: string
+  expireTime?: string
+  domainExpireTime?: string
+  provider?: string
+  account?: string
+  accessKey?: string
+  accessSecret?: string
 }
 
 export class CertSDK {
@@ -43,6 +50,16 @@ export class CertSDK {
     this.request = request
   }
 
+  public async getGlobalCerts() {
+    if (!this.request) {
+      throw new Error('request init failed')
+    }
+
+    return (await this.request.get('/get-global-certs')) as unknown as Promise<
+      AxiosResponse<CasdoorResponse<Cert[]>>
+    >
+  }
+
   public async getCerts() {
     if (!this.request) {
       throw new Error('request init failed')
@@ -52,7 +69,7 @@ export class CertSDK {
       params: {
         owner: this.config.orgName,
       },
-    })) as unknown as Promise<AxiosResponse<{ data: Cert[] }>>
+    })) as unknown as Promise<AxiosResponse<CasdoorResponse<Cert[]>>>
   }
 
   public async getCert(id: string) {
@@ -62,21 +79,22 @@ export class CertSDK {
 
     return (await this.request.get('/get-cert', {
       params: {
-        id: `${this.config.orgName}/${id}`,
+        id: getId(id, this.config.orgName),
       },
-    })) as unknown as Promise<AxiosResponse<{ data: Cert }>>
+    })) as unknown as Promise<AxiosResponse<CasdoorResponse<Cert>>>
   }
 
-  public async modifyCert(method: string, cert: Cert) {
+  public async modifyCert(method: string, cert: Cert, columns?: string[]) {
     if (!this.request) {
       throw new Error('request init failed')
     }
 
     const url = `/${method}`
-    cert.owner = this.config.orgName
+    cert.owner = getOwner(cert.owner, this.config.orgName)
     return (await this.request.post(url, cert, {
       params: {
         id: `${cert.owner}/${cert.name}`,
+        columns: columns?.join(','),
       },
     })) as unknown as Promise<AxiosResponse<Record<string, unknown>>>
   }

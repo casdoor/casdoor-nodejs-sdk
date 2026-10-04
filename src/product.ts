@@ -16,6 +16,7 @@ import { Provider } from './provider'
 import { AxiosResponse } from 'axios'
 import { Config } from './config'
 import Request from './request'
+import { CasdoorResponse, getId, getOwner } from './util'
 
 export interface Product {
   owner: string
@@ -37,6 +38,11 @@ export interface Product {
   state?: string
 
   providerObjs?: Provider[]
+  isRecharge?: boolean
+  rechargeOptions?: number[]
+  disableCustomRecharge?: boolean
+  successUrl?: string
+  properties?: Record<string, string>
 }
 
 export class ProductSDK {
@@ -59,7 +65,7 @@ export class ProductSDK {
 
         pageSize: 1000,
       },
-    })) as unknown as Promise<AxiosResponse<{ data: Product[] }>>
+    })) as unknown as Promise<AxiosResponse<CasdoorResponse<Product[]>>>
   }
 
   public async getProduct(id: string) {
@@ -69,26 +75,50 @@ export class ProductSDK {
 
     return (await this.request.get('/get-product', {
       params: {
-        id: `${this.config.orgName}/${id}`,
+        id: getId(id, this.config.orgName),
 
         pageSize: 1000,
       },
-    })) as unknown as Promise<AxiosResponse<{ data: Product }>>
+    })) as unknown as Promise<AxiosResponse<CasdoorResponse<Product>>>
   }
 
-  public async modifyProduct(method: string, product: Product) {
+  public async modifyProduct(
+    method: string,
+    product: Product,
+    columns?: string[],
+  ) {
     if (!this.request) {
       throw new Error('request init failed')
     }
 
     const url = `/${method}`
-    product.owner = this.config.orgName
+    product.owner = getOwner(product.owner, this.config.orgName)
 
     return (await this.request.post(url, product, {
       params: {
         id: `${product.owner}/${product.name}`,
+        columns: columns?.join(','),
       },
     })) as unknown as Promise<AxiosResponse<Record<string, unknown>>>
+  }
+
+  public async getPaginationProducts(
+    p: number,
+    pageSize: number,
+    queryMap: Record<string, string> = {},
+  ) {
+    if (!this.request) {
+      throw new Error('request init failed')
+    }
+
+    return (await this.request.get('/get-products', {
+      params: {
+        ...queryMap,
+        owner: this.config.orgName,
+        p: String(p),
+        pageSize: String(pageSize),
+      },
+    })) as unknown as Promise<AxiosResponse<CasdoorResponse<Product[], number>>>
   }
 
   public async addProduct(product: Product) {

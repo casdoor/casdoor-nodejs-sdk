@@ -15,6 +15,7 @@
 import { AxiosResponse } from 'axios'
 import { Config } from './config'
 import Request from './request'
+import { CasdoorResponse, getId, getOwner } from './util'
 
 export interface Subscription {
   owner: string
@@ -36,6 +37,12 @@ export interface Subscription {
   approveTime?: string
 
   state?: string
+  group?: string
+  pricing?: string
+  payment?: string
+  startTime?: string
+  endTime?: string
+  period?: string
 }
 
 export class SubscriptionSDK {
@@ -58,7 +65,7 @@ export class SubscriptionSDK {
 
         pageSize: 1000,
       },
-    })) as unknown as Promise<AxiosResponse<{ data: Subscription[] }>>
+    })) as unknown as Promise<AxiosResponse<CasdoorResponse<Subscription[]>>>
   }
 
   public async getSubscription(id: string) {
@@ -68,25 +75,51 @@ export class SubscriptionSDK {
 
     return (await this.request.get('/get-subscription', {
       params: {
-        id: `${this.config.orgName}/${id}`,
+        id: getId(id, this.config.orgName),
 
         pageSize: 1000,
       },
-    })) as unknown as Promise<AxiosResponse<{ data: Subscription }>>
+    })) as unknown as Promise<AxiosResponse<CasdoorResponse<Subscription>>>
   }
 
-  public async modifySubscription(method: string, subscription: Subscription) {
+  public async modifySubscription(
+    method: string,
+    subscription: Subscription,
+    columns?: string[],
+  ) {
     if (!this.request) {
       throw new Error('request init failed')
     }
 
     const url = `/${method}`
-    subscription.owner = this.config.orgName
+    subscription.owner = getOwner(subscription.owner, this.config.orgName)
     return (await this.request.post(url, subscription, {
       params: {
         id: `${subscription.owner}/${subscription.name}`,
+        columns: columns?.join(','),
       },
     })) as unknown as Promise<AxiosResponse<Record<string, unknown>>>
+  }
+
+  public async getPaginationSubscriptions(
+    p: number,
+    pageSize: number,
+    queryMap: Record<string, string> = {},
+  ) {
+    if (!this.request) {
+      throw new Error('request init failed')
+    }
+
+    return (await this.request.get('/get-subscriptions', {
+      params: {
+        ...queryMap,
+        owner: this.config.orgName,
+        p: String(p),
+        pageSize: String(pageSize),
+      },
+    })) as unknown as Promise<
+      AxiosResponse<CasdoorResponse<Subscription[], number>>
+    >
   }
 
   public async addSubscription(subscription: Subscription) {

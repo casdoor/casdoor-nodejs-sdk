@@ -32,7 +32,7 @@ test('TestSyncer', async () => {
 
   // Add a new object
   const syncer: Syncer = {
-    owner: 'admin',
+    owner: util.TestCasdoorOrganization,
     name: name,
     createdTime: new Date().toISOString(),
     organization: 'casbin',

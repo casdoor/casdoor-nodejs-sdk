@@ -15,6 +15,7 @@
 import { AxiosResponse } from 'axios'
 import { Config } from './config'
 import Request from './request'
+import { CasdoorResponse, getId, getOwner } from './util'
 
 export interface Adapter {
   owner: string
@@ -53,7 +54,7 @@ export class AdapterSDK {
       params: {
         owner: this.config.orgName,
       },
-    })) as unknown as Promise<AxiosResponse<{ data: Adapter[] }>>
+    })) as unknown as Promise<AxiosResponse<CasdoorResponse<Adapter[]>>>
   }
 
   public async getAdapter(id: string) {
@@ -63,24 +64,48 @@ export class AdapterSDK {
 
     return (await this.request.get('/get-adapter', {
       params: {
-        id: `${this.config.orgName}/${id}`,
+        id: getId(id, this.config.orgName),
       },
-    })) as unknown as Promise<AxiosResponse<{ data: Adapter }>>
+    })) as unknown as Promise<AxiosResponse<CasdoorResponse<Adapter>>>
   }
 
-  public async modifyAdapter(method: string, adapter: Adapter) {
+  public async modifyAdapter(
+    method: string,
+    adapter: Adapter,
+    columns?: string[],
+  ) {
     if (!this.request) {
       throw new Error('request init failed')
     }
 
     const url = `/${method}`
-    adapter.owner = this.config.orgName
+    adapter.owner = getOwner(adapter.owner, this.config.orgName)
 
     return (await this.request.post(url, adapter, {
       params: {
         id: `${adapter.owner}/${adapter.name}`,
+        columns: columns?.join(','),
       },
     })) as unknown as Promise<AxiosResponse<Record<string, unknown>>>
+  }
+
+  public async getPaginationAdapters(
+    p: number,
+    pageSize: number,
+    queryMap: Record<string, string> = {},
+  ) {
+    if (!this.request) {
+      throw new Error('request init failed')
+    }
+
+    return (await this.request.get('/get-adapters', {
+      params: {
+        ...queryMap,
+        owner: this.config.orgName,
+        p: String(p),
+        pageSize: String(pageSize),
+      },
+    })) as unknown as Promise<AxiosResponse<CasdoorResponse<Adapter[], number>>>
   }
 
   public async addAdapter(adapter: Adapter) {

@@ -32,7 +32,7 @@ test('TestPayment', async () => {
 
   // Add a new object
   const payment: Payment = {
-    owner: 'admin',
+    owner: util.TestCasdoorOrganization,
     name: name,
     createdTime: new Date().toISOString(),
     displayName: name,

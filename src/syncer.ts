@@ -15,6 +15,7 @@
 import { AxiosResponse } from 'axios'
 import { Config } from './config'
 import Request from './request'
+import { CasdoorResponse, getId, getOwner } from './util'
 
 export interface TableColumn {
   name: string
@@ -50,6 +51,13 @@ export interface Syncer {
   isEnabled?: boolean
 
   // Ormer *Ormer `xorm:"-" json:"-"`
+  sslMode?: string
+  sshType?: string
+  sshHost?: string
+  sshPort?: number
+  sshUser?: string
+  sshPassword?: string
+  cert?: string
 }
 
 export class SyncerSDK {
@@ -70,7 +78,7 @@ export class SyncerSDK {
       params: {
         owner: this.config.orgName,
       },
-    })) as unknown as Promise<AxiosResponse<{ data: Syncer[] }>>
+    })) as unknown as Promise<AxiosResponse<CasdoorResponse<Syncer[]>>>
   }
 
   public async getSyncer(id: string) {
@@ -80,23 +88,47 @@ export class SyncerSDK {
 
     return (await this.request.get('/get-syncer', {
       params: {
-        id: `${this.config.orgName}/${id}`,
+        id: getId(id, this.config.orgName),
       },
-    })) as unknown as Promise<AxiosResponse<{ data: Syncer }>>
+    })) as unknown as Promise<AxiosResponse<CasdoorResponse<Syncer>>>
   }
 
-  public async modifySyncer(method: string, syncer: Syncer) {
+  public async modifySyncer(
+    method: string,
+    syncer: Syncer,
+    columns?: string[],
+  ) {
     if (!this.request) {
       throw new Error('request init failed')
     }
 
     const url = `/${method}`
-    syncer.owner = this.config.orgName
+    syncer.owner = getOwner(syncer.owner, this.config.orgName)
     return (await this.request.post(url, syncer, {
       params: {
         id: `${syncer.owner}/${syncer.name}`,
+        columns: columns?.join(','),
       },
     })) as unknown as Promise<AxiosResponse<Record<string, unknown>>>
+  }
+
+  public async getPaginationSyncers(
+    p: number,
+    pageSize: number,
+    queryMap: Record<string, string> = {},
+  ) {
+    if (!this.request) {
+      throw new Error('request init failed')
+    }
+
+    return (await this.request.get('/get-syncers', {
+      params: {
+        ...queryMap,
+        owner: this.config.orgName,
+        p: String(p),
+        pageSize: String(pageSize),
+      },
+    })) as unknown as Promise<AxiosResponse<CasdoorResponse<Syncer[], number>>>
   }
 
   public async addSyncer(syncer: Syncer) {

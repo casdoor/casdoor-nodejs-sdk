@@ -16,6 +16,7 @@ import { AxiosResponse } from 'axios'
 import * as FormData from 'form-data'
 import { Config } from './config'
 import Request from './request'
+import { CasdoorResponse } from './util'
 
 export enum MfaType {
   EMAIL = 'email',
@@ -28,6 +29,7 @@ export interface MfaData {
   mfaType: MfaType
   name: string
   secret: string
+  recoveryCode?: string
 }
 
 export interface CasdoorMfaProps {
@@ -38,6 +40,7 @@ export interface CasdoorMfaProps {
   countryCode?: string
   url?: string
   recoveryCodes?: string
+  mfaRememberInHours?: number
 }
 
 export class MfaSDK {
@@ -55,6 +58,9 @@ export class MfaSDK {
     formData.append('mfaType', data.mfaType)
     formData.append('name', data.name)
     formData.append('secret', data.secret)
+    if (data.recoveryCode) {
+      formData.append('recoveryCode', data.recoveryCode)
+    }
     return formData
   }
 
@@ -63,10 +69,9 @@ export class MfaSDK {
       throw new Error('request init failed')
     }
     const payload = this.prepareMfaPayload(data)
-    console.log(payload)
     return (await this.request.post('mfa/setup/initiate', payload, {
       headers: payload.getHeaders(),
-    })) as unknown as Promise<AxiosResponse<{ data: CasdoorMfaProps }>>
+    })) as unknown as Promise<AxiosResponse<CasdoorResponse<CasdoorMfaProps>>>
   }
 
   public async verify(data: MfaData, passcode: string) {
@@ -79,7 +84,7 @@ export class MfaSDK {
     return (await this.request.post('mfa/setup/verify', payload, {
       headers: payload.getHeaders(),
       withCredentials: true,
-    })) as unknown as Promise<AxiosResponse<{ data: string }>>
+    })) as unknown as Promise<AxiosResponse<CasdoorResponse<string>>>
   }
 
   public async enable(data: MfaData, cookie: any = null) {
@@ -94,7 +99,7 @@ export class MfaSDK {
     return (await this.request.post('mfa/setup/enable', payload, {
       headers: headers,
       withCredentials: true,
-    })) as unknown as Promise<AxiosResponse<{ data: string }>>
+    })) as unknown as Promise<AxiosResponse<CasdoorResponse<string>>>
   }
 
   public async setPreferred(data: MfaData) {
@@ -105,7 +110,7 @@ export class MfaSDK {
     const payload = this.prepareMfaPayload(data)
     return (await this.request.post('set-preferred-mfa', payload, {
       headers: payload.getHeaders(),
-    })) as unknown as Promise<AxiosResponse<{ data: CasdoorMfaProps[] }>>
+    })) as unknown as Promise<AxiosResponse<CasdoorResponse<CasdoorMfaProps[]>>>
   }
 
   public async delete(owner: string, name: string) {
@@ -118,6 +123,6 @@ export class MfaSDK {
     formData.append('name', name)
     return (await this.request.post('delete-mfa', formData, {
       headers: formData.getHeaders(),
-    })) as unknown as Promise<AxiosResponse<{ data: CasdoorMfaProps[] }>>
+    })) as unknown as Promise<AxiosResponse<CasdoorResponse<CasdoorMfaProps[]>>>
   }
 }

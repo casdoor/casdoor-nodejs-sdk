@@ -15,6 +15,8 @@
 import { AxiosResponse } from 'axios'
 import { Config } from './config'
 import Request from './request'
+import type { Order } from './order'
+import { CasdoorResponse, getId, getOwner } from './util'
 
 export interface Payment {
   owner: string
@@ -55,6 +57,11 @@ export interface Payment {
 
   state?: string
   message?: string
+  products?: string[]
+  productsDisplayName?: string
+  order?: string
+  orderObj?: Order
+  successUrl?: string
 }
 
 export class PaymentSDK {
@@ -75,7 +82,7 @@ export class PaymentSDK {
       params: {
         owner: this.config.orgName,
       },
-    })) as unknown as Promise<AxiosResponse<{ data: Payment[] }>>
+    })) as unknown as Promise<AxiosResponse<CasdoorResponse<Payment[]>>>
   }
 
   public async getPayment(id: string) {
@@ -85,23 +92,69 @@ export class PaymentSDK {
 
     return (await this.request.get('/get-payment', {
       params: {
-        id: `${this.config.orgName}/${id}`,
+        id: getId(id, this.config.orgName),
       },
-    })) as unknown as Promise<AxiosResponse<{ data: Payment }>>
+    })) as unknown as Promise<AxiosResponse<CasdoorResponse<Payment>>>
   }
 
-  public async modifyPayment(method: string, payment: Payment) {
+  public async modifyPayment(
+    method: string,
+    payment: Payment,
+    columns?: string[],
+  ) {
     if (!this.request) {
       throw new Error('request init failed')
     }
 
     const url = `/${method}`
-    payment.owner = this.config.orgName
+    payment.owner = getOwner(payment.owner, this.config.orgName)
     return (await this.request.post(url, payment, {
       params: {
         id: `${payment.owner}/${payment.name}`,
+        columns: columns?.join(','),
       },
     })) as unknown as Promise<AxiosResponse<Record<string, unknown>>>
+  }
+
+  public async getPaginationPayments(
+    p: number,
+    pageSize: number,
+    queryMap: Record<string, string> = {},
+  ) {
+    if (!this.request) {
+      throw new Error('request init failed')
+    }
+
+    return (await this.request.get('/get-payments', {
+      params: {
+        ...queryMap,
+        owner: this.config.orgName,
+        p: String(p),
+        pageSize: String(pageSize),
+      },
+    })) as unknown as Promise<AxiosResponse<CasdoorResponse<Payment[], number>>>
+  }
+
+  public async getUserPayments(userName: string) {
+    if (!this.request) {
+      throw new Error('request init failed')
+    }
+
+    return (await this.request.get('/get-user-payments', {
+      params: {
+        owner: this.config.orgName,
+        organization: this.config.orgName,
+        user: userName,
+      },
+    })) as unknown as Promise<AxiosResponse<CasdoorResponse<Payment[]>>>
+  }
+
+  public async notifyPayment(payment: Payment) {
+    return this.modifyPayment('notify-payment', payment)
+  }
+
+  public async invoicePayment(payment: Payment) {
+    return this.modifyPayment('invoice-payment', payment)
   }
 
   public async addPayment(payment: Payment) {

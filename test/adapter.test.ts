@@ -32,7 +32,7 @@ test('TestAdapter', async () => {
 
   // Add a new object
   const adapter: Adapter = {
-    owner: 'admin',
+    owner: util.TestCasdoorOrganization,
     name: name,
     createdTime: new Date().toISOString(),
     user: name,

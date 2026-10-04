@@ -1,4 +1,4 @@
-// Copyright 2021 The Casdoor Authors. All Rights Reserved.
+// Copyright 2026 The Casdoor Authors. All Rights Reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -16,12 +16,12 @@ import { AxiosResponse } from 'axios'
 import { Config } from './config'
 import Request from './request'
 
-export interface Sms {
+export interface Notification {
   content: string
-  receivers: string[]
+  recipient: string
 }
 
-export class SmsSDK {
+export class NotificationSDK {
   private config: Config
   private readonly request: Request
 
@@ -30,26 +30,15 @@ export class SmsSDK {
     this.request = request
   }
 
-  public async sendSms(sms: Sms) {
+  // sendNotification sends the content to the recipient by the organization's notification provider
+  public async sendNotification(notification: Notification) {
     if (!this.request) {
       throw new Error('request init failed')
     }
 
-    return (await this.request.post('/send-sms', sms)) as unknown as Promise<
-      AxiosResponse<Record<string, unknown>>
-    >
-  }
-
-  // sendSmsByProvider sends the SMS by the given SMS provider instead of the application's default one
-  public async sendSmsByProvider(sms: Sms, provider: string) {
-    if (!this.request) {
-      throw new Error('request init failed')
-    }
-
-    return (await this.request.post('/send-sms', sms, {
-      params: {
-        provider,
-      },
-    })) as unknown as Promise<AxiosResponse<Record<string, unknown>>>
+    return (await this.request.post(
+      '/send-notification',
+      notification,
+    )) as unknown as Promise<AxiosResponse<Record<string, unknown>>>
   }
 }

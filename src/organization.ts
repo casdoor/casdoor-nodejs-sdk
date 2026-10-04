@@ -15,6 +15,7 @@
 import { AxiosResponse } from 'axios'
 import { Config } from './config'
 import Request from './request'
+import { CasdoorResponse, getAdminId, getOwner } from './util'
 
 interface AccountItem {
   name: string
@@ -60,6 +61,44 @@ export interface Organization {
 
   mfaItems?: MfaItem[]
   accountItems?: AccountItem[]
+  logo?: string
+  logoDark?: string
+  hasPrivilegeConsent?: boolean
+  passwordObfuscatorType?: string
+  passwordObfuscatorKey?: string
+  passwordExpireDays?: number
+  passwordHistoryCount?: number
+  tokenRetentionDays?: number
+  recordRetentionDays?: number
+  usePermanentAvatar?: boolean
+  defaultTokenFormat?: string
+  defaultTokenFields?: string[]
+  userTypes?: string[]
+  defaultPassword?: string
+  masterVerificationCode?: string
+  ipWhitelist?: string
+  useEmailAsUsername?: boolean
+  enableTour?: boolean
+  disableSignin?: boolean
+  enableExclusiveSignin?: boolean
+  maxSessions?: number
+  disableConsole?: boolean
+  ipRestriction?: string
+  navItems?: string[]
+  userNavItems?: string[]
+  widgetItems?: string[]
+  mfaRememberInHours?: number
+  accountMenu?: string
+  dcrPolicy?: string
+  ldapAttributes?: string[]
+  kerberosRealm?: string
+  kerberosKdcHost?: string
+  kerberosKeytab?: string
+  kerberosServiceName?: string
+  orgBalance?: number
+  userBalance?: number
+  balanceCredit?: number
+  balanceCurrency?: string
 }
 
 export class OrganizationSDK {
@@ -71,6 +110,18 @@ export class OrganizationSDK {
     this.request = request
   }
 
+  public async getOrganizationNames() {
+    if (!this.request) {
+      throw new Error('request init failed')
+    }
+
+    return (await this.request.get('/get-organization-names', {
+      params: {
+        owner: 'admin',
+      },
+    })) as unknown as Promise<AxiosResponse<CasdoorResponse<Organization[]>>>
+  }
+
   public async getOrganizations() {
     if (!this.request) {
       throw new Error('request init failed')
@@ -80,7 +131,7 @@ export class OrganizationSDK {
       params: {
         owner: 'admin',
       },
-    })) as unknown as Promise<AxiosResponse<{ data: Organization[] }>>
+    })) as unknown as Promise<AxiosResponse<CasdoorResponse<Organization[]>>>
   }
 
   public async getOrganization(id: string) {
@@ -90,21 +141,26 @@ export class OrganizationSDK {
 
     return (await this.request.get('/get-organization', {
       params: {
-        id: `admin/${id}`,
+        id: getAdminId(id),
       },
-    })) as unknown as Promise<AxiosResponse<{ data: Organization }>>
+    })) as unknown as Promise<AxiosResponse<CasdoorResponse<Organization>>>
   }
 
-  public async modifyOrganization(method: string, organization: Organization) {
+  public async modifyOrganization(
+    method: string,
+    organization: Organization,
+    columns?: string[],
+  ) {
     if (!this.request) {
       throw new Error('request init failed')
     }
 
     const url = `/${method}`
-    organization.owner = 'admin'
+    organization.owner = getOwner(organization.owner, 'admin')
     return (await this.request.post(url, organization, {
       params: {
         id: `${organization.owner}/${organization.name}`,
+        columns: columns?.join(','),
       },
     })) as unknown as Promise<AxiosResponse<Record<string, unknown>>>
   }

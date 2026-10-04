@@ -15,6 +15,7 @@
 import { AxiosResponse } from 'axios'
 import { Config } from './config'
 import Request from './request'
+import { CasdoorResponse, getId, getOwner } from './util'
 
 // Webhook has same definition as https://github.com/casdoor/casdoor/blob/master/object/webhook.go#L29
 export interface Webhook {
@@ -34,6 +35,11 @@ export interface Webhook {
   isEnabled?: boolean
 
   // Ormer *Ormer `xorm:"-" json:"-"`
+  tokenFields?: string[]
+  objectFields?: string[]
+  maxRetries?: number
+  retryInterval?: number
+  useExponentialBackoff?: boolean
 }
 
 export class WebhookSDK {
@@ -54,7 +60,7 @@ export class WebhookSDK {
       params: {
         owner: this.config.orgName,
       },
-    })) as unknown as Promise<AxiosResponse<{ data: Webhook[] }>>
+    })) as unknown as Promise<AxiosResponse<CasdoorResponse<Webhook[]>>>
   }
 
   public async getWebhook(id: string) {
@@ -64,23 +70,47 @@ export class WebhookSDK {
 
     return (await this.request.get('/get-webhook', {
       params: {
-        id: `${this.config.orgName}/${id}`,
+        id: getId(id, this.config.orgName),
       },
-    })) as unknown as Promise<AxiosResponse<{ data: Webhook }>>
+    })) as unknown as Promise<AxiosResponse<CasdoorResponse<Webhook>>>
   }
 
-  public async modifyWebhook(method: string, webhook: Webhook) {
+  public async modifyWebhook(
+    method: string,
+    webhook: Webhook,
+    columns?: string[],
+  ) {
     if (!this.request) {
       throw new Error('request init failed')
     }
 
     const url = `/${method}`
-    webhook.owner = this.config.orgName
+    webhook.owner = getOwner(webhook.owner, this.config.orgName)
     return (await this.request.post(url, webhook, {
       params: {
         id: `${webhook.owner}/${webhook.name}`,
+        columns: columns?.join(','),
       },
     })) as unknown as Promise<AxiosResponse<Record<string, unknown>>>
+  }
+
+  public async getPaginationWebhooks(
+    p: number,
+    pageSize: number,
+    queryMap: Record<string, string> = {},
+  ) {
+    if (!this.request) {
+      throw new Error('request init failed')
+    }
+
+    return (await this.request.get('/get-webhooks', {
+      params: {
+        ...queryMap,
+        owner: this.config.orgName,
+        p: String(p),
+        pageSize: String(pageSize),
+      },
+    })) as unknown as Promise<AxiosResponse<CasdoorResponse<Webhook[], number>>>
   }
 
   public async addWebhook(webhook: Webhook) {

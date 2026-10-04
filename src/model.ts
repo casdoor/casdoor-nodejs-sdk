@@ -15,6 +15,7 @@
 import { AxiosResponse } from 'axios'
 import { Config } from './config'
 import Request from './request'
+import { CasdoorResponse, getId, getOwner } from './util'
 
 export interface Model {
   owner: string
@@ -44,7 +45,7 @@ export class ModelSDK {
       params: {
         owner: this.config.orgName,
       },
-    })) as unknown as Promise<AxiosResponse<{ data: Model[] }>>
+    })) as unknown as Promise<AxiosResponse<CasdoorResponse<Model[]>>>
   }
 
   public async getModel(id: string) {
@@ -54,23 +55,43 @@ export class ModelSDK {
 
     return (await this.request.get('/get-model', {
       params: {
-        id: `${this.config.orgName}/${id}`,
+        id: getId(id, this.config.orgName),
       },
-    })) as unknown as Promise<AxiosResponse<{ data: Model }>>
+    })) as unknown as Promise<AxiosResponse<CasdoorResponse<Model>>>
   }
 
-  public async modifyModel(method: string, model: Model) {
+  public async modifyModel(method: string, model: Model, columns?: string[]) {
     if (!this.request) {
       throw new Error('request init failed')
     }
 
     const url = `/${method}`
-    model.owner = this.config.orgName
+    model.owner = getOwner(model.owner, this.config.orgName)
     return (await this.request.post(url, model, {
       params: {
         id: `${model.owner}/${model.name}`,
+        columns: columns?.join(','),
       },
     })) as unknown as Promise<AxiosResponse<Record<string, unknown>>>
+  }
+
+  public async getPaginationModels(
+    p: number,
+    pageSize: number,
+    queryMap: Record<string, string> = {},
+  ) {
+    if (!this.request) {
+      throw new Error('request init failed')
+    }
+
+    return (await this.request.get('/get-models', {
+      params: {
+        ...queryMap,
+        owner: this.config.orgName,
+        p: String(p),
+        pageSize: String(pageSize),
+      },
+    })) as unknown as Promise<AxiosResponse<CasdoorResponse<Model[], number>>>
   }
 
   public async addModel(model: Model) {

@@ -17,6 +17,8 @@ import * as jwt from 'jsonwebtoken'
 import * as FormData from 'form-data'
 import { Config } from './config'
 import Request from './request'
+import type { ProductInfo } from './order'
+import { CasdoorResponse, getId, getOwner } from './util'
 import { CasdoorMfaProps } from './mfa'
 import { Role } from './role'
 import { Permission } from './permission'
@@ -190,6 +192,56 @@ export interface User {
   mfaAccounts?: MfaAccount[]
   needUpdatePassword?: boolean
   ipWhitelist?: string
+  addresses?: Address[]
+  realName?: string
+  isVerified?: boolean
+  balanceCredit?: number
+  balanceCurrency?: string
+  registerType?: string
+  registerSource?: string
+  originalToken?: string
+  originalRefreshToken?: string
+  wechat?: string
+  dingtalk?: string
+  linkedin?: string
+  azuread?: string
+  azureadb2c?: string
+  kwai?: string
+  battlenet?: string
+  cloudfoundry?: string
+  digitalocean?: string
+  eveonline?: string
+  influxcloud?: string
+  microsoftonline?: string
+  onedrive?: string
+  salesforce?: string
+  telegram?: string
+  metamask?: string
+  web3onboard?: string
+  oidc?: string
+  custom2?: string
+  custom3?: string
+  custom4?: string
+  custom5?: string
+  custom6?: string
+  custom7?: string
+  custom8?: string
+  custom9?: string
+  custom10?: string
+  webauthnCredentials?: unknown
+  mfaRadiusEnabled?: boolean
+  mfaRadiusUsername?: string
+  mfaRadiusProvider?: string
+  mfaPushEnabled?: boolean
+  mfaPushReceiver?: string
+  mfaPushProvider?: string
+  cart?: ProductInfo[]
+  uidNumber?: number
+  thirdPartyLinks?: ThirdPartyLink[]
+  lastChangePasswordTime?: string
+  mfaItems?: MfaItem[]
+  mfaRememberDeadline?: string
+  applicationScopes?: ConsentRecord[]
 }
 
 export interface ManagedAccount {
@@ -203,11 +255,22 @@ export interface MfaAccount {
   accountName: string
   issuer: string
   secretKey: string
+  origin?: string
 }
 
 export interface FaceId {
   name: string
   faceIdData: number[]
+  imageUrl?: string
+}
+
+export interface OAuthToken {
+  access_token: string
+  id_token?: string
+  refresh_token: string
+  token_type?: string
+  expires_in?: number
+  scope?: string
 }
 
 export interface SetPassword {
@@ -267,6 +330,32 @@ export class UserSDK {
     return { access_token: access_token, refresh_token: refresh_token }
   }
 
+  // getOAuthTokenByPassword uses the OAuth Resource Owner Password Credentials grant
+  public async getOAuthTokenByPassword(username: string, password: string) {
+    if (!this.request) {
+      throw new Error('request init failed')
+    }
+
+    const { data } = (await this.request.post('login/oauth/access_token', {
+      client_id: this.config.clientId,
+      client_secret: this.config.clientSecret,
+      grant_type: 'password',
+      username,
+      password,
+    })) as unknown as AxiosResponse<
+      OAuthToken & { error?: string; error_description?: string }
+    >
+    if (data.error) {
+      throw new Error(data.error_description || data.error)
+    }
+    return data as OAuthToken
+  }
+
+  // impersonateUser signs in as any user of the organization with the organization's master password
+  public async impersonateUser(username: string, masterPassword: string) {
+    return this.getOAuthTokenByPassword(username, masterPassword)
+  }
+
   public parseJwtToken(token: string) {
     return jwt.verify(token, this.config.certificate, {
       algorithms: this.config.algorithms ?? DefaultJwtAlgorithms,
@@ -282,7 +371,7 @@ export class UserSDK {
       params: {
         owner: this.config.orgName,
       },
-    })) as unknown as Promise<AxiosResponse<{ data: User[] }>>
+    })) as unknown as Promise<AxiosResponse<CasdoorResponse<User[]>>>
   }
 
   public async getUser(id: string) {
@@ -292,9 +381,69 @@ export class UserSDK {
 
     return (await this.request.get('/get-user', {
       params: {
-        id: `${this.config.orgName}/${id}`,
+        id: getId(id, this.config.orgName),
       },
-    })) as unknown as Promise<AxiosResponse<{ data: User }>>
+    })) as unknown as Promise<AxiosResponse<CasdoorResponse<User>>>
+  }
+
+  public async getGlobalUsers() {
+    if (!this.request) {
+      throw new Error('request init failed')
+    }
+
+    return (await this.request.get('/get-global-users')) as unknown as Promise<
+      AxiosResponse<CasdoorResponse<User[]>>
+    >
+  }
+
+  public async getSortedUsers(sorter: string, limit: number) {
+    if (!this.request) {
+      throw new Error('request init failed')
+    }
+
+    return (await this.request.get('/get-sorted-users', {
+      params: {
+        owner: this.config.orgName,
+        sorter,
+        limit: String(limit),
+      },
+    })) as unknown as Promise<AxiosResponse<CasdoorResponse<User[]>>>
+  }
+
+  // getAccount returns the user of the access token when the SDK is created by withAccessToken()
+  public async getAccount() {
+    if (!this.request) {
+      throw new Error('request init failed')
+    }
+
+    return (await this.request.get('/get-account')) as unknown as Promise<
+      AxiosResponse<CasdoorResponse<User>>
+    >
+  }
+
+  public async getUserByEmail(email: string) {
+    return this.getUserBy({ email })
+  }
+
+  public async getUserByPhone(phone: string) {
+    return this.getUserBy({ phone })
+  }
+
+  public async getUserByUserId(userId: string) {
+    return this.getUserBy({ userId })
+  }
+
+  private async getUserBy(params: Record<string, string>) {
+    if (!this.request) {
+      throw new Error('request init failed')
+    }
+
+    return (await this.request.get('/get-user', {
+      params: {
+        owner: this.config.orgName,
+        ...params,
+      },
+    })) as unknown as Promise<AxiosResponse<CasdoorResponse<User>>>
   }
 
   public async getUserCount(isOnline: boolean) {
@@ -310,18 +459,73 @@ export class UserSDK {
     })) as unknown as Promise<AxiosResponse<number>>
   }
 
-  public async modifyUser(method: string, user: User) {
+  public async modifyUser(method: string, user: User, columns?: string[]) {
     if (!this.request) {
       throw new Error('request init failed')
     }
 
     const url = `/${method}`
-    user.owner = this.config.orgName
+    user.owner = getOwner(user.owner, this.config.orgName)
     return (await this.request.post(url, user, {
       params: {
         id: `${user.owner}/${user.name}`,
+        columns: columns?.join(','),
       },
     })) as unknown as Promise<AxiosResponse<Record<string, unknown>>>
+  }
+
+  public async getPaginationUsers(
+    p: number,
+    pageSize: number,
+    queryMap: Record<string, string> = {},
+  ) {
+    if (!this.request) {
+      throw new Error('request init failed')
+    }
+
+    return (await this.request.get('/get-users', {
+      params: {
+        ...queryMap,
+        owner: this.config.orgName,
+        p: String(p),
+        pageSize: String(pageSize),
+      },
+    })) as unknown as Promise<AxiosResponse<CasdoorResponse<User[], number>>>
+  }
+
+  public async updateUserForColumns(user: User, columns: string[]) {
+    return this.modifyUser('update-user', user, columns)
+  }
+
+  public async updateUserById(id: string, user: User) {
+    if (!this.request) {
+      throw new Error('request init failed')
+    }
+
+    user.owner = getOwner(user.owner, this.config.orgName)
+    return (await this.request.post('/update-user', user, {
+      params: {
+        id,
+      },
+    })) as unknown as Promise<AxiosResponse<Record<string, unknown>>>
+  }
+
+  public async updateUserByUserId(owner: string, userId: string, user: User) {
+    if (!this.request) {
+      throw new Error('request init failed')
+    }
+
+    return (await this.request.post('/update-user', user, {
+      params: {
+        owner,
+        userId,
+      },
+    })) as unknown as Promise<AxiosResponse<Record<string, unknown>>>
+  }
+
+  // checkUserPassword returns status "ok" when user.password is the user's password
+  public async checkUserPassword(user: User) {
+    return this.modifyUser('check-user-password', user)
   }
 
   public async addUser(user: User) {
@@ -346,4 +550,60 @@ export class UserSDK {
       headers: formData.getHeaders(),
     })) as unknown as Promise<AxiosResponse<Record<string, unknown>>>
   }
+
+  // logout signs the user out of all the applications and devices (SSO logout)
+  public async logout(accessToken: string) {
+    return this.ssoLogout(accessToken, true)
+  }
+
+  // logoutCurrentSession only signs the user out of the session of the access token
+  public async logoutCurrentSession(accessToken: string) {
+    return this.ssoLogout(accessToken, false)
+  }
+
+  private async ssoLogout(accessToken: string, logoutAll: boolean) {
+    if (!this.request) {
+      throw new Error('request init failed')
+    }
+    if (!accessToken) {
+      throw new Error('logout() error: the accessToken should not be empty')
+    }
+
+    return (await this.request.post('/sso-logout', null, {
+      params: {
+        logoutAll: String(logoutAll),
+      },
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+      },
+    })) as unknown as Promise<AxiosResponse<Record<string, unknown>>>
+  }
+}
+
+export interface Address {
+  tag?: string
+  line1?: string
+  line2?: string
+  city?: string
+  state?: string
+  zipCode?: string
+  region?: string
+}
+
+export interface ThirdPartyLink {
+  owner?: string
+  userName?: string
+  providerName?: string
+  providerId?: string
+  createdTime?: string
+}
+
+export interface MfaItem {
+  name?: string
+  rule?: string
+}
+
+export interface ConsentRecord {
+  application?: string
+  grantedScopes?: string[]
 }

@@ -37,6 +37,14 @@ import { Token, TokenSDK } from './token'
 import { Webhook, WebhookSDK } from './webhook'
 import { Product, ProductSDK } from './product'
 import { Email, EmailSDK } from './email'
+import { Invitation, InvitationSDK } from './invitation'
+import { Ldap, LdapSDK, LdapUser } from './ldap'
+import { Order, OrderSDK, ProductInfo } from './order'
+import { Transaction, TransactionSDK } from './transaction'
+import { Record as CasdoorRecord, RecordSDK } from './record'
+import { Notification, NotificationSDK } from './notification'
+import { PolicyFilter } from './policy'
+import { getId } from './util'
 import { Sms, SmsSDK } from './sms'
 import { MfaData, MfaSDK } from './mfa'
 import { CasbinRequest, EnforceSDK } from './enforce'
@@ -73,20 +81,36 @@ export class SDK {
   private mfaSDK: MfaSDK
   private enforceSDK: EnforceSDK
   private urlSDK: UrlSDK
+  private invitationSDK: InvitationSDK
+  private ldapSDK: LdapSDK
+  private orderSDK: OrderSDK
+  private transactionSDK: TransactionSDK
+  private recordSDK: RecordSDK
+  private notificationSDK: NotificationSDK
+  private readonly axiosConfig?: AxiosRequestConfig
 
-  constructor(config: Config, axiosConfig?: AxiosRequestConfig) {
+  // accessToken is set by withAccessToken() to call the APIs as the user who owns the token
+  constructor(
+    config: Config,
+    axiosConfig?: AxiosRequestConfig,
+    accessToken?: string,
+  ) {
     this.config = config
+    this.axiosConfig = axiosConfig
+    const authorization = accessToken
+      ? `Bearer ${accessToken}`
+      : 'Basic ' +
+        Buffer.from(
+          `${this.config.clientId}:${this.config.clientSecret}`,
+        ).toString('base64')
     this.request = new Request({
       url: config.endpoint + '/api',
       timeout: 60000,
-      headers: {
-        Authorization:
-          'Basic ' +
-          Buffer.from(
-            `${this.config.clientId}:${this.config.clientSecret}`,
-          ).toString('base64'),
-      },
       ...axiosConfig,
+      headers: {
+        ...(axiosConfig?.headers as Record<string, string>),
+        Authorization: authorization,
+      },
     })
     this.userSDK = new UserSDK(this.config, this.request)
     this.adapterSDK = new AdapterSDK(this.config, this.request)
@@ -115,6 +139,23 @@ export class SDK {
     this.mfaSDK = new MfaSDK(this.config, this.request)
     this.enforceSDK = new EnforceSDK(this.config, this.request)
     this.urlSDK = new UrlSDK(this.config)
+    this.invitationSDK = new InvitationSDK(this.config, this.request)
+    this.ldapSDK = new LdapSDK(this.config, this.request)
+    this.orderSDK = new OrderSDK(this.config, this.request)
+    this.transactionSDK = new TransactionSDK(this.config, this.request)
+    this.recordSDK = new RecordSDK(this.config, this.request)
+    this.notificationSDK = new NotificationSDK(this.config, this.request)
+  }
+
+  // withAccessToken returns a new SDK that calls the APIs as the user who owns the access token
+  // (Authorization: Bearer <accessToken>) instead of as the application, the current SDK is not changed
+  public withAccessToken(accessToken: string) {
+    return new SDK(this.config, this.axiosConfig, accessToken)
+  }
+
+  // getId returns the "owner/name" ID of an object of the SDK's organization
+  public getId(name: string) {
+    return getId(name, this.config.orgName)
   }
 
   public async getAuthToken(code: string) {
@@ -123,6 +164,22 @@ export class SDK {
 
   public async refreshToken(refreshToken: string, scope?: string) {
     return await this.userSDK.refreshToken(refreshToken, scope)
+  }
+
+  public async getOAuthTokenByPassword(username: string, password: string) {
+    return await this.userSDK.getOAuthTokenByPassword(username, password)
+  }
+
+  public async impersonateUser(username: string, masterPassword: string) {
+    return await this.userSDK.impersonateUser(username, masterPassword)
+  }
+
+  public async logout(accessToken: string) {
+    return await this.userSDK.logout(accessToken)
+  }
+
+  public async logoutCurrentSession(accessToken: string) {
+    return await this.userSDK.logoutCurrentSession(accessToken)
   }
 
   public parseJwtToken(token: string) {
@@ -531,7 +588,7 @@ export class SDK {
     return await this.subscriptionSDK.deleteSubscription(subscription)
   }
 
-  public async getTokens(p: number, pageSize: number) {
+  public async getTokens(p?: number, pageSize?: number) {
     return await this.tokenSDK.getTokens(p, pageSize)
   }
 
@@ -661,6 +718,513 @@ export class SDK {
       owner,
       casbinRequest,
     )
+  }
+
+  public async getPaginationAdapters(
+    p: number,
+    pageSize: number,
+    queryMap: Record<string, string> = {},
+  ) {
+    return await this.adapterSDK.getPaginationAdapters(p, pageSize, queryMap)
+  }
+
+  public async getPaginationEnforcers(
+    p: number,
+    pageSize: number,
+    queryMap: Record<string, string> = {},
+  ) {
+    return await this.enforcerSDK.getPaginationEnforcers(p, pageSize, queryMap)
+  }
+
+  public async getPaginationGroups(
+    p: number,
+    pageSize: number,
+    queryMap: Record<string, string> = {},
+  ) {
+    return await this.groupSDK.getPaginationGroups(p, pageSize, queryMap)
+  }
+
+  public async getPaginationModels(
+    p: number,
+    pageSize: number,
+    queryMap: Record<string, string> = {},
+  ) {
+    return await this.modelSDK.getPaginationModels(p, pageSize, queryMap)
+  }
+
+  public async getPaginationPayments(
+    p: number,
+    pageSize: number,
+    queryMap: Record<string, string> = {},
+  ) {
+    return await this.paymentSDK.getPaginationPayments(p, pageSize, queryMap)
+  }
+
+  public async getPaginationPermissions(
+    p: number,
+    pageSize: number,
+    queryMap: Record<string, string> = {},
+  ) {
+    return await this.permissionSDK.getPaginationPermissions(
+      p,
+      pageSize,
+      queryMap,
+    )
+  }
+
+  public async getPaginationPlans(
+    p: number,
+    pageSize: number,
+    queryMap: Record<string, string> = {},
+  ) {
+    return await this.planSDK.getPaginationPlans(p, pageSize, queryMap)
+  }
+
+  public async getPaginationPricings(
+    p: number,
+    pageSize: number,
+    queryMap: Record<string, string> = {},
+  ) {
+    return await this.pricingSDK.getPaginationPricings(p, pageSize, queryMap)
+  }
+
+  public async getPaginationProducts(
+    p: number,
+    pageSize: number,
+    queryMap: Record<string, string> = {},
+  ) {
+    return await this.productSDK.getPaginationProducts(p, pageSize, queryMap)
+  }
+
+  public async getPaginationProviders(
+    p: number,
+    pageSize: number,
+    queryMap: Record<string, string> = {},
+  ) {
+    return await this.providerSDK.getPaginationProviders(p, pageSize, queryMap)
+  }
+
+  public async getPaginationRoles(
+    p: number,
+    pageSize: number,
+    queryMap: Record<string, string> = {},
+  ) {
+    return await this.roleSDK.getPaginationRoles(p, pageSize, queryMap)
+  }
+
+  public async getPaginationSessions(
+    p: number,
+    pageSize: number,
+    queryMap: Record<string, string> = {},
+  ) {
+    return await this.sessionSDK.getPaginationSessions(p, pageSize, queryMap)
+  }
+
+  public async getPaginationSubscriptions(
+    p: number,
+    pageSize: number,
+    queryMap: Record<string, string> = {},
+  ) {
+    return await this.subscriptionSDK.getPaginationSubscriptions(
+      p,
+      pageSize,
+      queryMap,
+    )
+  }
+
+  public async getPaginationSyncers(
+    p: number,
+    pageSize: number,
+    queryMap: Record<string, string> = {},
+  ) {
+    return await this.syncerSDK.getPaginationSyncers(p, pageSize, queryMap)
+  }
+
+  public async getPaginationTokens(
+    p: number,
+    pageSize: number,
+    queryMap: Record<string, string> = {},
+  ) {
+    return await this.tokenSDK.getPaginationTokens(p, pageSize, queryMap)
+  }
+
+  public async getPaginationWebhooks(
+    p: number,
+    pageSize: number,
+    queryMap: Record<string, string> = {},
+  ) {
+    return await this.webhookSDK.getPaginationWebhooks(p, pageSize, queryMap)
+  }
+
+  public async getPaginationUsers(
+    p: number,
+    pageSize: number,
+    queryMap: Record<string, string> = {},
+  ) {
+    return await this.userSDK.getPaginationUsers(p, pageSize, queryMap)
+  }
+
+  public async updatePermissionForColumns(
+    permission: Permission,
+    columns: string[],
+  ) {
+    return await this.permissionSDK.updatePermissionForColumns(
+      permission,
+      columns,
+    )
+  }
+
+  public async updateRoleForColumns(role: Role, columns: string[]) {
+    return await this.roleSDK.updateRoleForColumns(role, columns)
+  }
+
+  public async updateSessionForColumns(session: Session, columns: string[]) {
+    return await this.sessionSDK.updateSessionForColumns(session, columns)
+  }
+
+  public async updateTokenForColumns(token: Token, columns: string[]) {
+    return await this.tokenSDK.updateTokenForColumns(token, columns)
+  }
+
+  public async updateUserForColumns(user: User, columns: string[]) {
+    return await this.userSDK.updateUserForColumns(user, columns)
+  }
+
+  public async getGlobalUsers() {
+    return await this.userSDK.getGlobalUsers()
+  }
+
+  public async getSortedUsers(sorter: string, limit: number) {
+    return await this.userSDK.getSortedUsers(sorter, limit)
+  }
+
+  public async getAccount() {
+    return await this.userSDK.getAccount()
+  }
+
+  public async getUserByEmail(email: string) {
+    return await this.userSDK.getUserByEmail(email)
+  }
+
+  public async getUserByPhone(phone: string) {
+    return await this.userSDK.getUserByPhone(phone)
+  }
+
+  public async getUserByUserId(userId: string) {
+    return await this.userSDK.getUserByUserId(userId)
+  }
+
+  public async updateUserById(id: string, user: User) {
+    return await this.userSDK.updateUserById(id, user)
+  }
+
+  public async updateUserByUserId(owner: string, userId: string, user: User) {
+    return await this.userSDK.updateUserByUserId(owner, userId, user)
+  }
+
+  public async checkUserPassword(user: User) {
+    return await this.userSDK.checkUserPassword(user)
+  }
+
+  public async getGlobalCerts() {
+    return await this.certSDK.getGlobalCerts()
+  }
+
+  public async getOrganizationNames() {
+    return await this.organizationSDK.getOrganizationNames()
+  }
+
+  public async getOrganizationApplications() {
+    return await this.applicationSDK.getOrganizationApplications()
+  }
+
+  public async getPermissionsByRole(name: string) {
+    return await this.permissionSDK.getPermissionsByRole(name)
+  }
+
+  public async getUserPayments(userName: string) {
+    return await this.paymentSDK.getUserPayments(userName)
+  }
+
+  public async notifyPayment(payment: Payment) {
+    return await this.paymentSDK.notifyPayment(payment)
+  }
+
+  public async invoicePayment(payment: Payment) {
+    return await this.paymentSDK.invoicePayment(payment)
+  }
+
+  public async introspectToken(token: string, tokenTypeHint: string) {
+    return await this.tokenSDK.introspectToken(token, tokenTypeHint)
+  }
+
+  public async removePolicy(enforcer: Enforcer, policy: Policy) {
+    return await this.policySDK.removePolicy(enforcer, policy)
+  }
+
+  public async getFilteredPolicies(
+    enforcerId: string,
+    filters: PolicyFilter[],
+  ) {
+    return await this.policySDK.getFilteredPolicies(enforcerId, filters)
+  }
+
+  public async sendEmailByProvider(email: Email, provider: string) {
+    return await this.emailSDK.sendEmailByProvider(email, provider)
+  }
+
+  public async sendSmsByProvider(sms: Sms, provider: string) {
+    return await this.smsSDK.sendSmsByProvider(sms, provider)
+  }
+
+  public async sendNotification(notification: Notification) {
+    return await this.notificationSDK.sendNotification(notification)
+  }
+
+  public async uploadResourceEx(
+    user: string,
+    tag: string,
+    parent: string,
+    fullFilePath: string,
+    file: any,
+    createdTime?: string,
+    description?: string,
+  ) {
+    return await this.resourceSDK.uploadResourceEx(
+      user,
+      tag,
+      parent,
+      fullFilePath,
+      file,
+      createdTime,
+      description,
+    )
+  }
+
+  public async getPaginationResources(
+    owner: string,
+    user: string,
+    field: string,
+    value: string,
+    pageSize: number,
+    page: number,
+    sortField: string,
+    sortOrder: string,
+  ) {
+    return await this.resourceSDK.getPaginationResources(
+      owner,
+      user,
+      field,
+      value,
+      pageSize,
+      page,
+      sortField,
+      sortOrder,
+    )
+  }
+
+  public async getResourceEx(owner: string, name: string) {
+    return await this.resourceSDK.getResourceEx(owner, name)
+  }
+
+  public async deleteResourceWithTag(resource: Resource, tag: string) {
+    return await this.resourceSDK.deleteResourceWithTag(resource, tag)
+  }
+
+  public async getInvitations() {
+    return await this.invitationSDK.getInvitations()
+  }
+
+  public async getPaginationInvitations(
+    p: number,
+    pageSize: number,
+    queryMap: Record<string, string> = {},
+  ) {
+    return await this.invitationSDK.getPaginationInvitations(
+      p,
+      pageSize,
+      queryMap,
+    )
+  }
+
+  public async getInvitation(name: string) {
+    return await this.invitationSDK.getInvitation(name)
+  }
+
+  public async addInvitation(invitation: Invitation) {
+    return await this.invitationSDK.addInvitation(invitation)
+  }
+
+  public async updateInvitation(invitation: Invitation) {
+    return await this.invitationSDK.updateInvitation(invitation)
+  }
+
+  public async deleteInvitation(invitation: Invitation) {
+    return await this.invitationSDK.deleteInvitation(invitation)
+  }
+
+  public async getOrders() {
+    return await this.orderSDK.getOrders()
+  }
+
+  public async getPaginationOrders(
+    p: number,
+    pageSize: number,
+    queryMap: Record<string, string> = {},
+  ) {
+    return await this.orderSDK.getPaginationOrders(p, pageSize, queryMap)
+  }
+
+  public async getOrder(name: string) {
+    return await this.orderSDK.getOrder(name)
+  }
+
+  public async addOrder(order: Order) {
+    return await this.orderSDK.addOrder(order)
+  }
+
+  public async updateOrder(order: Order) {
+    return await this.orderSDK.updateOrder(order)
+  }
+
+  public async deleteOrder(order: Order) {
+    return await this.orderSDK.deleteOrder(order)
+  }
+
+  public async getTransactions() {
+    return await this.transactionSDK.getTransactions()
+  }
+
+  public async getPaginationTransactions(
+    p: number,
+    pageSize: number,
+    queryMap: Record<string, string> = {},
+  ) {
+    return await this.transactionSDK.getPaginationTransactions(
+      p,
+      pageSize,
+      queryMap,
+    )
+  }
+
+  public async getTransaction(name: string) {
+    return await this.transactionSDK.getTransaction(name)
+  }
+
+  public async addTransaction(transaction: Transaction) {
+    return await this.transactionSDK.addTransaction(transaction)
+  }
+
+  public async updateTransaction(transaction: Transaction) {
+    return await this.transactionSDK.updateTransaction(transaction)
+  }
+
+  public async deleteTransaction(transaction: Transaction) {
+    return await this.transactionSDK.deleteTransaction(transaction)
+  }
+
+  public async updateInvitationForColumns(
+    invitation: Invitation,
+    columns: string[],
+  ) {
+    return await this.invitationSDK.updateInvitationForColumns(
+      invitation,
+      columns,
+    )
+  }
+
+  public async getInvitationInfo(code: string, applicationName: string) {
+    return await this.invitationSDK.getInvitationInfo(code, applicationName)
+  }
+
+  public async getUserOrders(userName: string) {
+    return await this.orderSDK.getUserOrders(userName)
+  }
+
+  public async placeOrder(productInfos: ProductInfo[], userName?: string) {
+    return await this.orderSDK.placeOrder(productInfos, userName)
+  }
+
+  public async payOrder(orderName: string, providerName: string) {
+    return await this.orderSDK.payOrder(orderName, providerName)
+  }
+
+  public async buyProduct(
+    name: string,
+    providerName: string,
+    userName?: string,
+  ) {
+    return await this.orderSDK.buyProduct(name, providerName, userName)
+  }
+
+  public async cancelOrder(name: string) {
+    return await this.orderSDK.cancelOrder(name)
+  }
+
+  public async getUserTransactions(userName: string) {
+    return await this.transactionSDK.getUserTransactions(userName)
+  }
+
+  public async addTransactionWithDryRun(
+    transaction: Transaction,
+    dryRun: boolean,
+  ) {
+    return await this.transactionSDK.addTransactionWithDryRun(
+      transaction,
+      dryRun,
+    )
+  }
+
+  public async getLdaps() {
+    return await this.ldapSDK.getLdaps()
+  }
+
+  public async getLdap(id: string) {
+    return await this.ldapSDK.getLdap(id)
+  }
+
+  public async addLdap(ldap: Ldap) {
+    return await this.ldapSDK.addLdap(ldap)
+  }
+
+  public async updateLdap(ldap: Ldap) {
+    return await this.ldapSDK.updateLdap(ldap)
+  }
+
+  public async deleteLdap(ldap: Ldap) {
+    return await this.ldapSDK.deleteLdap(ldap)
+  }
+
+  public async getLdapUsers(id: string) {
+    return await this.ldapSDK.getLdapUsers(id)
+  }
+
+  public async syncLdapUsers(id: string, users: LdapUser[]) {
+    return await this.ldapSDK.syncLdapUsers(id, users)
+  }
+
+  public async syncLdapUsersFromServer(id: string) {
+    return await this.ldapSDK.syncLdapUsersFromServer(id)
+  }
+
+  public async getRecords() {
+    return await this.recordSDK.getRecords()
+  }
+
+  public async getPaginationRecords(
+    p: number,
+    pageSize: number,
+    queryMap: Record<string, string> = {},
+  ) {
+    return await this.recordSDK.getPaginationRecords(p, pageSize, queryMap)
+  }
+
+  public async getRecord(name: string) {
+    return await this.recordSDK.getRecord(name)
+  }
+
+  public async addRecord(record: CasdoorRecord) {
+    return await this.recordSDK.addRecord(record)
   }
 
   public getSignUpUrl(enablePassword: boolean, redirectUri: string) {

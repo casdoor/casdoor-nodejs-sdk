@@ -15,6 +15,7 @@
 import { AxiosResponse } from 'axios'
 import { Config } from './config'
 import Request from './request'
+import { CasdoorResponse, getId, getOwner } from './util'
 
 export interface Plan {
   owner: string
@@ -30,6 +31,11 @@ export interface Plan {
 
   role?: string
   options?: string[]
+  price?: number
+  period?: string
+  product?: string
+  paymentProviders?: string[]
+  isExclusive?: boolean
 }
 
 export class PlanSDK {
@@ -50,7 +56,7 @@ export class PlanSDK {
       params: {
         owner: this.config.orgName,
       },
-    })) as unknown as Promise<AxiosResponse<{ data: Plan[] }>>
+    })) as unknown as Promise<AxiosResponse<CasdoorResponse<Plan[]>>>
   }
 
   public async getPlan(id: string) {
@@ -60,24 +66,44 @@ export class PlanSDK {
 
     return (await this.request.get('/get-plan', {
       params: {
-        id: `${this.config.orgName}/${id}`,
+        id: getId(id, this.config.orgName),
       },
-    })) as unknown as Promise<AxiosResponse<{ data: Plan }>>
+    })) as unknown as Promise<AxiosResponse<CasdoorResponse<Plan>>>
   }
 
-  public async modifyPlan(method: string, plan: Plan) {
+  public async modifyPlan(method: string, plan: Plan, columns?: string[]) {
     if (!this.request) {
       throw new Error('request init failed')
     }
 
     const url = `/${method}`
-    plan.owner = this.config.orgName
+    plan.owner = getOwner(plan.owner, this.config.orgName)
 
     return (await this.request.post(url, plan, {
       params: {
         id: `${plan.owner}/${plan.name}`,
+        columns: columns?.join(','),
       },
     })) as unknown as Promise<AxiosResponse<Record<string, unknown>>>
+  }
+
+  public async getPaginationPlans(
+    p: number,
+    pageSize: number,
+    queryMap: Record<string, string> = {},
+  ) {
+    if (!this.request) {
+      throw new Error('request init failed')
+    }
+
+    return (await this.request.get('/get-plans', {
+      params: {
+        ...queryMap,
+        owner: this.config.orgName,
+        p: String(p),
+        pageSize: String(pageSize),
+      },
+    })) as unknown as Promise<AxiosResponse<CasdoorResponse<Plan[], number>>>
   }
 
   public async addPlan(plan: Plan) {

@@ -32,7 +32,7 @@ test('TestGroup', async () => {
 
   // Add a new object
   const group: Group = {
-    owner: 'admin',
+    owner: util.TestCasdoorOrganization,
     name: name,
     createdTime: new Date().toISOString(),
     displayName: name,

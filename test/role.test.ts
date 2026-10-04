@@ -32,7 +32,7 @@ test('TestRole', async () => {
 
   // Add a new object
   const role: Role = {
-    owner: 'admin',
+    owner: util.TestCasdoorOrganization,
     name: name,
     createdTime: new Date().toISOString(),
     displayName: name,

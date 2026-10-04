@@ -15,6 +15,7 @@
 import { AxiosResponse } from 'axios'
 import { Config } from './config'
 import Request from './request'
+import { CasdoorResponse, getId, getOwner } from './util'
 
 export interface Role {
   owner: string
@@ -27,6 +28,8 @@ export interface Role {
   roles?: string[]
   domains?: string[]
   isEnabled?: boolean
+  groups?: string[]
+  sourceGroups?: string[]
 }
 
 export class RoleSDK {
@@ -47,7 +50,7 @@ export class RoleSDK {
       params: {
         owner: this.config.orgName,
       },
-    })) as unknown as Promise<AxiosResponse<{ data: Role[] }>>
+    })) as unknown as Promise<AxiosResponse<CasdoorResponse<Role[]>>>
   }
 
   public async getRole(id: string) {
@@ -57,24 +60,48 @@ export class RoleSDK {
 
     return (await this.request.get('/get-role', {
       params: {
-        id: `${this.config.orgName}/${id}`,
+        id: getId(id, this.config.orgName),
       },
-    })) as unknown as Promise<AxiosResponse<{ data: Role }>>
+    })) as unknown as Promise<AxiosResponse<CasdoorResponse<Role>>>
   }
 
-  public async modifyRole(method: string, role: Role) {
+  public async modifyRole(method: string, role: Role, columns?: string[]) {
     if (!this.request) {
       throw new Error('request init failed')
     }
 
     const url = `/${method}`
-    role.owner = this.config.orgName
+    role.owner = getOwner(role.owner, this.config.orgName)
 
     return (await this.request.post(url, role, {
       params: {
         id: `${role.owner}/${role.name}`,
+        columns: columns?.join(','),
       },
     })) as unknown as Promise<AxiosResponse<Record<string, unknown>>>
+  }
+
+  public async getPaginationRoles(
+    p: number,
+    pageSize: number,
+    queryMap: Record<string, string> = {},
+  ) {
+    if (!this.request) {
+      throw new Error('request init failed')
+    }
+
+    return (await this.request.get('/get-roles', {
+      params: {
+        ...queryMap,
+        owner: this.config.orgName,
+        p: String(p),
+        pageSize: String(pageSize),
+      },
+    })) as unknown as Promise<AxiosResponse<CasdoorResponse<Role[], number>>>
+  }
+
+  public async updateRoleForColumns(role: Role, columns: string[]) {
+    return this.modifyRole('update-role', role, columns)
   }
 
   public async addRole(role: Role) {

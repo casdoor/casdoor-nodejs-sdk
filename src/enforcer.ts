@@ -15,6 +15,7 @@
 import { AxiosResponse } from 'axios'
 import { Config } from './config'
 import Request from './request'
+import { CasdoorResponse, getId, getOwner } from './util'
 
 export interface Enforcer {
   owner: string
@@ -27,6 +28,7 @@ export interface Enforcer {
   model: string
   adapter: string
   isEnabled?: boolean
+  modelCfg?: Record<string, string>
 }
 
 export class EnforcerSDK {
@@ -47,7 +49,7 @@ export class EnforcerSDK {
       params: {
         owner: this.config.orgName,
       },
-    })) as unknown as Promise<AxiosResponse<{ data: Enforcer[] }>>
+    })) as unknown as Promise<AxiosResponse<CasdoorResponse<Enforcer[]>>>
   }
 
   public async getEnforcer(id: string) {
@@ -57,23 +59,49 @@ export class EnforcerSDK {
 
     return (await this.request.get('/get-enforcer', {
       params: {
-        id: `${this.config.orgName}/${id}`,
+        id: getId(id, this.config.orgName),
       },
-    })) as unknown as Promise<AxiosResponse<{ data: Enforcer }>>
+    })) as unknown as Promise<AxiosResponse<CasdoorResponse<Enforcer>>>
   }
 
-  public async modifyEnforcer(method: string, enforcer: Enforcer) {
+  public async modifyEnforcer(
+    method: string,
+    enforcer: Enforcer,
+    columns?: string[],
+  ) {
     if (!this.request) {
       throw new Error('request init failed')
     }
 
     const url = `/${method}`
-    enforcer.owner = this.config.orgName
+    enforcer.owner = getOwner(enforcer.owner, this.config.orgName)
     return (await this.request.post(url, enforcer, {
       params: {
         id: `${enforcer.owner}/${enforcer.name}`,
+        columns: columns?.join(','),
       },
     })) as unknown as Promise<AxiosResponse<Record<string, unknown>>>
+  }
+
+  public async getPaginationEnforcers(
+    p: number,
+    pageSize: number,
+    queryMap: Record<string, string> = {},
+  ) {
+    if (!this.request) {
+      throw new Error('request init failed')
+    }
+
+    return (await this.request.get('/get-enforcers', {
+      params: {
+        ...queryMap,
+        owner: this.config.orgName,
+        p: String(p),
+        pageSize: String(pageSize),
+      },
+    })) as unknown as Promise<
+      AxiosResponse<CasdoorResponse<Enforcer[], number>>
+    >
   }
 
   public async addEnforcer(enforcer: Enforcer) {

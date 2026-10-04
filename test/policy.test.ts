@@ -32,7 +32,7 @@ test('TestPolicy', async () => {
   const name = util.getRandomName('policy')
 
   const enforcer: Enforcer = {
-    owner: 'admin',
+    owner: util.TestCasdoorOrganization,
     name: name,
     createdTime: new Date().toISOString(),
     displayName: name,

@@ -15,6 +15,7 @@
 import { AxiosResponse } from 'axios'
 import { Config } from './config'
 import Request from './request'
+import { CasdoorResponse, getId, getOwner } from './util'
 
 export interface Provider {
   owner: string
@@ -62,6 +63,14 @@ export interface Provider {
   enableSignAuthnRequest?: boolean
 
   providerUrl?: string
+  customLogoutUrl?: string
+  httpHeaders?: Record<string, string>
+  sslMode?: string
+  emailRegex?: string
+  enableProxy?: boolean
+  enablePkce?: boolean
+  requireMessageAuthenticator?: boolean
+  state?: string
 }
 
 export class ProviderSDK {
@@ -82,7 +91,7 @@ export class ProviderSDK {
       params: {
         owner: this.config.orgName,
       },
-    })) as unknown as Promise<AxiosResponse<{ data: Provider[] }>>
+    })) as unknown as Promise<AxiosResponse<CasdoorResponse<Provider[]>>>
   }
 
   public async getProvider(id: string) {
@@ -92,23 +101,49 @@ export class ProviderSDK {
 
     return (await this.request.get('/get-provider', {
       params: {
-        id: `${this.config.orgName}/${id}`,
+        id: getId(id, this.config.orgName),
       },
-    })) as unknown as Promise<AxiosResponse<{ data: Provider }>>
+    })) as unknown as Promise<AxiosResponse<CasdoorResponse<Provider>>>
   }
 
-  public async modifyProvider(method: string, provider: Provider) {
+  public async modifyProvider(
+    method: string,
+    provider: Provider,
+    columns?: string[],
+  ) {
     if (!this.request) {
       throw new Error('request init failed')
     }
 
     const url = `/${method}`
-    provider.owner = this.config.orgName
+    provider.owner = getOwner(provider.owner, this.config.orgName)
     return (await this.request.post(url, provider, {
       params: {
         id: `${provider.owner}/${provider.name}`,
+        columns: columns?.join(','),
       },
     })) as unknown as Promise<AxiosResponse<Record<string, unknown>>>
+  }
+
+  public async getPaginationProviders(
+    p: number,
+    pageSize: number,
+    queryMap: Record<string, string> = {},
+  ) {
+    if (!this.request) {
+      throw new Error('request init failed')
+    }
+
+    return (await this.request.get('/get-providers', {
+      params: {
+        ...queryMap,
+        owner: this.config.orgName,
+        p: String(p),
+        pageSize: String(pageSize),
+      },
+    })) as unknown as Promise<
+      AxiosResponse<CasdoorResponse<Provider[], number>>
+    >
   }
 
   public async addProvider(provider: Provider) {

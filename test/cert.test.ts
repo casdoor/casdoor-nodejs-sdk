@@ -32,7 +32,7 @@ test('TestCert', async () => {
 
   // Add a new object
   const cert: Cert = {
-    owner: 'admin',
+    owner: util.TestCasdoorOrganization,
     name: name,
     createdTime: new Date().toISOString(),
     displayName: name,

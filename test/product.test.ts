@@ -32,7 +32,7 @@ test('TestProduct', async () => {
 
   // Add a new object
   const product: Product = {
-    owner: 'admin',
+    owner: util.TestCasdoorOrganization,
     name: name,
     createdTime: new Date().toISOString(),
     displayName: name,

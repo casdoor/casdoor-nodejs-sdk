@@ -17,6 +17,8 @@ import { Organization, ThemeData } from './organization'
 import { AxiosResponse } from 'axios'
 import { Config } from './config'
 import Request from './request'
+import type { Cert } from './cert'
+import { CasdoorResponse, getAdminId, getOwner } from './util'
 
 interface ProviderItem {
   owner: string
@@ -81,6 +83,61 @@ export interface Application {
   signupHtml?: string
   signinHtml?: string
   themeData?: ThemeData
+  category?: string
+  type?: string
+  scopes?: ScopeItem[]
+  logoDark?: string
+  title?: string
+  favicon?: string
+  order?: number
+  defaultGroup?: string
+  defaultTag?: string
+  headerHtml?: string
+  pageHtml?: string
+  enableGuestSignin?: boolean
+  disableSignin?: boolean
+  enableExclusiveSignin?: boolean
+  maxSessions?: number
+  enableSamlC14n10?: boolean
+  enableSamlPostBinding?: boolean
+  disableSamlAttributes?: boolean
+  enableSamlAssertionSignature?: boolean
+  useEmailAsSamlNameId?: boolean
+  samlSingleLogoutUrl?: string
+  signinMethods?: SigninMethod[]
+  signinItems?: SigninItem[]
+  certPublicKey?: string
+  samlAttributes?: SamlItem[]
+  samlHashAlgorithm?: string
+  samlC14nPrefix?: string
+  isShared?: boolean
+  ipRestriction?: string
+  clientCert?: string
+  backchannelLogoutUri?: string
+  forcedRedirectOrigin?: string
+  tokenSigningMethod?: string
+  tokenAttributes?: JwtItem[]
+  tokenGroupFormat?: string
+  cookieExpireInHours?: number
+  ipWhitelist?: string
+  footerHtml?: string
+  formCss?: string
+  formCssMobile?: string
+  formOffset?: number
+  formSideHtml?: string
+  formBackgroundUrl?: string
+  formBackgroundUrlMobile?: string
+  failedSigninLimit?: number
+  failedSigninFrozenTime?: number
+  codeResendTimeout?: number
+  customScopes?: ScopeDescription[]
+  domain?: string
+  otherDomains?: string[]
+  upstreamHost?: string
+  sslMode?: string
+  sslCert?: string
+  CertObj?: Cert
+  registrationAccessToken?: string
 }
 
 export class ApplicationSDK {
@@ -92,6 +149,19 @@ export class ApplicationSDK {
     this.request = request
   }
 
+  public async getOrganizationApplications() {
+    if (!this.request) {
+      throw new Error('request init failed')
+    }
+
+    return (await this.request.get('/get-organization-applications', {
+      params: {
+        owner: 'admin',
+        organization: this.config.orgName,
+      },
+    })) as unknown as Promise<AxiosResponse<CasdoorResponse<Application[]>>>
+  }
+
   public async getApplications() {
     if (!this.request) {
       throw new Error('request init failed')
@@ -101,7 +171,7 @@ export class ApplicationSDK {
       params: {
         owner: 'admin',
       },
-    })) as unknown as Promise<AxiosResponse<{ data: Application[] }>>
+    })) as unknown as Promise<AxiosResponse<CasdoorResponse<Application[]>>>
   }
 
   public async getApplication(name: string) {
@@ -111,21 +181,26 @@ export class ApplicationSDK {
 
     return (await this.request.get('/get-application', {
       params: {
-        id: `admin/${name}`,
+        id: getAdminId(name),
       },
-    })) as unknown as Promise<AxiosResponse<{ data: Application }>>
+    })) as unknown as Promise<AxiosResponse<CasdoorResponse<Application>>>
   }
 
-  public async modifyApplication(method: string, application: Application) {
+  public async modifyApplication(
+    method: string,
+    application: Application,
+    columns?: string[],
+  ) {
     if (!this.request) {
       throw new Error('request init failed')
     }
 
     const url = `/${method}`
-    application.owner = 'admin'
+    application.owner = getOwner(application.owner, 'admin')
     return (await this.request.post(url, application, {
       params: {
         id: `${application.owner}/${application.name}`,
+        columns: columns?.join(','),
       },
     })) as unknown as Promise<AxiosResponse<Record<string, unknown>>>
   }
@@ -141,4 +216,46 @@ export class ApplicationSDK {
   public async deleteApplication(application: Application) {
     return this.modifyApplication('delete-application', application)
   }
+}
+
+export interface ScopeItem {
+  name?: string
+  displayName?: string
+  description?: string
+  tools?: string[]
+}
+
+export interface SigninMethod {
+  name?: string
+  displayName?: string
+  rule?: string
+}
+
+export interface SigninItem {
+  name?: string
+  visible?: boolean
+  label?: string
+  customCss?: string
+  placeholder?: string
+  rule?: string
+  isCustom?: boolean
+}
+
+export interface SamlItem {
+  name?: string
+  nameFormat?: string
+  value?: string
+}
+
+export interface JwtItem {
+  name?: string
+  category?: string
+  value?: string
+  type?: string
+}
+
+export interface ScopeDescription {
+  scope?: string
+  displayName?: string
+  description?: string
 }

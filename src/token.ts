@@ -15,25 +15,34 @@
 import { AxiosResponse } from 'axios'
 import { Config } from './config'
 import Request from './request'
+import { CasdoorResponse, getAdminId, getOwner } from './util'
 
 export interface Token {
   owner: string
   name: string
   createdTime: string
 
-  application: string
-  organization: string
-  user: string
+  application?: string
+  organization?: string
+  user?: string
 
-  code: string
-  accessToken: string
-  refreshToken: string
-  expiresIn: number
-  scope: string
-  tokenType: string
-  codeChallenge: string
-  codeIsUsed: boolean
-  codeExpireIn: number
+  code?: string
+  accessToken?: string
+  refreshToken?: string
+  expiresIn?: number
+  scope?: string
+  tokenType?: string
+  codeChallenge?: string
+  codeIsUsed?: boolean
+  codeExpireIn?: number
+  idToken?: string
+  accessTokenHash?: string
+  refreshTokenHash?: string
+  idTokenHash?: string
+  grantType?: string
+  resource?: string
+  dPoPJkt?: string
+  sessionId?: string
 }
 
 export class TokenSDK {
@@ -45,18 +54,18 @@ export class TokenSDK {
     this.request = request
   }
 
-  public async getTokens(p: number, pageSize: number) {
+  public async getTokens(p?: number, pageSize?: number) {
     if (!this.request) {
       throw new Error('request init failed')
     }
 
     return (await this.request.get('/get-tokens', {
       params: {
-        p: String(p),
-        pageSize: String(pageSize),
+        p: p === undefined ? undefined : String(p),
+        pageSize: pageSize === undefined ? undefined : String(pageSize),
         owner: 'admin',
       },
-    })) as unknown as Promise<AxiosResponse<{ data: Token[] }>>
+    })) as unknown as Promise<AxiosResponse<CasdoorResponse<Token[]>>>
   }
 
   public async getToken(id: string) {
@@ -66,23 +75,47 @@ export class TokenSDK {
 
     return (await this.request.get('/get-token', {
       params: {
-        id: `admin/${id}`,
+        id: getAdminId(id),
       },
-    })) as unknown as Promise<AxiosResponse<{ data: Token }>>
+    })) as unknown as Promise<AxiosResponse<CasdoorResponse<Token>>>
   }
 
-  public async modifyToken(method: string, token: Token) {
+  public async modifyToken(method: string, token: Token, columns?: string[]) {
     if (!this.request) {
       throw new Error('request init failed')
     }
 
     const url = `/${method}`
-    token.owner = 'admin'
+    token.owner = getOwner(token.owner, 'admin')
     return (await this.request.post(url, token, {
       params: {
         id: `${token.owner}/${token.name}`,
+        columns: columns?.join(','),
       },
     })) as unknown as Promise<AxiosResponse<Record<string, unknown>>>
+  }
+
+  public async getPaginationTokens(
+    p: number,
+    pageSize: number,
+    queryMap: Record<string, string> = {},
+  ) {
+    if (!this.request) {
+      throw new Error('request init failed')
+    }
+
+    return (await this.request.get('/get-tokens', {
+      params: {
+        ...queryMap,
+        owner: 'admin',
+        p: String(p),
+        pageSize: String(pageSize),
+      },
+    })) as unknown as Promise<AxiosResponse<CasdoorResponse<Token[], number>>>
+  }
+
+  public async updateTokenForColumns(token: Token, columns: string[]) {
+    return this.modifyToken('update-token', token, columns)
   }
 
   public async addToken(token: Token) {
@@ -95,6 +128,10 @@ export class TokenSDK {
 
   public async deleteToken(token: Token) {
     return this.modifyToken('delete-token', token)
+  }
+
+  public async introspectToken(token: string, tokenTypeHint: string) {
+    return this.introspect(token, tokenTypeHint)
   }
 
   public async introspect(token: string, token_type_hint: string) {

@@ -15,6 +15,7 @@
 import { AxiosResponse } from 'axios'
 import { Config } from './config'
 import Request from './request'
+import { CasdoorResponse, getId, getOwner } from './util'
 
 export interface Permission {
   owner: string
@@ -40,6 +41,9 @@ export interface Permission {
   approver?: string
   approveTime?: string
   state?: string
+  sourceGroups?: string[]
+  sourceRoles?: string[]
+  expireTime?: string
 }
 
 export class PermissionSDK {
@@ -51,6 +55,18 @@ export class PermissionSDK {
     this.request = request
   }
 
+  public async getPermissionsByRole(name: string) {
+    if (!this.request) {
+      throw new Error('request init failed')
+    }
+
+    return (await this.request.get('/get-permissions-by-role', {
+      params: {
+        id: getId(name, this.config.orgName),
+      },
+    })) as unknown as Promise<AxiosResponse<CasdoorResponse<Permission[]>>>
+  }
+
   public async getPermissions() {
     if (!this.request) {
       throw new Error('request init failed')
@@ -60,7 +76,7 @@ export class PermissionSDK {
       params: {
         owner: this.config.orgName,
       },
-    })) as unknown as Promise<AxiosResponse<{ data: Permission[] }>>
+    })) as unknown as Promise<AxiosResponse<CasdoorResponse<Permission[]>>>
   }
 
   public async getPermission(id: string) {
@@ -70,23 +86,56 @@ export class PermissionSDK {
 
     return (await this.request.get('/get-permission', {
       params: {
-        id: `${this.config.orgName}/${id}`,
+        id: getId(id, this.config.orgName),
       },
-    })) as unknown as Promise<AxiosResponse<{ data: Permission }>>
+    })) as unknown as Promise<AxiosResponse<CasdoorResponse<Permission>>>
   }
 
-  public async modifyPermission(method: string, permission: Permission) {
+  public async modifyPermission(
+    method: string,
+    permission: Permission,
+    columns?: string[],
+  ) {
     if (!this.request) {
       throw new Error('request init failed')
     }
 
     const url = `/${method}`
-    permission.owner = this.config.orgName
+    permission.owner = getOwner(permission.owner, this.config.orgName)
     return (await this.request.post(url, permission, {
       params: {
         id: `${permission.owner}/${permission.name}`,
+        columns: columns?.join(','),
       },
     })) as unknown as Promise<AxiosResponse<Record<string, unknown>>>
+  }
+
+  public async getPaginationPermissions(
+    p: number,
+    pageSize: number,
+    queryMap: Record<string, string> = {},
+  ) {
+    if (!this.request) {
+      throw new Error('request init failed')
+    }
+
+    return (await this.request.get('/get-permissions', {
+      params: {
+        ...queryMap,
+        owner: this.config.orgName,
+        p: String(p),
+        pageSize: String(pageSize),
+      },
+    })) as unknown as Promise<
+      AxiosResponse<CasdoorResponse<Permission[], number>>
+    >
+  }
+
+  public async updatePermissionForColumns(
+    permission: Permission,
+    columns: string[],
+  ) {
+    return this.modifyPermission('update-permission', permission, columns)
   }
 
   public async addPermission(permission: Permission) {

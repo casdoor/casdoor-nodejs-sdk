@@ -16,6 +16,7 @@ import { AxiosResponse } from 'axios'
 import { User } from './user'
 import { Config } from './config'
 import Request from './request'
+import { CasdoorResponse, getId, getOwner } from './util'
 
 export interface Group {
   owner: string
@@ -36,6 +37,10 @@ export interface Group {
   children?: Group[]
 
   isEnabled?: boolean
+  parentName?: string
+  haveChildren?: boolean
+  gidNumber?: number
+  properties?: Record<string, string>
 }
 
 export class GroupSDK {
@@ -59,7 +64,7 @@ export class GroupSDK {
 
     return (await this.request.get('/get-groups', {
       params,
-    })) as unknown as Promise<AxiosResponse<{ data: Group[] }>>
+    })) as unknown as Promise<AxiosResponse<CasdoorResponse<Group[]>>>
   }
 
   public async getGroup(id: string) {
@@ -69,23 +74,43 @@ export class GroupSDK {
 
     return (await this.request.get('/get-group', {
       params: {
-        id: `${this.config.orgName}/${id}`,
+        id: getId(id, this.config.orgName),
       },
-    })) as unknown as Promise<AxiosResponse<{ data: Group }>>
+    })) as unknown as Promise<AxiosResponse<CasdoorResponse<Group>>>
   }
 
-  public async modifyGroup(method: string, group: Group) {
+  public async modifyGroup(method: string, group: Group, columns?: string[]) {
     if (!this.request) {
       throw new Error('request init failed')
     }
 
     const url = `/${method}`
-    group.owner = this.config.orgName
+    group.owner = getOwner(group.owner, this.config.orgName)
     return (await this.request.post(url, group, {
       params: {
         id: `${group.owner}/${group.name}`,
+        columns: columns?.join(','),
       },
     })) as unknown as Promise<AxiosResponse<Record<string, unknown>>>
+  }
+
+  public async getPaginationGroups(
+    p: number,
+    pageSize: number,
+    queryMap: Record<string, string> = {},
+  ) {
+    if (!this.request) {
+      throw new Error('request init failed')
+    }
+
+    return (await this.request.get('/get-groups', {
+      params: {
+        ...queryMap,
+        owner: this.config.orgName,
+        p: String(p),
+        pageSize: String(pageSize),
+      },
+    })) as unknown as Promise<AxiosResponse<CasdoorResponse<Group[], number>>>
   }
 
   public async addGroup(group: Group) {

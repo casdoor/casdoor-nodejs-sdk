@@ -42,4 +42,17 @@ export class EmailSDK {
       email,
     )) as unknown as Promise<AxiosResponse<Record<string, unknown>>>
   }
+
+  // sendEmailByProvider sends the email by the given email provider instead of the application's default one
+  public async sendEmailByProvider(email: Email, provider: string) {
+    if (!this.request) {
+      throw new Error('request init failed')
+    }
+
+    return (await this.request.post('/send-email', email, {
+      params: {
+        provider,
+      },
+    })) as unknown as Promise<AxiosResponse<Record<string, unknown>>>
+  }
 }

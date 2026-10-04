@@ -15,6 +15,7 @@
 import { AxiosResponse } from 'axios'
 import { Config } from './config'
 import Request from './request'
+import { CasdoorResponse, getOwner } from './util'
 
 export interface Session {
   owner: string
@@ -23,6 +24,8 @@ export interface Session {
   createdTime: string
 
   sessionId?: string[]
+  sessionInfos?: SessionInfo[]
+  ExclusiveSignin?: boolean
 }
 
 export class SessionSDK {
@@ -43,7 +46,7 @@ export class SessionSDK {
       params: {
         owner: this.config.orgName,
       },
-    })) as unknown as Promise<AxiosResponse<{ data: Session[] }>>
+    })) as unknown as Promise<AxiosResponse<CasdoorResponse<Session[]>>>
   }
 
   public async getSession(name: string, application: string) {
@@ -55,21 +58,49 @@ export class SessionSDK {
       params: {
         sessionPkId: `${this.config.orgName}/${name}/${application}`,
       },
-    })) as unknown as Promise<AxiosResponse<{ data: Session }>>
+    })) as unknown as Promise<AxiosResponse<CasdoorResponse<Session>>>
   }
 
-  public async modifySession(method: string, session: Session) {
+  public async modifySession(
+    method: string,
+    session: Session,
+    columns?: string[],
+  ) {
     if (!this.request) {
       throw new Error('request init failed')
     }
 
     const url = `/${method}`
-    session.owner = this.config.orgName
+    session.owner = getOwner(session.owner, this.config.orgName)
     return (await this.request.post(url, session, {
       params: {
         id: `${session.owner}/${session.name}`,
+        columns: columns?.join(','),
       },
     })) as unknown as Promise<AxiosResponse<Record<string, unknown>>>
+  }
+
+  public async getPaginationSessions(
+    p: number,
+    pageSize: number,
+    queryMap: Record<string, string> = {},
+  ) {
+    if (!this.request) {
+      throw new Error('request init failed')
+    }
+
+    return (await this.request.get('/get-sessions', {
+      params: {
+        ...queryMap,
+        owner: this.config.orgName,
+        p: String(p),
+        pageSize: String(pageSize),
+      },
+    })) as unknown as Promise<AxiosResponse<CasdoorResponse<Session[], number>>>
+  }
+
+  public async updateSessionForColumns(session: Session, columns: string[]) {
+    return this.modifySession('update-session', session, columns)
   }
 
   public async addSession(session: Session) {
@@ -83,4 +114,13 @@ export class SessionSDK {
   public async deleteSession(session: Session) {
     return this.modifySession('delete-session', session)
   }
+}
+
+export interface SessionInfo {
+  sessionId?: string
+  createdTime?: string
+  lastActiveTime?: string
+  expireTime?: string
+  ip?: string
+  userAgent?: string
 }

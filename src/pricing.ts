@@ -15,6 +15,7 @@
 import { AxiosResponse } from 'axios'
 import { Config } from './config'
 import Request from './request'
+import { CasdoorResponse, getId, getOwner } from './util'
 
 export interface Pricing {
   owner: string
@@ -33,6 +34,8 @@ export interface Pricing {
   approveTime?: string
 
   state?: string
+  isInviteOnly?: boolean
+  users?: string[]
 }
 
 export class PricingSDK {
@@ -53,7 +56,7 @@ export class PricingSDK {
       params: {
         owner: this.config.orgName,
       },
-    })) as unknown as Promise<AxiosResponse<{ data: Pricing[] }>>
+    })) as unknown as Promise<AxiosResponse<CasdoorResponse<Pricing[]>>>
   }
 
   public async getPricing(id: string) {
@@ -63,26 +66,50 @@ export class PricingSDK {
 
     return (await this.request.get('/get-pricing', {
       params: {
-        id: `${this.config.orgName}/${id}`,
+        id: getId(id, this.config.orgName),
 
         pageSize: 1000,
       },
-    })) as unknown as Promise<AxiosResponse<{ data: Pricing }>>
+    })) as unknown as Promise<AxiosResponse<CasdoorResponse<Pricing>>>
   }
 
-  public async modifyPricing(method: string, pricing: Pricing) {
+  public async modifyPricing(
+    method: string,
+    pricing: Pricing,
+    columns?: string[],
+  ) {
     if (!this.request) {
       throw new Error('request init failed')
     }
 
     const url = `/${method}`
-    pricing.owner = this.config.orgName
+    pricing.owner = getOwner(pricing.owner, this.config.orgName)
 
     return (await this.request.post(url, pricing, {
       params: {
         id: `${pricing.owner}/${pricing.name}`,
+        columns: columns?.join(','),
       },
     })) as unknown as Promise<AxiosResponse<Record<string, unknown>>>
+  }
+
+  public async getPaginationPricings(
+    p: number,
+    pageSize: number,
+    queryMap: Record<string, string> = {},
+  ) {
+    if (!this.request) {
+      throw new Error('request init failed')
+    }
+
+    return (await this.request.get('/get-pricings', {
+      params: {
+        ...queryMap,
+        owner: this.config.orgName,
+        p: String(p),
+        pageSize: String(pageSize),
+      },
+    })) as unknown as Promise<AxiosResponse<CasdoorResponse<Pricing[], number>>>
   }
 
   public async addPricing(pricing: Pricing) {

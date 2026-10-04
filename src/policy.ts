@@ -16,6 +16,7 @@ import { AxiosResponse } from 'axios'
 import { Config } from './config'
 import Request from './request'
 import { Enforcer } from './enforcer'
+import { CasdoorResponse, getId, getOwner } from './util'
 
 export interface Policy {
   Id: number
@@ -27,6 +28,12 @@ export interface Policy {
   V4?: string
   V5?: string
   tableName?: string
+}
+
+export interface PolicyFilter {
+  ptype: string
+  fieldIndex?: number
+  fieldValues?: string[]
 }
 
 export class PolicySDK {
@@ -45,10 +52,10 @@ export class PolicySDK {
 
     return (await this.request.get('/get-policies', {
       params: {
-        id: `${this.config.orgName}/${enforcerName}`,
+        id: getId(enforcerName, this.config.orgName),
         adapterId: adapterId,
       },
-    })) as unknown as Promise<AxiosResponse<{ data: Policy[] }>>
+    })) as unknown as Promise<AxiosResponse<CasdoorResponse<Policy[]>>>
   }
 
   public async modifyPolicy(
@@ -68,6 +75,7 @@ export class PolicySDK {
     }
 
     const url = `/${method}`
+    enforcer.owner = getOwner(enforcer.owner, this.config.orgName)
     return (await this.request.post(url, data, {
       params: {
         id: `${enforcer.owner}/${enforcer.name}`,
@@ -89,5 +97,25 @@ export class PolicySDK {
 
   public async deletePolicy(enforcer: Enforcer, policy: Policy) {
     return this.modifyPolicy('remove-policy', enforcer, [policy])
+  }
+
+  public async removePolicy(enforcer: Enforcer, policy: Policy) {
+    return this.deletePolicy(enforcer, policy)
+  }
+
+  // getFilteredPolicies returns the policies of the enforcer that match all the filters
+  public async getFilteredPolicies(
+    enforcerId: string,
+    filters: PolicyFilter[],
+  ) {
+    if (!this.request) {
+      throw new Error('request init failed')
+    }
+
+    return (await this.request.post('/get-filtered-policies', filters, {
+      params: {
+        id: getId(enforcerId, this.config.orgName),
+      },
+    })) as unknown as Promise<AxiosResponse<CasdoorResponse<Policy[]>>>
   }
 }
